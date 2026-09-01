@@ -7,6 +7,7 @@ using Travel.Web.Services.CommentServices;
 using Travel.Web.Services.DestinationServices;
 using Travel.Web.Services.ReservationServices;
 using Travel.Web.Services.TourServices;
+using Travel.Web.Services.DashboardServices;
 using Travel.Web.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,7 @@ builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddSingleton<IDataBaseSettings>(sp =>
 {
