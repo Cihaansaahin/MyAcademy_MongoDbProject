@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Yeni Tur Ekle — Travelio Admin</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#0e2a3b;--navy-2:#12384c;--navy-3:#1b455c;--teal:#0fa3a3;--teal-dark:#0b7f80;
+    --cream:#f7f5f0;--bg:#f4f5f4;--white:#fff;--ink:#0e2a3b;--muted:#6a7c88;--line:#e7e2d8;--line-2:#eef0ef;
+    --shadow-sm:0 4px 18px rgba(14,42,59,.06);--shadow-md:0 18px 50px rgba(14,42,59,.12);
+    --sidebar-w:266px;--r:16px;
+    --ok-bg:#e3f4f0;--ok-fg:#0b7f80;--wait-bg:#fbf1dc;--wait-fg:#a9741a;--cancel-bg:#f6e4e2;--cancel-fg:#b45a4f;
+  }
+  *{box-sizing:border-box}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--bg);margin:0;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4,.brand{font-family:'Sora',sans-serif}
+  a{text-decoration:none}
+  .eyebrow{font-family:'Sora',sans-serif;text-transform:uppercase;letter-spacing:.2em;font-size:.7rem;font-weight:700;color:var(--teal-dark)}
+
+  /* SIDEBAR (birebir) */
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--navy);display:flex;flex-direction:column;z-index:1045;}
+  .sb-brand{padding:1.5rem 1.5rem 1.3rem;display:flex;align-items:center;gap:.65rem;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb-brand .dot{width:11px;height:11px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(15,163,163,.22);flex:none}
+  .sb-brand .txt b{font-family:'Sora';font-weight:800;color:#fff;font-size:1.25rem;letter-spacing:-.4px;display:block;line-height:1}
+  .sb-brand .txt span{font-size:.7rem;color:#7fe3e3;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+  .sb-menu{flex:1;overflow-y:auto;padding:1rem .8rem;display:flex;flex-direction:column;gap:.15rem}
+  .sb-cap{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.35);font-weight:600;padding:.4rem .8rem .3rem}
+  .sb-link{display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border-radius:11px;color:rgba(255,255,255,.72);font-weight:500;font-size:.92rem;transition:.18s;position:relative}
+  .sb-link svg{flex:none;opacity:.85}
+  .sb-link:hover{background:rgba(255,255,255,.07);color:#fff}
+  .sb-link.active{background:var(--teal);color:#fff;box-shadow:0 8px 20px rgba(15,163,163,.28)}
+  .sb-link.active svg{opacity:1}
+  .sb-badge{margin-left:auto;background:rgba(255,255,255,.16);color:#fff;font-size:.7rem;font-weight:700;padding:.1rem .45rem;border-radius:999px}
+  .sb-foot{padding:.8rem;border-top:1px solid rgba(255,255,255,.08)}
+  .sb-user{display:flex;align-items:center;gap:.7rem;padding:.6rem .7rem;border-radius:12px;background:rgba(255,255,255,.05)}
+  .sb-user .av{width:38px;height:38px;border-radius:10px;background:var(--teal);color:#fff;display:grid;place-items:center;font-family:'Sora';font-weight:700;font-size:.85rem;flex:none}
+  .sb-user b{display:block;color:#fff;font-size:.86rem;font-family:'Sora';line-height:1.2}
+  .sb-user span{font-size:.74rem;color:rgba(255,255,255,.55)}
+
+  /* MAIN */
+  .main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column}
+  .topbar{position:sticky;top:0;z-index:1030;background:rgba(244,245,244,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:.85rem 1.8rem;display:flex;align-items:center;gap:1rem;}
+  .hamb{display:none;background:#fff;border:1px solid var(--line);border-radius:10px;width:40px;height:40px;place-items:center;color:var(--navy);cursor:pointer}
+  .topbar .tb-title{font-family:'Sora';font-weight:700;font-size:1.05rem;color:var(--navy)}
+  .tb-search{margin-left:.5rem;position:relative;flex:1;max-width:320px}
+  .tb-search svg{position:absolute;left:.8rem;top:50%;transform:translateY(-50%);color:var(--muted)}
+  .tb-search input{width:100%;border:1px solid var(--line);background:#fff;border-radius:999px;padding:.55rem .9rem .55rem 2.3rem;font-size:.88rem;outline:none;color:var(--navy)}
+  .tb-search input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,163,163,.1)}
+  .tb-right{margin-left:auto;display:flex;align-items:center;gap:.9rem}
+  .tb-icon{position:relative;width:40px;height:40px;border-radius:11px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--navy);cursor:pointer;transition:.2s}
+  .tb-icon:hover{border-color:var(--teal);color:var(--teal-dark)}
+  .tb-icon .n-badge{position:absolute;top:-5px;right:-5px;background:#e0575b;color:#fff;font-size:.66rem;font-weight:700;min-width:17px;height:17px;border-radius:999px;display:grid;place-items:center;padding:0 3px}
+  .tb-user{display:flex;align-items:center;gap:.6rem;padding-left:.4rem}
+  .tb-user .av{width:38px;height:38px;border-radius:10px;background:var(--navy);color:#fff;display:grid;place-items:center;font-family:'Sora';font-weight:700;font-size:.82rem}
+  .tb-user .nm{line-height:1.15}
+  .tb-user .nm b{font-family:'Sora';font-size:.86rem;color:var(--navy);display:block}
+  .tb-user .nm span{font-size:.74rem;color:var(--muted)}
+
+  .content{padding:1.8rem;flex:1;max-width:1100px}
+  .crumb{font-size:.8rem;color:var(--muted);margin-bottom:.4rem}
+  .crumb a{color:var(--muted)} .crumb a:hover{color:var(--teal-dark)} .crumb .cur{color:var(--navy);font-weight:600}
+  .page-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+  .page-intro h1{font-weight:700;font-size:1.7rem;color:var(--navy);margin:.15rem 0 .3rem}
+  .page-intro p{color:var(--muted);margin:0;font-size:.94rem;max-width:64ch}
+
+  .btn-teal{background:var(--teal);color:#fff;border:none;border-radius:999px;font-weight:600;padding:.7rem 1.3rem;font-size:.9rem;transition:.25s;display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;cursor:pointer}
+  .btn-teal:hover{background:var(--teal-dark);color:#fff;box-shadow:0 12px 26px rgba(15,163,163,.3)}
+  .btn-ghost{background:#fff;border:1px solid var(--line);border-radius:999px;font-weight:600;padding:.65rem 1.2rem;font-size:.88rem;color:var(--navy);transition:.2s;display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;cursor:pointer}
+  .btn-ghost:hover{border-color:var(--teal);color:var(--teal-dark)}
+  .btn-navy{background:var(--navy);border:none;border-radius:999px;font-weight:600;padding:.7rem 1.3rem;font-size:.9rem;color:#fff;transition:.2s;cursor:pointer}
+  .btn-navy:hover{background:var(--navy-2)}
+  .btn-add{background:rgba(15,163,163,.08);border:1px dashed rgba(15,163,163,.4);color:var(--teal-dark);border-radius:11px;font-weight:600;padding:.6rem 1rem;font-size:.86rem;display:inline-flex;align-items:center;gap:.45rem;cursor:pointer;transition:.2s}
+  .btn-add:hover{background:rgba(15,163,163,.14);border-style:solid}
+
+  /* SECTION CARD */
+  .sec{background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.5rem 1.6rem;margin-bottom:1.3rem}
+  .sec-head{margin-bottom:1.2rem}
+  .sec-head h2{font-family:'Sora';font-weight:700;font-size:1.12rem;color:var(--navy);margin:0;display:flex;align-items:center;gap:.6rem}
+  .sec-head .sec-ic{width:32px;height:32px;border-radius:9px;background:rgba(15,163,163,.1);color:var(--teal-dark);display:grid;place-items:center;flex:none}
+  .sec-head p{color:var(--muted);font-size:.86rem;margin:.4rem 0 0}
+
+  /* FIELDS */
+  .field{margin-bottom:1rem}
+  .field label{display:block;font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.35rem}
+  .field label .req{color:var(--cancel-fg)}
+  .ctrl{width:100%;border:1px solid var(--line);background:var(--cream);border-radius:11px;padding:.68rem .9rem;font-size:.9rem;color:var(--navy);outline:none;transition:.2s;font-family:inherit}
+  .ctrl::placeholder{color:#a7b2ba}
+  .ctrl:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(15,163,163,.12)}
+  select.ctrl{cursor:pointer;padding-right:2rem}
+  textarea.ctrl{resize:vertical;min-height:80px;line-height:1.6}
+  .input-group-x{position:relative}
+  .input-group-x .suffix{position:absolute;right:.9rem;top:50%;transform:translateY(-50%);font-size:.85rem;font-weight:600;color:var(--muted)}
+  .ctrl.err{border-color:var(--cancel-fg);background:#fdf3f1;box-shadow:0 0 0 3px rgba(180,90,79,.12)}
+
+  /* dynamic date rows */
+  .drow{display:flex;gap:.7rem;align-items:flex-end;background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem;margin-bottom:.7rem;flex-wrap:wrap}
+  .drow .field{margin-bottom:0;flex:1;min-width:130px}
+  .drow .field label{font-size:.72rem}
+  .drow .ctrl{background:#fff}
+  .del-mini{width:38px;height:38px;border-radius:10px;background:#fff;border:1px solid var(--line);color:var(--cancel-fg);display:grid;place-items:center;cursor:pointer;transition:.2s;flex:none}
+  .del-mini:hover{background:var(--cancel-bg);border-color:var(--cancel-fg)}
+  .del-mini:disabled{opacity:.35;cursor:not-allowed}
+
+  /* itinerary accordion */
+  .day{border:1px solid var(--line);border-radius:12px;margin-bottom:.7rem;overflow:hidden;background:#fff}
+  .day.open{box-shadow:var(--shadow-sm);border-color:rgba(15,163,163,.4)}
+  .day-head{display:flex;align-items:center;gap:.8rem;padding:.85rem 1rem;cursor:pointer;user-select:none}
+  .day-tag{font-family:'Sora';font-weight:700;font-size:.72rem;color:var(--teal-dark);background:rgba(15,163,163,.1);padding:.3rem .65rem;border-radius:999px;white-space:nowrap;flex:none}
+  .day-name{font-family:'Sora';font-weight:600;color:var(--navy);font-size:.92rem;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .day-actions{display:flex;align-items:center;gap:.5rem;flex:none}
+  .day-chev{width:28px;height:28px;border-radius:50%;background:var(--cream);display:grid;place-items:center;color:var(--navy);transition:.3s}
+  .day.open .day-chev{background:var(--navy);color:#fff;transform:rotate(180deg)}
+  .day-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+  .day-inner{padding:0 1rem 1.1rem}
+
+  /* dynamic list items (includes/excludes/highlights) */
+  .litem{display:flex;gap:.6rem;align-items:center;margin-bottom:.6rem}
+  .litem .ctrl{background:#fff}
+
+  /* upload */
+  .upload{border:1.5px dashed var(--line);border-radius:14px;padding:1.8rem 1rem;text-align:center;background:var(--cream);cursor:pointer;transition:.2s}
+  .upload:hover{border-color:var(--teal);background:rgba(15,163,163,.04)}
+  .upload .uic{width:46px;height:46px;border-radius:12px;background:#fff;border:1px solid var(--line);color:var(--teal-dark);display:grid;place-items:center;margin:0 auto .7rem}
+  .upload b{font-family:'Sora';font-size:.9rem;color:var(--navy);display:block}
+  .upload span{font-size:.78rem;color:var(--muted)}
+  .previews{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.9rem}
+  .thumb{width:74px;height:60px;border-radius:10px;object-fit:cover;border:1px solid var(--line)}
+  .cover-preview{margin-top:.9rem;border-radius:12px;overflow:hidden;max-width:280px;border:1px solid var(--line)}
+  .cover-preview img{width:100%;display:block}
+
+  /* switches */
+  .switch-row{display:flex;align-items:center;justify-content:space-between;padding:.7rem 0;border-top:1px solid var(--line-2)}
+  .switch-row:first-of-type{border-top:none}
+  .switch-row .sl b{font-family:'Sora';font-size:.9rem;color:var(--navy);display:block}
+  .switch-row .sl span{font-size:.78rem;color:var(--muted)}
+  .form-check-input{width:2.6em;height:1.4em;cursor:pointer}
+  .form-check-input:checked{background-color:var(--teal);border-color:var(--teal)}
+  .form-check-input:focus{box-shadow:0 0 0 3px rgba(15,163,163,.15);border-color:var(--teal)}
+
+  .status-pills{display:flex;gap:.6rem;flex-wrap:wrap}
+  .status-pill{flex:1;min-width:120px;border:1px solid var(--line);border-radius:11px;padding:.7rem .9rem;cursor:pointer;transition:.2s;background:var(--cream)}
+  .status-pill:hover{border-color:var(--teal)}
+  .status-pill.sel{border-color:var(--teal);background:rgba(15,163,163,.06);box-shadow:0 0 0 2px rgba(15,163,163,.12)}
+  .status-pill b{font-family:'Sora';font-size:.9rem;color:var(--navy);display:block}
+  .status-pill span{font-size:.76rem;color:var(--muted)}
+  .status-pill input{display:none}
+
+  /* validation banner */
+  .val-banner{display:none;background:#fdf3f1;border:1px solid rgba(180,90,79,.3);color:var(--cancel-fg);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.3rem;font-size:.88rem}
+  .val-banner.show{display:block}
+  .val-banner b{font-family:'Sora'}
+  .val-banner ul{margin:.3rem 0 0;padding-left:1.1rem}
+
+  /* action bar */
+  .action-bar{position:sticky;bottom:0;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border:1px solid var(--line-2);border-radius:14px;box-shadow:var(--shadow-md);padding:.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:.4rem;margin-bottom:.4rem}
+  .action-bar .saved{font-size:.83rem;color:var(--muted);display:flex;align-items:center;gap:.5rem}
+  .action-bar .btns{display:flex;gap:.6rem;flex-wrap:wrap}
+
+  .admin-foot{padding:1.1rem 1.8rem;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--muted)}
+  .sb-overlay{display:none;position:fixed;inset:0;background:rgba(14,42,59,.45);z-index:1044}
+  .sb-overlay.show{display:block}
+
+  .toast-ok{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:.9rem 1.3rem;border-radius:14px;box-shadow:var(--shadow-md);font-size:.9rem;font-weight:500;display:flex;align-items:center;gap:.6rem;z-index:1080;opacity:0;transform:translateY(12px);transition:.3s;pointer-events:none}
+  .toast-ok.show{opacity:1;transform:none}
+  .toast-ok svg{color:#7fe3e3}
+
+  @media(max-width:1100px){
+    .sidebar{transform:translateX(-100%);transition:transform .3s ease}
+    .sidebar.show{transform:none}
+    .main{margin-left:0}
+    .hamb{display:grid}
+  }
+  @media(max-width:575px){
+    .content{padding:1.1rem}
+    .tb-search{display:none}
+    .tb-user .nm{display:none}
+    .topbar{padding:.8rem 1rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR (birebir) -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <span class="dot"></span>
+    <span class="txt"><b>Travelio</b><span>Admin Panel</span></span>
+  </div>
+  <nav class="sb-menu">
+    <div class="sb-cap">Yönetim</div>
+    <a class="sb-link" href="admin-dashboard.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg> Dashboard</a>
+    <a class="sb-link active" href="admin-tours.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Turlar</a>
+    <a class="sb-link" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Rezervasyonlar <span class="sb-badge">126</span></a>
+    <a class="sb-link" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Yorumlar</a>
+    <a class="sb-link" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg> Sorular <span class="sb-badge">17</span></a>
+    <a class="sb-link" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Kullanıcılar</a>
+    <div class="sb-cap">Katalog</div>
+    <a class="sb-link" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg> Kategoriler</a>
+    <a class="sb-link" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Destinasyonlar</a>
+    <div class="sb-cap">Diğer</div>
+    <a class="sb-link" href="index.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M9 21V9h6v12"/></svg> Siteye Dön</a>
+    <a class="sb-link" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Çıkış Yap</a>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-user"><div class="av">MY</div><div><b>Murat Yücedağ</b><span>Yönetici</span></div></div>
+  </div>
+</aside>
+<div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar(false)"></div>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <button class="hamb" onclick="toggleSidebar(true)" aria-label="Menü"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <span class="tb-title">Yeni Tur Ekle</span>
+    <div class="tb-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Ara: rezervasyon, tur, kullanıcı...">
+    </div>
+    <div class="tb-right">
+      <button class="tb-icon" aria-label="Bildirimler"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="n-badge">3</span></button>
+      <div class="tb-user"><div class="av">MY</div><div class="nm"><b>Murat Yücedağ</b><span>Yönetici</span></div></div>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="crumb"><a href="admin-dashboard.html">Dashboard</a> / <a href="admin-tours.html">Turlar</a> / <span class="cur">Yeni Tur Ekle</span></div>
+    <div class="page-intro">
+      <div>
+        <h1>Yeni Tur Ekle</h1>
+        <p>Yeni bir tur oluşturmak için genel bilgileri, rota detaylarını ve satış seçeneklerini belirleyin.</p>
+      </div>
+      <a href="admin-tours.html" class="btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Turlara Dön
+      </a>
+    </div>
+
+    <!-- VALIDATION BANNER -->
+    <div class="val-banner" id="valBanner">
+      <b>Lütfen eksik alanları tamamlayın:</b>
+      <ul id="valList"></ul>
+    </div>
+
+    <!-- 1. TEMEL BİLGİLER -->
+    <div class="sec">
+      <div class="sec-head">
+        <h2><span class="sec-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span> Temel Bilgiler</h2>
+        <p>Turun kullanıcı tarafında görünen temel bilgilerini girin.</p>
+      </div>
+      <div class="field">
+        <label>Tur Adı <span class="req">*</span></label>
+        <input class="ctrl" id="tName" placeholder="Örn. Roma & Toskana Keşfi">
+      </div>
+      <div class="field">
+        <label>Kısa Açıklama</label>
+        <textarea class="ctrl" rows="2" placeholder="Turun öne çıkan özelliklerini birkaç cümleyle anlatın."></textarea>
+      </div>
+      <div class="field">
+        <label>Tur Açıklaması</label>
+        <textarea class="ctrl" rows="4" placeholder="Turun konsepti, deneyimi ve önemli detayları..."></textarea>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6 field">
+          <label>Kategori <span class="req">*</span></label>
+          <select class="ctrl" id="tCat">
+            <option value="">Kategori Seçiniz</option>
+            <option>Kültür Turları</option><option>Şehir Turları</option><option>Doğa & Macera</option>
+            <option>Romantik Rotalar</option><option>Gastronomi</option><option>Kış & Kuzey Işıkları</option><option>Uzak Doğu</option>
+          </select>
+        </div>
+        <div class="col-md-6 field">
+          <label>Destinasyon <span class="req">*</span></label>
+          <select class="ctrl" id="tDest">
+            <option value="">Destinasyon Seçiniz</option>
+            <option>Fransa</option><option>İtalya</option><option>İspanya</option><option>Hollanda</option>
+            <option>Avusturya</option><option>İsviçre</option><option>Norveç</option><option>Japonya</option><option>Portekiz</option>
+          </select>
+        </div>
+        <div class="col-md-8 field">
+          <label>Tur Rotası</label>
+          <input class="ctrl" placeholder="Roma · Vatikan · Floransa · Pisa · Toskana">
+        </div>
+        <div class="col-md-4 field">
+          <label>Tur Tipi</label>
+          <select class="ctrl">
+            <option>Kültür Turu</option><option>Şehir Turu</option><option>Doğa & Macera</option>
+            <option>Romantik Rota</option><option>Gastronomi</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. FİYAT & KONTENJAN -->
+    <div class="sec">
+      <div class="sec-head">
+        <h2><span class="sec-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span> Fiyat & Kontenjan</h2>
+        <p>Satış fiyatı, süre ve katılımcı limitlerini belirleyin.</p>
+      </div>
+      <div class="row g-3">
+        <div class="col-6 col-lg-3 field">
+          <label>Kişi Başı Fiyat <span class="req">*</span></label>
+          <div class="input-group-x"><input class="ctrl" id="tPrice" inputmode="numeric" placeholder="42.500" style="padding-right:2.6rem"><span class="suffix">TL</span></div>
+        </div>
+        <div class="col-3 col-lg-2 field">
+          <label>Gün <span class="req">*</span></label>
+          <input class="ctrl" id="tDays" type="number" min="1" placeholder="6">
+        </div>
+        <div class="col-3 col-lg-2 field">
+          <label>Gece</label>
+          <input class="ctrl" type="number" min="0" placeholder="5">
+        </div>
+        <div class="col-6 col-lg-2 field">
+          <label>Maks. Kontenjan</label>
+          <input class="ctrl" type="number" min="1" placeholder="28">
+        </div>
+        <div class="col-6 col-lg-3 field">
+          <label>Min. Katılımcı</label>
+          <input class="ctrl" type="number" min="1" placeholder="12">
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6 col-lg-3 field">
+          <label>Başlangıç Şehri</label>
+          <select class="ctrl"><option selected>İstanbul</option><option>Ankara</option><option>İzmir</option></select>
+        </div>
+        <div class="col-md-6 col-lg-3 field">
+          <label>Ulaşım</label>
+          <select class="ctrl"><option>Uçak</option><option>Otobüs</option><option selected>Uçak + Otobüs</option><option>Tren</option></select>
+        </div>
+        <div class="col-md-6 col-lg-3 field">
+          <label>Konaklama</label>
+          <input class="ctrl" placeholder="4 Yıldızlı Oteller">
+        </div>
+        <div class="col-md-6 col-lg-3 field">
+          <label>Rehber Dili</label>
+          <select class="ctrl"><option selected>Türkçe</option><option>İngilizce</option><option>Türkçe + İngilizce</option></select>
+        </div>
+        <div class="col-md-6 col-lg-3 field">
+          <label>Vize Bilgisi</label>
+          <select class="ctrl"><option>Vize Gerekiyor</option><option>Vizesiz</option><option>Kapıda Vize</option><option selected>Schengen Vizesi</option></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. TUR TARİHLERİ -->
+    <div class="sec">
+      <div class="sec-head">
+        <h2><span class="sec-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span> Tur Tarihleri <span class="req">*</span></h2>
+        <p>Aynı tur için birden fazla kalkış tarihi ekleyebilirsiniz.</p>
+      </div>
+      <div id="dateList"></div>
+      <button class="btn-add" onclick="addDate()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Yeni Tarih Ekle
+      </button>
+    </div>
+
+    <!-- 4. GÜN GÜN PROGRAM -->
+    <div class="sec">
+      <div class="sec-head">
+        <h2><span class="sec-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span> Gün Gün Tur Programı <span class="req">*</span></h2>
+        <p>Misafirlerin tur detay sayfasında göreceği günlük programı oluşturun.</p>
+      </div>
+      <div id="dayList"></div>
+      <button class="btn-add" onclick="addDay()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Yeni Gün Ekle
+      </button>
+    </div>
+
+    <!-- 5. HİZMETLER -->
+    <div class="sec">
+      <div class="sec-head">
+        <h2><span class="sec-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span> Hizmetler & Öne Çıkanlar</h2>
+        <p>Fiyata dahil olan / olmayan hizmetleri ve turun öne çıkan özelliklerini yönetin.</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">Fiyata Dahil Olanlar</label>
+          <div id="incList"></div>
+          <button class="btn-add" onclick="addItem('incList','Yeni hizmet')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Yeni Hizmet Ekle
+          </button>
+        </div>
+        <div class="col-lg-6">
+          <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">Fiyata Dahil Olmayanlar</label>
+          <div id="excList"></div>
+          <button class="btn-add" onclick="addItem('excList','Yeni madde')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Yeni Madde Ekle
+          </button>
+        </div>
+        <div class="col-12">
+          <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">Turun Öne Çıkanları</label>
+          <div id="hlList"></div>
+          <button class="btn-add" onclick="addItem('hlList','Öne çıkan özellik')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Öne Çıkan Özellik Ekle
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. GÖRSELLER & YAYIN -->
+    <div class="sec">
+      <div class="sec-head">
+        <h2><span class="sec-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span> Görseller & Yayın Ayarları</h2>
+        <p>Kapak görselini, galeriyi ve turun yayın durumunu belirleyin.</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">Ana Kapak Görseli</label>
+          <label class="upload" for="coverInput">
+            <div class="uic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <b>Ana tur görselini buraya sürükleyin veya seçin.</b>
+            <span>JPG, PNG · Önerilen 1600x900</span>
+          </label>
+          <input type="file" id="coverInput" accept="image/*" hidden onchange="previewCover(this)">
+          <div class="cover-preview" id="coverPreview" style="display:none"><img id="coverImg" alt="Kapak önizleme"></div>
+        </div>
+        <div class="col-lg-6">
+          <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">Galeri Görselleri</label>
+          <label class="upload" for="galleryInput">
+            <div class="uic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+            <b>Galeri görsellerini seçin.</b>
+            <span>Tur galerisi için en fazla 8 görsel ekleyebilirsiniz.</span>
+          </label>
+          <input type="file" id="galleryInput" accept="image/*" multiple hidden onchange="previewGallery(this)">
+          <div class="previews" id="galleryPreviews"></div>
+        </div>
+
+        <div class="col-lg-7">
+          <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">Tur Durumu</label>
+          <div class="status-pills">
+            <label class="status-pill" data-status="Aktif"><input type="radio" name="pubStatus" value="Aktif"><b>Aktif</b><span>Sitede yayında</span></label>
+            <label class="status-pill" data-status="Pasif"><input type="radio" name="pubStatus" value="Pasif"><b>Pasif</b><span>Gizli</span></label>
+            <label class="status-pill sel" data-status="Taslak"><input type="radio" name="pubStatus" value="Taslak" checked><b>Taslak</b><span>Yayınlanmadı</span></label>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.2rem;display:block">Rozetler</label>
+          <div class="switch-row">
+            <div class="sl"><b>Ana sayfada öne çıkar</b><span>Öne çıkan tur</span></div>
+            <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="swFeatured"></div>
+          </div>
+          <div class="switch-row">
+            <div class="sl"><b>Çok Satan etiketi göster</b><span>"Çok Satan" rozeti</span></div>
+            <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="swBest" onchange="oneBadge(this,'swNew')"></div>
+          </div>
+          <div class="switch-row">
+            <div class="sl"><b>Yeni etiketi göster</b><span>"Yeni" rozeti</span></div>
+            <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="swNew" onchange="oneBadge(this,'swBest')"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION BAR -->
+    <div class="action-bar">
+      <div class="saved" id="savedInfo">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Son kaydedilme: Henüz kaydedilmedi
+      </div>
+      <div class="btns">
+        <a href="admin-tours.html" class="btn-ghost">İptal</a>
+        <button class="btn-navy" onclick="saveDraft()">Taslak Kaydet</button>
+        <button class="btn-teal" onclick="publish()">Turu Yayınla</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="admin-foot">
+    <span>© 2026 Travelio Admin Panel</span>
+    <span>v1.0</span>
+  </footer>
+</div>
+
+<!-- TOAST -->
+<div class="toast-ok" id="toast">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg">Kaydedildi.</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function toggleSidebar(show){
+  document.getElementById("sidebar").classList.toggle("show", show);
+  document.getElementById("sbOverlay").classList.toggle("show", show);
+}
+function toast(msg){ const t=document.getElementById("toast"); document.getElementById("toastMsg").textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2600); }
+
+/* ---------- TUR TARİHLERİ ---------- */
+const dateList=document.getElementById("dateList");
+function dateRowHTML(start="",end="",cap="",status="Aktif"){
+  return `
+  <div class="drow">
+    <div class="field"><label>Başlangıç Tarihi</label><input type="date" class="ctrl d-start" value="${start}"></div>
+    <div class="field"><label>Bitiş Tarihi</label><input type="date" class="ctrl d-end" value="${end}"></div>
+    <div class="field" style="max-width:120px"><label>Kontenjan</label><input type="number" min="1" class="ctrl d-cap" value="${cap}" placeholder="28"></div>
+    <div class="field" style="max-width:130px"><label>Durum</label>
+      <select class="ctrl d-status"><option ${status==='Aktif'?'selected':''}>Aktif</option><option ${status==='Pasif'?'selected':''}>Pasif</option></select>
+    </div>
+    <button class="del-mini" onclick="removeRow(this,'.drow')" aria-label="Sil">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+    </button>
+  </div>`;
+}
+function addDate(){ dateList.insertAdjacentHTML("beforeend", dateRowHTML()); refreshDateDelState(); }
+function refreshDateDelState(){
+  const rows=dateList.querySelectorAll(".drow");
+  rows.forEach(r=> r.querySelector(".del-mini").disabled = rows.length<=1);
+}
+// seed one example
+dateList.insertAdjacentHTML("beforeend", dateRowHTML("2026-10-12","2026-10-17","28","Aktif"));
+refreshDateDelState();
+
+/* ---------- GÜN GÜN PROGRAM ---------- */
+const dayList=document.getElementById("dayList");
+function dayHTML(open,title=""){
+  return `
+  <div class="day ${open?'open':''}">
+    <div class="day-head" onclick="toggleDay(this)">
+      <span class="day-tag">GÜN</span>
+      <span class="day-name">${title||"Yeni gün"}</span>
+      <div class="day-actions">
+        <button class="del-mini" onclick="removeDay(event,this)" aria-label="Günü sil"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+        <span class="day-chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="day-inner">
+        <div class="field"><label>Gün Başlığı</label><input class="ctrl day-title" placeholder="Örn. İstanbul → Roma" oninput="syncDayName(this)"></div>
+        <div class="field"><label>Program Açıklaması</label><textarea class="ctrl" rows="3" placeholder="Günün programını, gezilecek yerleri ve önemli notları yazın..."></textarea></div>
+        <div class="row g-2">
+          <div class="col-md-4 field" style="margin-bottom:0"><label>Konaklama</label><input class="ctrl" placeholder="Roma"></div>
+          <div class="col-md-4 field" style="margin-bottom:0"><label>Ulaşım</label><input class="ctrl" placeholder="Uçak + Transfer"></div>
+          <div class="col-md-4 field" style="margin-bottom:0"><label>Öğün</label><input class="ctrl" placeholder="Kahvaltı"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function renumberDays(){
+  dayList.querySelectorAll(".day").forEach((d,i)=>{
+    d.querySelector(".day-tag").textContent = (i+1)+". GÜN";
+    // first day delete disabled
+    d.querySelector(".del-mini").disabled = dayList.querySelectorAll(".day").length<=1 || i===0;
+  });
+}
+function addDay(){
+  dayList.insertAdjacentHTML("beforeend", dayHTML(true));
+  const last=dayList.lastElementChild;
+  const body=last.querySelector(".day-body"); body.style.maxHeight=body.scrollHeight+80+"px";
+  renumberDays();
+}
+function toggleDay(head){
+  const day=head.closest(".day"); const body=day.querySelector(".day-body");
+  if(day.classList.contains("open")){ day.classList.remove("open"); body.style.maxHeight="0"; }
+  else{ day.classList.add("open"); body.style.maxHeight=body.scrollHeight+80+"px"; }
+}
+function removeDay(e,btn){ e.stopPropagation(); btn.closest(".day").remove(); renumberDays(); }
+function syncDayName(inp){
+  const day=inp.closest(".day");
+  const idx=[...dayList.children].indexOf(day)+1;
+  day.querySelector(".day-name").textContent = inp.value.trim() ? inp.value : (idx+". gün");
+}
+// seed first day (open, not deletable)
+dayList.insertAdjacentHTML("beforeend", dayHTML(true,"İstanbul → Roma"));
+(function(){
+  const first=dayList.firstElementChild;
+  first.querySelector(".day-title").value="İstanbul → Roma";
+  first.querySelector("textarea").value="İstanbul Havalimanı'nda buluşma, Roma uçuşu, havalimanı transferi ve otele yerleşme. Akşam serbest zaman.";
+  const inputs=first.querySelectorAll(".row .ctrl"); inputs[0].value="Roma"; inputs[1].value="Uçak + Transfer"; inputs[2].value="Kahvaltı";
+  const body=first.querySelector(".day-body"); body.style.maxHeight=body.scrollHeight+80+"px";
+  renumberDays();
+})();
+
+/* ---------- DİNAMİK LİSTELER ---------- */
+function itemHTML(ph,val=""){
+  return `<div class="litem">
+    <input class="ctrl" placeholder="${ph}" value="${val}">
+    <button class="del-mini" onclick="removeRow(this,'.litem')" aria-label="Sil"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+  </div>`;
+}
+function addItem(listId,ph){ document.getElementById(listId).insertAdjacentHTML("beforeend", itemHTML(ph)); }
+function removeRow(btn,sel){ btn.closest(sel).remove(); if(sel==='.drow') refreshDateDelState(); }
+
+// seed lists
+[["incList","Gidiş-dönüş uçak bileti"],["incList","5 gece otel konaklaması"],["incList","Kahvaltılar"],["incList","Havalimanı transferleri"],["incList","Profesyonel Türkçe rehberlik"]].forEach(([l,v])=>document.getElementById(l).insertAdjacentHTML("beforeend",itemHTML("Yeni hizmet",v)));
+[["excList","Müze giriş ücretleri"],["excList","Öğle ve akşam yemekleri"],["excList","Kişisel harcamalar"],["excList","Seyahat sağlık sigortası"],["excList","Opsiyonel etkinlikler"]].forEach(([l,v])=>document.getElementById(l).insertAdjacentHTML("beforeend",itemHTML("Yeni madde",v)));
+[["hlList","Kolezyum ve tarihi Roma turu"],["hlList","Vatikan"],["hlList","Floransa şehir turu"],["hlList","Pisa Kulesi"],["hlList","Toskana kasabaları"]].forEach(([l,v])=>document.getElementById(l).insertAdjacentHTML("beforeend",itemHTML("Öne çıkan özellik",v)));
+
+/* ---------- STATUS PILLS ---------- */
+document.querySelectorAll(".status-pill").forEach(p=>{
+  p.addEventListener("click",()=>{
+    document.querySelectorAll(".status-pill").forEach(x=>x.classList.remove("sel"));
+    p.classList.add("sel"); p.querySelector("input").checked=true;
+  });
+});
+/* only one of best/new badge */
+function oneBadge(me,otherId){ if(me.checked) document.getElementById(otherId).checked=false; }
+
+/* ---------- UPLOAD PREVIEWS ---------- */
+function previewCover(inp){
+  if(!inp.files||!inp.files[0]) return;
+  const url=URL.createObjectURL(inp.files[0]);
+  document.getElementById("coverImg").src=url;
+  document.getElementById("coverPreview").style.display="block";
+}
+function previewGallery(inp){
+  const wrap=document.getElementById("galleryPreviews"); wrap.innerHTML="";
+  [...inp.files].slice(0,8).forEach(f=>{
+    const img=document.createElement("img"); img.className="thumb"; img.src=URL.createObjectURL(f); wrap.appendChild(img);
+  });
+}
+
+/* ---------- SAVE / PUBLISH ---------- */
+function markErr(el,on){ el.classList.toggle("err",on); }
+function saveDraft(){
+  document.getElementById("savedInfo").innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Son kaydedilme: Az önce (taslak)';
+  toast("Tur taslak olarak kaydedildi.");
+}
+function publish(){
+  const banner=document.getElementById("valBanner");
+  const list=document.getElementById("valList");
+  const errs=[];
+  const name=document.getElementById("tName");
+  const cat=document.getElementById("tCat");
+  const dest=document.getElementById("tDest");
+  const price=document.getElementById("tPrice");
+  const days=document.getElementById("tDays");
+
+  [name,cat,dest,price,days].forEach(el=>markErr(el,false));
+
+  if(!name.value.trim()){ errs.push("Tur adı gerekli."); markErr(name,true); }
+  if(!cat.value){ errs.push("Kategori seçilmeli."); markErr(cat,true); }
+  if(!dest.value){ errs.push("Destinasyon seçilmeli."); markErr(dest,true); }
+  if(!price.value.trim()){ errs.push("Kişi başı fiyat girilmeli."); markErr(price,true); }
+  if(!days.value){ errs.push("Tur süresi (gün) girilmeli."); markErr(days,true); }
+  if(dateList.querySelectorAll(".drow").length<1) errs.push("En az bir tur tarihi eklenmeli.");
+  if(dayList.querySelectorAll(".day").length<1) errs.push("En az bir günlük program eklenmeli.");
+
+  if(errs.length){
+    list.innerHTML=errs.map(e=>`<li>${e}</li>`).join("");
+    banner.classList.add("show");
+    banner.scrollIntoView({behavior:"smooth",block:"center"});
+    return;
+  }
+  banner.classList.remove("show");
+  document.getElementById("savedInfo").innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Son kaydedilme: Az önce (yayınlandı)';
+  toast("Tur başarıyla oluşturuldu.");
+}
+</script>
+</body>
+</html>

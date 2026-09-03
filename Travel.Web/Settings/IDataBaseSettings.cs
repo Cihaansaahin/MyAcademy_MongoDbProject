@@ -2,10 +2,10 @@
 
 namespace Travel.Web.Settings
 {
-    public interface IDatabaseSettings
+    public interface IDataBaseSettings
     {
         string ConnectionString { get; set; }
-        string DatabaseName { get; set; }
+        string DataBaseName { get; set; }
         string TourCollectionName { get; set; }
         string DestinationCollectionName { get; set; }
         string CategoryCollectionName { get; set; }

@@ -14,5 +14,6 @@ namespace Travel.Web.Services.TourServices
         Task<bool> DecreaseCapacityAsync(string tourId, string tourDateId, int count);
         Task<bool> IncreaseCapacityAsync(string tourId, string tourDateId, int count);
         Task<List<ResultTourDto>> GetPopularToursAsync(int count = 6);
+   
     }
 }

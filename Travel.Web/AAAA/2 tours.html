@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Turlar — Travelio</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#0e2a3b;
+    --navy-2:#12384c;
+    --teal:#0fa3a3;
+    --teal-dark:#0b7f80;
+    --cream:#f7f5f0;
+    --white:#ffffff;
+    --ink:#0e2a3b;
+    --muted:#5d7180;
+    --line:#e7e2d8;
+    --shadow-sm:0 4px 18px rgba(14,42,59,.06);
+    --shadow-md:0 18px 50px rgba(14,42,59,.12);
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--cream);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4,.brand,.display-font{font-family:'Sora',sans-serif;}
+  .eyebrow{font-family:'Sora',sans-serif;text-transform:uppercase;letter-spacing:.22em;font-size:.72rem;font-weight:700;color:var(--teal-dark);}
+  a{text-decoration:none}
+  .btn-teal{background:var(--teal);color:#fff;border:none;border-radius:999px;font-weight:600;padding:.8rem 1.6rem;transition:.25s;}
+  .btn-teal:hover{background:var(--teal-dark);color:#fff;transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,163,163,.32)}
+  .btn-ghost{background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;border-radius:999px;font-weight:600;padding:.7rem 1.4rem;transition:.25s;}
+  .btn-ghost:hover{background:#fff;color:var(--navy)}
+
+  /* NAV */
+  .navbar{background:rgba(247,245,240,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:.9rem 0;}
+  .brand{font-weight:800;font-size:1.5rem;color:var(--navy);letter-spacing:-.5px;display:flex;align-items:center;gap:.5rem;}
+  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--teal);display:inline-block;box-shadow:0 0 0 4px rgba(15,163,163,.18)}
+  .navbar .nav-link{color:var(--navy);font-weight:500;margin:0 .35rem;position:relative}
+  .navbar .nav-link:hover{color:var(--teal-dark)}
+  .navbar .nav-link.active{color:var(--teal-dark)}
+  .navbar .nav-link.active::after{content:"";position:absolute;left:.7rem;right:.7rem;bottom:-2px;height:2px;background:var(--teal);border-radius:2px}
+  .profile-pill{display:flex;align-items:center;gap:.55rem;border:1px solid var(--line);background:#fff;border-radius:999px;padding:.35rem .35rem .35rem .95rem;font-weight:600;color:var(--navy);transition:.2s}
+  .profile-pill:hover{box-shadow:var(--shadow-sm);color:var(--navy)}
+  .profile-pill .avatar{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:.85rem;font-weight:700}
+
+  /* PAGE HEADER */
+  .page-head{
+    position:relative;overflow:hidden;color:#fff;
+    background:linear-gradient(120deg,rgba(14,42,59,.92) 0%,rgba(18,56,76,.85) 55%,rgba(11,127,128,.78) 100%),
+      url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=2000&q=80') center/cover;
+    padding:4rem 0 4.6rem;
+  }
+  .page-head .eyebrow{color:#7fe3e3}
+  .page-head h1{font-weight:800;font-size:clamp(2rem,4vw,3.1rem);letter-spacing:-.5px;margin-top:.5rem}
+  .page-head p{color:rgba(255,255,255,.9);max-width:56ch;margin-top:.7rem}
+  .breadcrumbz{font-size:.85rem;color:rgba(255,255,255,.7)}
+  .breadcrumbz a{color:rgba(255,255,255,.7)}
+  .breadcrumbz a:hover{color:#fff}
+
+  /* LAYOUT */
+  .listing{padding:3rem 0 4rem}
+
+  /* SIDEBAR */
+  .filter-card{
+    background:#fff;border-radius:var(--r);box-shadow:var(--shadow-sm);
+    border:1px solid rgba(231,226,216,.7);padding:1.5rem 1.4rem;
+  }
+  .filter-card h2{font-family:'Sora';font-weight:700;font-size:1.15rem;color:var(--navy);margin-bottom:.2rem}
+  .filter-sub{font-size:.82rem;color:var(--muted);margin-bottom:1.3rem}
+  .filter-group{padding:1.1rem 0;border-top:1px solid var(--line)}
+  .filter-group:first-of-type{border-top:none;padding-top:.3rem}
+  .filter-group h3{font-family:'Sora';font-weight:600;font-size:.82rem;text-transform:uppercase;letter-spacing:.1em;color:var(--navy);margin-bottom:.85rem}
+  .search-wrap{position:relative}
+  .search-wrap svg{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--muted)}
+  .search-wrap input{
+    width:100%;border:1px solid var(--line);border-radius:999px;padding:.65rem .9rem .65rem 2.4rem;
+    font-size:.9rem;color:var(--navy);outline:none;background:var(--cream);transition:.2s
+  }
+  .search-wrap input:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(15,163,163,.12)}
+  .fcheck{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;cursor:pointer}
+  .fcheck:last-child{margin-bottom:0}
+  .fcheck .lbl{display:flex;align-items:center;gap:.6rem;font-size:.92rem;color:var(--navy)}
+  .fcheck input{width:17px;height:17px;accent-color:var(--teal-dark);cursor:pointer}
+  .fcheck .cnt{font-size:.78rem;color:var(--muted)}
+  .stars-opt{color:#f4a92c;letter-spacing:1px}
+  .stars-opt .off{color:#d8cfc0}
+  .filter-actions{padding-top:1.2rem;border-top:1px solid var(--line);margin-top:.3rem}
+  .filter-actions .btn-teal{width:100%}
+  .clear-link{display:block;text-align:center;margin-top:.8rem;font-size:.88rem;color:var(--muted);font-weight:600;background:none;border:none;width:100%}
+  .clear-link:hover{color:var(--teal-dark)}
+
+  /* TOOLBAR */
+  .toolbar{
+    background:#fff;border-radius:var(--r);box-shadow:var(--shadow-sm);border:1px solid rgba(231,226,216,.7);
+    padding:1rem 1.3rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.4rem
+  }
+  .toolbar h2{font-family:'Sora';font-weight:700;font-size:1.25rem;color:var(--navy);margin:0}
+  .toolbar .count{font-size:.86rem;color:var(--muted);margin-top:.1rem}
+  .sort-wrap{display:flex;align-items:center;gap:.6rem}
+  .sort-wrap label{font-size:.85rem;color:var(--muted);font-weight:600}
+  .sort-wrap select{
+    border:1px solid var(--line);border-radius:999px;padding:.5rem 2rem .5rem 1rem;font-size:.88rem;
+    font-weight:600;color:var(--navy);background:#fff;outline:none;cursor:pointer;
+  }
+  .sort-wrap select:focus{border-color:var(--teal)}
+  .btn-filter-mobile{background:var(--navy);color:#fff;border:none;border-radius:999px;font-weight:600;padding:.55rem 1.1rem;font-size:.88rem}
+
+  /* ACTIVE CHIPS */
+  .active-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem}
+  .chip{
+    display:inline-flex;align-items:center;gap:.4rem;background:rgba(15,163,163,.1);color:var(--teal-dark);
+    font-size:.82rem;font-weight:600;padding:.35rem .8rem;border-radius:999px;cursor:pointer;transition:.2s
+  }
+  .chip:hover{background:rgba(15,163,163,.2)}
+  .chip .x{font-weight:700}
+
+  /* TOUR CARD */
+  .tour-card{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);transition:.3s;height:100%;display:flex;flex-direction:column;border:1px solid rgba(231,226,216,.7);}
+  .tour-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-md)}
+  .tour-media{position:relative;height:210px;overflow:hidden}
+  .tour-media img{width:100%;height:100%;object-fit:cover;transition:.5s}
+  .tour-card:hover .tour-media img{transform:scale(1.07)}
+  .tour-badge{position:absolute;top:.85rem;left:.85rem;background:rgba(255,255,255,.94);color:var(--navy);font-weight:600;font-size:.75rem;padding:.32rem .7rem;border-radius:999px;}
+  .fav{position:absolute;top:.75rem;right:.85rem;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;color:var(--navy);cursor:pointer;border:none;transition:.2s}
+  .fav:hover{color:var(--teal-dark);transform:scale(1.08)}
+  .fav.on{color:#e0575b}
+  .fav.on svg{fill:currentColor}
+  .tour-body{padding:1.2rem 1.3rem 1.35rem;display:flex;flex-direction:column;flex:1}
+  .tour-topline{display:flex;align-items:center;justify-content:space-between;margin-bottom:.15rem}
+  .tour-country{font-size:.78rem;color:var(--teal-dark);font-weight:600}
+  .tour-cat{font-size:.72rem;color:var(--muted);background:var(--cream);border:1px solid var(--line);padding:.15rem .55rem;border-radius:999px}
+  .tour-title{font-family:'Sora';font-weight:700;font-size:1.12rem;margin:.15rem 0 .5rem;color:var(--navy)}
+  .tour-meta{display:flex;align-items:center;gap:.9rem;font-size:.84rem;color:var(--muted);margin-bottom:.95rem}
+  .rating{color:#0e2a3b;font-weight:600}
+  .rating .star{color:#f4a92c}
+  .tour-foot{display:flex;align-items:flex-end;justify-content:space-between;margin-top:auto;padding-top:.5rem;border-top:1px solid var(--line)}
+  .price small{color:var(--muted);font-size:.72rem;display:block}
+  .price b{font-family:'Sora';font-size:1.28rem;color:var(--navy)}
+  .price b span{font-size:.85rem;font-weight:600;color:var(--muted)}
+  .btn-incele{background:var(--navy);color:#fff;border-radius:999px;font-size:.85rem;font-weight:600;padding:.55rem 1.1rem;border:none;transition:.25s}
+  .btn-incele:hover{background:var(--teal-dark);color:#fff}
+
+  /* EMPTY */
+  .empty-state{background:#fff;border-radius:var(--r);border:1px solid rgba(231,226,216,.7);box-shadow:var(--shadow-sm);padding:3.5rem 2rem;text-align:center}
+  .empty-state .ico{width:64px;height:64px;border-radius:18px;background:rgba(15,163,163,.1);color:var(--teal-dark);display:grid;place-items:center;margin:0 auto 1.2rem}
+  .empty-state h3{font-family:'Sora';font-weight:700;color:var(--navy);font-size:1.3rem}
+  .empty-state p{color:var(--muted);max-width:40ch;margin:.4rem auto 1.4rem}
+
+  /* PAGINATION */
+  .pager{display:flex;justify-content:center;gap:.4rem;margin-top:2.6rem}
+  .pager a{
+    min-width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#fff;
+    border:1px solid var(--line);color:var(--navy);font-weight:600;font-size:.92rem;transition:.2s;padding:0 .4rem
+  }
+  .pager a:hover{border-color:var(--teal);color:var(--teal-dark)}
+  .pager a.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .pager a.nav-arrow{color:var(--muted)}
+
+  /* MINI CTA */
+  .mini-cta{
+    background:var(--navy);border-radius:24px;padding:2.8rem 2rem;text-align:center;color:#fff;margin-top:3.5rem;
+  }
+  .mini-cta .eyebrow{color:#7fe3e3}
+  .mini-cta h2{font-weight:700;font-size:clamp(1.5rem,2.6vw,2.1rem);letter-spacing:-.5px;margin-top:.5rem}
+  .mini-cta p{color:rgba(255,255,255,.82);max-width:50ch;margin:.8rem auto 1.5rem}
+
+  /* FOOTER */
+  footer{background:var(--navy);color:rgba(255,255,255,.72);padding:4rem 0 2rem}
+  footer .brand{color:#fff}
+  footer h6{color:#fff;font-family:'Sora';font-weight:600;letter-spacing:.02em;margin-bottom:1rem}
+  footer a{color:rgba(255,255,255,.72);display:block;margin-bottom:.55rem;font-size:.92rem}
+  footer a:hover{color:#7fe3e3}
+  .foot-social a{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);margin-right:.5rem}
+  .foot-social a:hover{background:var(--teal)}
+  .foot-bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:2.5rem;padding-top:1.5rem;font-size:.85rem}
+
+  /* OFFCANVAS (mobile filters) */
+  .offcanvas{background:var(--cream)}
+  .sticky-side{position:sticky;top:90px}
+
+  @media(max-width:991px){
+    .sticky-side{position:static}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="brand" href="index.html"><span class="dot"></span>Travelio</a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Ana Sayfa</a></li>
+        <li class="nav-item"><a class="nav-link active" href="tours.html">Turlar</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#destinasyonlar">Destinasyonlar</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#yorumlar">Yorumlar</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#hakkimizda">Hakkımızda</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#iletisim">İletişim</a></li>
+      </ul>
+      <a href="#" class="profile-pill"><span>Profilim</span><span class="avatar">EY</span></a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<header class="page-head">
+  <div class="container">
+    <div class="breadcrumbz mb-3"><a href="index.html">Ana Sayfa</a> · Turlar</div>
+    <div class="eyebrow">Dünyayı keşfet</div>
+    <h1>Hayalindeki Turu Bul</h1>
+    <p>Avrupa'nın ikonik şehirlerinden Uzak Doğu'nun büyüleyici rotalarına kadar sana uygun seyahati keşfet.</p>
+  </div>
+</header>
+
+<!-- LISTING -->
+<section class="listing">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- SIDEBAR (desktop) -->
+      <div class="col-lg-3 d-none d-lg-block">
+        <div class="sticky-side">
+          <div class="filter-card" id="filterCardDesktop"></div>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="col-lg-9">
+        <!-- toolbar -->
+        <div class="toolbar">
+          <div>
+            <h2>Turlar</h2>
+            <div class="count"><span id="resultCount">12</span> tur bulundu</div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn-filter-mobile d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas">
+              Filtrele
+            </button>
+            <div class="sort-wrap">
+              <label for="sortSelect" class="d-none d-sm-block">Sırala:</label>
+              <select id="sortSelect">
+                <option value="onerilen">Önerilen</option>
+                <option value="puan">En Yüksek Puan</option>
+                <option value="fiyat-artan">Fiyat: Düşükten Yükseğe</option>
+                <option value="fiyat-azalan">Fiyat: Yüksekten Düşüğe</option>
+                <option value="yeni">En Yeni Turlar</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- active chips -->
+        <div class="active-chips" id="activeChips"></div>
+
+        <!-- grid -->
+        <div class="row g-4" id="tourGrid"></div>
+
+        <!-- empty -->
+        <div id="emptyState" style="display:none">
+          <div class="empty-state">
+            <div class="ico">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <h3>Aradığın kriterlere uygun tur bulunamadı.</h3>
+            <p>Filtreleri biraz gevşetmeyi dene ya da tümünü temizleyerek yeniden başla.</p>
+            <button class="btn-teal" onclick="clearFilters()">Filtreleri Temizle</button>
+          </div>
+        </div>
+
+        <!-- pagination -->
+        <nav class="pager" id="pager">
+          <a href="#" class="nav-arrow" aria-label="Önceki">←</a>
+          <a href="#" class="active">1</a>
+          <a href="#">2</a>
+          <a href="#">3</a>
+          <a href="#">4</a>
+          <a href="#" class="nav-arrow" aria-label="Sonraki">→</a>
+        </nav>
+
+        <!-- mini cta -->
+        <div class="mini-cta">
+          <div class="eyebrow">Yardımcı olalım</div>
+          <h2>Aradığın Rotayı Bulamadın mı?</h2>
+          <p>Hayalindeki destinasyonu bize söyle, sana uygun seyahat seçeneklerini birlikte bulalım.</p>
+          <a href="index.html#iletisim" class="btn-teal">Bize Ulaş</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OFFCANVAS FILTERS (mobile) -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="filterOffcanvas" style="width:320px">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" style="font-family:'Sora';font-weight:700;color:var(--navy)">Filtrele</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="filter-card" id="filterCardMobile" style="box-shadow:none;border:none;padding:0"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <a class="brand mb-3" href="index.html"><span class="dot"></span>Travelio</a>
+        <p style="max-width:34ch">Dünyanın dört bir yanına, özenle tasarlanmış turlarla unutulmaz seyahatler.</p>
+        <div class="foot-social mt-3">
+          <a href="#" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+          <a href="#" aria-label="Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84 0 0 0 .497-3.753c-.002-.249 1.51-2.772 1.818-4.013z"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        </div>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Keşfet</h6>
+        <a href="tours.html">Turlar</a><a href="index.html#destinasyonlar">Destinasyonlar</a><a href="index.html#yorumlar">Yorumlar</a><a href="#">Kampanyalar</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Kurumsal</h6>
+        <a href="index.html#hakkimizda">Hakkımızda</a><a href="#">Kariyer</a><a href="#">Blog</a><a href="index.html#iletisim">İletişim</a>
+      </div>
+      <div class="col-lg-4">
+        <h6>Bültene Katıl</h6>
+        <p style="max-width:36ch">Yeni rotalardan ve erken rezervasyon fırsatlarından ilk sen haberdar ol.</p>
+        <div class="d-flex gap-2 mt-2" style="max-width:360px">
+          <input class="form-control" style="border-radius:999px" placeholder="E-posta adresin" />
+          <button class="btn-teal" style="white-space:nowrap">Katıl</button>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom d-flex flex-wrap justify-content-between gap-2">
+      <span>© 2026 Travelio. Tüm hakları saklıdır.</span>
+      <span>Gizlilik · Kullanım Koşulları · Çerezler</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ---------- DATA ---------- */
+const TOURS = [
+  {id:1, title:"Paris & Disneyland Turu", country:"Fransa", ctry:"fransa", dur:5, durLabel:"5 Gün / 4 Gece", rating:4.9, reviews:2134, price:38900, cat:"Şehir Turları", catLabel:"Şehir Turu", badge:"Çok Satan", added:6, img:"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80"},
+  {id:2, title:"Roma & Toskana Keşfi", country:"İtalya", ctry:"italya", dur:6, durLabel:"6 Gün / 5 Gece", rating:4.8, reviews:1687, price:42500, cat:"Kültür Turları", catLabel:"Kültür Turu", badge:"Popüler", added:5, img:"https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=800&q=80"},
+  {id:3, title:"Amsterdam Kanalları", country:"Hollanda", ctry:"hollanda", dur:4, durLabel:"4 Gün / 3 Gece", rating:4.7, reviews:1203, price:29900, cat:"Şehir Turları", catLabel:"Şehir Turu", badge:"", added:4, img:"https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=800&q=80"},
+  {id:4, title:"Prag & Viyana Kültür Turu", country:"Çekya · Avusturya", ctry:"avusturya", dur:6, durLabel:"6 Gün / 5 Gece", rating:4.8, reviews:1421, price:36400, cat:"Kültür Turları", catLabel:"Kültür Turu", badge:"", added:3, img:"https://images.unsplash.com/photo-1541849546-216549ae216d?auto=format&fit=crop&w=800&q=80"},
+  {id:5, title:"Barselona Akdeniz Turu", country:"İspanya", ctry:"ispanya", dur:5, durLabel:"5 Gün / 4 Gece", rating:4.9, reviews:1955, price:34700, cat:"Şehir Turları", catLabel:"Şehir Turu", badge:"Yeni", added:9, img:"https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&w=800&q=80"},
+  {id:6, title:"İsviçre Alpleri", country:"İsviçre", ctry:"isvicre", dur:7, durLabel:"7 Gün / 6 Gece", rating:5.0, reviews:842, price:58200, cat:"Doğa & Macera", catLabel:"Doğa & Macera", badge:"Premium", added:7, img:"https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=800&q=80"},
+  {id:7, title:"Kuzey Işıkları Norveç", country:"Norveç", ctry:"norvec", dur:6, durLabel:"6 Gün / 5 Gece", rating:4.9, reviews:764, price:64900, cat:"Kış & Kuzey Işıkları", catLabel:"Kış & Kuzey Işıkları", badge:"Sınırlı Kontenjan", added:10, img:"https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=800&q=80"},
+  {id:8, title:"Tokyo & Kyoto", country:"Japonya", ctry:"japonya", dur:8, durLabel:"8 Gün / 7 Gece", rating:4.8, reviews:932, price:79900, cat:"Uzak Doğu", catLabel:"Uzak Doğu", badge:"Premium", added:8, img:"https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80"},
+  {id:9, title:"Lizbon & Porto", country:"Portekiz", ctry:"portekiz", dur:6, durLabel:"6 Gün / 5 Gece", rating:4.7, reviews:658, price:39500, cat:"Gastronomi", catLabel:"Gastronomi", badge:"", added:2, img:"https://images.unsplash.com/photo-1585208798174-6cedd86e019a?auto=format&fit=crop&w=800&q=80"},
+  {id:10, title:"Paris & Alsace", country:"Fransa", ctry:"fransa", dur:7, durLabel:"7 Gün / 6 Gece", rating:4.8, reviews:721, price:47900, cat:"Romantik Rotalar", catLabel:"Romantik Rota", badge:"", added:1, img:"https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=800&q=80"},
+  {id:11, title:"Amalfi & Napoli", country:"İtalya", ctry:"italya", dur:6, durLabel:"6 Gün / 5 Gece", rating:4.9, reviews:886, price:49500, cat:"Romantik Rotalar", catLabel:"Romantik Rota", badge:"Popüler", added:11, img:"https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80"},
+  {id:12, title:"Salzburg & Hallstatt", country:"Avusturya", ctry:"avusturya", dur:5, durLabel:"5 Gün / 4 Gece", rating:4.9, reviews:592, price:44900, cat:"Doğa & Macera", catLabel:"Doğa & Macera", badge:"Yeni", added:12, img:"https://images.unsplash.com/photo-1516466723877-e4ec1d736c8a?auto=format&fit=crop&w=800&q=80"}
+];
+
+/* ---------- FILTER OPTIONS ---------- */
+const DEST_OPTS = [
+  {key:"fransa", label:"Fransa"},{key:"italya", label:"İtalya"},{key:"ispanya", label:"İspanya"},
+  {key:"hollanda", label:"Hollanda"},{key:"avusturya", label:"Avusturya"},{key:"isvicre", label:"İsviçre"},
+  {key:"norvec", label:"Norveç"},{key:"japonya", label:"Japonya"},{key:"portekiz", label:"Portekiz"}
+];
+const DUR_OPTS = [
+  {key:"1-3", label:"1 - 3 Gün", min:1, max:3},
+  {key:"4-5", label:"4 - 5 Gün", min:4, max:5},
+  {key:"6-7", label:"6 - 7 Gün", min:6, max:7},
+  {key:"8+", label:"8 Gün ve Üzeri", min:8, max:99}
+];
+const PRICE_OPTS = [
+  {key:"p1", label:"0 - 25.000 ₺", min:0, max:25000},
+  {key:"p2", label:"25.000 - 40.000 ₺", min:25000, max:40000},
+  {key:"p3", label:"40.000 - 60.000 ₺", min:40000, max:60000},
+  {key:"p4", label:"60.000 ₺ ve üzeri", min:60000, max:9999999}
+];
+const TYPE_OPTS = ["Kültür Turları","Şehir Turları","Doğa & Macera","Romantik Rotalar","Gastronomi","Kış & Kuzey Işıkları","Uzak Doğu"];
+const RATING_OPTS = [
+  {key:"r45", label:"4.5 ve üzeri", val:4.5, stars:5},
+  {key:"r40", label:"4.0 ve üzeri", val:4.0, stars:4},
+  {key:"r35", label:"3.5 ve üzeri", val:3.5, stars:3}
+];
+
+/* ---------- STATE ---------- */
+const state = { q:"", dest:[], dur:[], price:[], type:[], rating:null, sort:"onerilen" };
+
+/* ---------- BUILD SIDEBAR HTML ---------- */
+function destCount(key){ return TOURS.filter(t=>t.ctry===key).length; }
+function starsMarkup(n){ let s=""; for(let i=1;i<=5;i++){ s+= i<=n ? "★" : "<span class='off'>★</span>"; } return s; }
+
+function sidebarHTML(){
+  return `
+  <h2>Turları Filtrele</h2>
+  <p class="filter-sub">Sana en uygun rotayı bulmak için daralt.</p>
+
+  <div class="filter-group">
+    <h3>Tur Ara</h3>
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="f-search" placeholder="Tur veya destinasyon ara" />
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <h3>Destinasyon</h3>
+    ${DEST_OPTS.map(o=>`
+      <label class="fcheck">
+        <span class="lbl"><input type="checkbox" class="f-dest" value="${o.key}"> ${o.label}</span>
+        <span class="cnt">(${destCount(o.key)})</span>
+      </label>`).join("")}
+  </div>
+
+  <div class="filter-group">
+    <h3>Tur Süresi</h3>
+    ${DUR_OPTS.map(o=>`
+      <label class="fcheck">
+        <span class="lbl"><input type="checkbox" class="f-dur" value="${o.key}"> ${o.label}</span>
+      </label>`).join("")}
+  </div>
+
+  <div class="filter-group">
+    <h3>Fiyat Aralığı</h3>
+    ${PRICE_OPTS.map(o=>`
+      <label class="fcheck">
+        <span class="lbl"><input type="checkbox" class="f-price" value="${o.key}"> ${o.label}</span>
+      </label>`).join("")}
+  </div>
+
+  <div class="filter-group">
+    <h3>Tur Tipi</h3>
+    ${TYPE_OPTS.map(o=>`
+      <label class="fcheck">
+        <span class="lbl"><input type="checkbox" class="f-type" value="${o}"> ${o}</span>
+      </label>`).join("")}
+  </div>
+
+  <div class="filter-group">
+    <h3>Değerlendirme</h3>
+    ${RATING_OPTS.map(o=>`
+      <label class="fcheck">
+        <span class="lbl"><input type="radio" name="f-rating" class="f-rating" value="${o.key}"> <span class="stars-opt">${starsMarkup(o.stars)}</span></span>
+        <span class="cnt">${o.label}</span>
+      </label>`).join("")}
+  </div>
+
+  <div class="filter-actions">
+    <button class="btn-teal" onclick="applyFromButton()">Filtreleri Uygula</button>
+    <button class="clear-link" onclick="clearFilters()">Filtreleri Temizle</button>
+  </div>`;
+}
+
+document.getElementById("filterCardDesktop").innerHTML = sidebarHTML();
+document.getElementById("filterCardMobile").innerHTML = sidebarHTML();
+
+/* ---------- READ INPUTS -> STATE ---------- */
+function syncState(){
+  const q = document.querySelector(".f-search")?.value.trim().toLowerCase() || "";
+  state.q = q;
+  state.dest   = [...document.querySelectorAll(".f-dest:checked")].map(i=>i.value);
+  state.dur    = [...document.querySelectorAll(".f-dur:checked")].map(i=>i.value);
+  state.price  = [...document.querySelectorAll(".f-price:checked")].map(i=>i.value);
+  state.type   = [...document.querySelectorAll(".f-type:checked")].map(i=>i.value);
+  const r = document.querySelector(".f-rating:checked");
+  state.rating = r ? r.value : null;
+  // de-dupe across desktop+mobile: use Set
+  state.dest  = [...new Set(state.dest)];
+  state.dur   = [...new Set(state.dur)];
+  state.price = [...new Set(state.price)];
+  state.type  = [...new Set(state.type)];
+}
+
+/* ---------- FILTER + SORT ---------- */
+function getFiltered(){
+  let list = TOURS.filter(t=>{
+    if(state.q){
+      const hay = (t.title+" "+t.country).toLowerCase();
+      if(!hay.includes(state.q)) return false;
+    }
+    if(state.dest.length && !state.dest.includes(t.ctry)) return false;
+    if(state.dur.length){
+      const ok = state.dur.some(k=>{ const o=DUR_OPTS.find(d=>d.key===k); return t.dur>=o.min && t.dur<=o.max; });
+      if(!ok) return false;
+    }
+    if(state.price.length){
+      const ok = state.price.some(k=>{ const o=PRICE_OPTS.find(p=>p.key===k); return t.price>=o.min && t.price<o.max; });
+      if(!ok) return false;
+    }
+    if(state.type.length && !state.type.includes(t.cat)) return false;
+    if(state.rating){
+      const o = RATING_OPTS.find(r=>r.key===state.rating);
+      if(t.rating < o.val) return false;
+    }
+    return true;
+  });
+
+  switch(state.sort){
+    case "puan": list.sort((a,b)=>b.rating-a.rating); break;
+    case "fiyat-artan": list.sort((a,b)=>a.price-b.price); break;
+    case "fiyat-azalan": list.sort((a,b)=>b.price-a.price); break;
+    case "yeni": list.sort((a,b)=>b.added-a.added); break;
+    default: break;
+  }
+  return list;
+}
+
+/* ---------- RENDER CARDS ---------- */
+function fmt(n){ return n.toLocaleString("tr-TR"); }
+
+function cardHTML(t){
+  return `
+  <div class="col-md-6">
+    <article class="tour-card">
+      <div class="tour-media">
+        <img src="${t.img}" alt="${t.title}" loading="lazy" />
+        ${t.badge?`<span class="tour-badge">${t.badge}</span>`:''}
+        <button class="fav" aria-label="Favorilere ekle" onclick="this.classList.toggle('on')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        </button>
+      </div>
+      <div class="tour-body">
+        <div class="tour-topline">
+          <span class="tour-country">${t.country}</span>
+          <span class="tour-cat">${t.catLabel}</span>
+        </div>
+        <h3 class="tour-title">${t.title}</h3>
+        <div class="tour-meta">
+          <span>🗓️ ${t.durLabel}</span>
+          <span class="rating"><span class="star">★</span> ${t.rating.toFixed(1)} <span style="color:var(--muted);font-weight:400">(${fmt(t.reviews)})</span></span>
+        </div>
+        <div class="tour-foot">
+          <div class="price"><small>Kişi başı</small><b>${fmt(t.price)} <span>TL</span></b></div>
+          <button class="btn-incele">Turu İncele</button>
+        </div>
+      </div>
+    </article>
+  </div>`;
+}
+
+/* ---------- ACTIVE CHIPS ---------- */
+function chipsHTML(){
+  const chips = [];
+  state.dest.forEach(k=>{ const o=DEST_OPTS.find(d=>d.key===k); chips.push({t:o.label, kind:"dest", v:k}); });
+  state.dur.forEach(k=>{ const o=DUR_OPTS.find(d=>d.key===k); chips.push({t:o.label, kind:"dur", v:k}); });
+  state.price.forEach(k=>{ const o=PRICE_OPTS.find(p=>p.key===k); chips.push({t:o.label, kind:"price", v:k}); });
+  state.type.forEach(v=>chips.push({t:v, kind:"type", v}));
+  if(state.rating){ const o=RATING_OPTS.find(r=>r.key===state.rating); chips.push({t:o.label+" ★", kind:"rating", v:state.rating}); }
+  if(state.q) chips.push({t:'"'+state.q+'"', kind:"q", v:state.q});
+  return chips.map(c=>`<span class="chip" onclick="removeChip('${c.kind}','${(c.v+'').replace(/'/g,"")}')">${c.t} <span class="x">×</span></span>`).join("");
+}
+
+function removeChip(kind, v){
+  const uncheck = (sel,val)=>document.querySelectorAll(sel).forEach(i=>{ if(i.value===val) i.checked=false; });
+  if(kind==="dest") uncheck(".f-dest", v);
+  if(kind==="dur") uncheck(".f-dur", v);
+  if(kind==="price") uncheck(".f-price", v);
+  if(kind==="type") uncheck(".f-type", v);
+  if(kind==="rating") document.querySelectorAll(".f-rating").forEach(i=>i.checked=false);
+  if(kind==="q") document.querySelectorAll(".f-search").forEach(i=>i.value="");
+  syncState(); render();
+}
+
+/* ---------- MAIN RENDER ---------- */
+function render(){
+  const list = getFiltered();
+  const grid = document.getElementById("tourGrid");
+  const empty = document.getElementById("emptyState");
+  const pager = document.getElementById("pager");
+
+  document.getElementById("resultCount").textContent = list.length;
+  document.getElementById("activeChips").innerHTML = chipsHTML();
+
+  if(list.length===0){
+    grid.innerHTML = "";
+    empty.style.display = "block";
+    pager.style.display = "none";
+  } else {
+    grid.innerHTML = list.map(cardHTML).join("");
+    empty.style.display = "none";
+    pager.style.display = list.length>6 ? "flex" : "none";
+  }
+}
+
+/* ---------- EVENTS ---------- */
+// live filtering on any change / typing
+document.addEventListener("input", (e)=>{
+  if(e.target.matches(".f-search, .f-dest, .f-dur, .f-price, .f-type, .f-rating")){
+    syncState(); render();
+  }
+});
+document.getElementById("sortSelect").addEventListener("change", (e)=>{
+  state.sort = e.target.value; render();
+});
+
+function applyFromButton(){
+  syncState(); render();
+  const oc = document.getElementById("filterOffcanvas");
+  const inst = bootstrap.Offcanvas.getInstance(oc);
+  if(inst) inst.hide();
+}
+
+function clearFilters(){
+  document.querySelectorAll(".f-search").forEach(i=>i.value="");
+  document.querySelectorAll(".f-dest,.f-dur,.f-price,.f-type").forEach(i=>i.checked=false);
+  document.querySelectorAll(".f-rating").forEach(i=>i.checked=false);
+  state.sort = "onerilen";
+  document.getElementById("sortSelect").value = "onerilen";
+  syncState(); render();
+}
+
+// initial
+render();
+</script>
+</body>
+</html>

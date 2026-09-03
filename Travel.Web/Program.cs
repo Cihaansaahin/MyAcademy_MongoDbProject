@@ -8,6 +8,7 @@ using Travel.Web.Services.DestinationServices;
 using Travel.Web.Services.ReservationServices;
 using Travel.Web.Services.TourServices;
 using Travel.Web.Services.DashboardServices;
+using Travel.Web.Services.ReportServices;
 using Travel.Web.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 builder.Services.AddSingleton<IDataBaseSettings>(sp =>
 {
@@ -54,7 +56,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}")
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.MapControllerRoute(

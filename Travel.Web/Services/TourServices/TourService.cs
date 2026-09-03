@@ -80,5 +80,7 @@ namespace Travel.Web.Services.TourServices
             var tours = await _tourCollection.Find(x => x.IsActive && x.IsPopular).Limit(count).ToListAsync();
             return _mapper.Map<List<ResultTourDto>>(tours);
         }
+
+        
     }
 }

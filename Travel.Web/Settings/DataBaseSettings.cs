@@ -2,10 +2,10 @@
 
 namespace Travel.Web.Settings
 {
-    public class DatabaseSettings : IDatabaseSettings
+    public class DataBaseSettings : IDataBaseSettings
     {
         public string ConnectionString { get; set; } = string.Empty;
-        public string DatabaseName { get; set; } = string.Empty;
+        public string DataBaseName { get; set; } = string.Empty;
         public string TourCollectionName { get; set; } = "Tours";
         public string DestinationCollectionName { get; set; } = "Destinations";
         public string CategoryCollectionName { get; set; } = "Categories";

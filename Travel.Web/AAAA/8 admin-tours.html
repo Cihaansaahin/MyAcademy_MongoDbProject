@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tur Yönetimi — Travelio Admin</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#0e2a3b;--navy-2:#12384c;--navy-3:#1b455c;--teal:#0fa3a3;--teal-dark:#0b7f80;
+    --cream:#f7f5f0;--bg:#f4f5f4;--white:#fff;--ink:#0e2a3b;--muted:#6a7c88;--line:#e7e2d8;--line-2:#eef0ef;
+    --shadow-sm:0 4px 18px rgba(14,42,59,.06);--shadow-md:0 18px 50px rgba(14,42,59,.12);
+    --sidebar-w:266px;--r:16px;
+    --ok-bg:#e3f4f0;--ok-fg:#0b7f80;
+    --wait-bg:#fbf1dc;--wait-fg:#a9741a;
+    --cancel-bg:#f6e4e2;--cancel-fg:#b45a4f;
+  }
+  *{box-sizing:border-box}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--bg);margin:0;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4,.brand{font-family:'Sora',sans-serif}
+  a{text-decoration:none}
+  .eyebrow{font-family:'Sora',sans-serif;text-transform:uppercase;letter-spacing:.2em;font-size:.7rem;font-weight:700;color:var(--teal-dark)}
+
+  /* ============ SIDEBAR (birebir korunuyor) ============ */
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--navy);display:flex;flex-direction:column;z-index:1045;}
+  .sb-brand{padding:1.5rem 1.5rem 1.3rem;display:flex;align-items:center;gap:.65rem;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb-brand .dot{width:11px;height:11px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(15,163,163,.22);flex:none}
+  .sb-brand .txt b{font-family:'Sora';font-weight:800;color:#fff;font-size:1.25rem;letter-spacing:-.4px;display:block;line-height:1}
+  .sb-brand .txt span{font-size:.7rem;color:#7fe3e3;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+  .sb-menu{flex:1;overflow-y:auto;padding:1rem .8rem;display:flex;flex-direction:column;gap:.15rem}
+  .sb-cap{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.35);font-weight:600;padding:.4rem .8rem .3rem}
+  .sb-link{display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border-radius:11px;color:rgba(255,255,255,.72);font-weight:500;font-size:.92rem;transition:.18s;position:relative}
+  .sb-link svg{flex:none;opacity:.85}
+  .sb-link:hover{background:rgba(255,255,255,.07);color:#fff}
+  .sb-link.active{background:var(--teal);color:#fff;box-shadow:0 8px 20px rgba(15,163,163,.28)}
+  .sb-link.active svg{opacity:1}
+  .sb-badge{margin-left:auto;background:rgba(255,255,255,.16);color:#fff;font-size:.7rem;font-weight:700;padding:.1rem .45rem;border-radius:999px}
+  .sb-link.active .sb-badge{background:rgba(255,255,255,.25)}
+  .sb-foot{padding:.8rem;border-top:1px solid rgba(255,255,255,.08)}
+  .sb-user{display:flex;align-items:center;gap:.7rem;padding:.6rem .7rem;border-radius:12px;background:rgba(255,255,255,.05)}
+  .sb-user .av{width:38px;height:38px;border-radius:10px;background:var(--teal);color:#fff;display:grid;place-items:center;font-family:'Sora';font-weight:700;font-size:.85rem;flex:none}
+  .sb-user b{display:block;color:#fff;font-size:.86rem;font-family:'Sora';line-height:1.2}
+  .sb-user span{font-size:.74rem;color:rgba(255,255,255,.55)}
+
+  /* ============ MAIN ============ */
+  .main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column}
+  .topbar{position:sticky;top:0;z-index:1030;background:rgba(244,245,244,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:.85rem 1.8rem;display:flex;align-items:center;gap:1rem;}
+  .hamb{display:none;background:#fff;border:1px solid var(--line);border-radius:10px;width:40px;height:40px;place-items:center;color:var(--navy);cursor:pointer}
+  .topbar .tb-title{font-family:'Sora';font-weight:700;font-size:1.05rem;color:var(--navy)}
+  .tb-search{margin-left:.5rem;position:relative;flex:1;max-width:320px}
+  .tb-search svg{position:absolute;left:.8rem;top:50%;transform:translateY(-50%);color:var(--muted)}
+  .tb-search input{width:100%;border:1px solid var(--line);background:#fff;border-radius:999px;padding:.55rem .9rem .55rem 2.3rem;font-size:.88rem;outline:none;color:var(--navy)}
+  .tb-search input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,163,163,.1)}
+  .tb-right{margin-left:auto;display:flex;align-items:center;gap:.9rem}
+  .tb-icon{position:relative;width:40px;height:40px;border-radius:11px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--navy);cursor:pointer;transition:.2s}
+  .tb-icon:hover{border-color:var(--teal);color:var(--teal-dark)}
+  .tb-icon .n-badge{position:absolute;top:-5px;right:-5px;background:#e0575b;color:#fff;font-size:.66rem;font-weight:700;min-width:17px;height:17px;border-radius:999px;display:grid;place-items:center;padding:0 3px}
+  .tb-user{display:flex;align-items:center;gap:.6rem;padding-left:.4rem}
+  .tb-user .av{width:38px;height:38px;border-radius:10px;background:var(--navy);color:#fff;display:grid;place-items:center;font-family:'Sora';font-weight:700;font-size:.82rem}
+  .tb-user .nm{line-height:1.15}
+  .tb-user .nm b{font-family:'Sora';font-size:.86rem;color:var(--navy);display:block}
+  .tb-user .nm span{font-size:.74rem;color:var(--muted)}
+
+  .content{padding:1.8rem;flex:1}
+  .crumb{font-size:.8rem;color:var(--muted);margin-bottom:.4rem}
+  .crumb a{color:var(--muted)} .crumb a:hover{color:var(--teal-dark)} .crumb .cur{color:var(--navy);font-weight:600}
+  .page-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+  .page-intro h1{font-weight:700;font-size:1.7rem;color:var(--navy);margin:.15rem 0 .3rem}
+  .page-intro p{color:var(--muted);margin:0;font-size:.94rem;max-width:60ch}
+  .btn-teal{background:var(--teal);color:#fff;border:none;border-radius:999px;font-weight:600;padding:.7rem 1.3rem;font-size:.9rem;transition:.25s;display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap}
+  .btn-teal:hover{background:var(--teal-dark);color:#fff;box-shadow:0 12px 26px rgba(15,163,163,.3)}
+
+  /* KPI mini */
+  .kpi{background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1rem 1.1rem;height:100%;display:flex;align-items:center;gap:.85rem}
+  .kpi .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;background:rgba(15,163,163,.1);color:var(--teal-dark);flex:none}
+  .kpi .ic.gray{background:rgba(106,124,136,.12);color:var(--muted)}
+  .kpi .ic.warn{background:rgba(169,116,26,.12);color:#a9741a}
+  .kpi .num{font-family:'Sora';font-weight:800;font-size:1.4rem;color:var(--navy);line-height:1}
+  .kpi .lab{font-size:.82rem;color:var(--muted);margin-top:.15rem}
+
+  /* CARD */
+  .card-x{background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm)}
+
+  /* FILTER BAR */
+  .filter-bar{padding:1rem 1.1rem}
+  .f-search{position:relative}
+  .f-search svg{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--muted)}
+  .f-search input{width:100%;border:1px solid var(--line);background:var(--cream);border-radius:11px;padding:.62rem .9rem .62rem 2.3rem;font-size:.9rem;outline:none;color:var(--navy)}
+  .f-search input:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(15,163,163,.1)}
+  .f-select{width:100%;border:1px solid var(--line);background:#fff;border-radius:11px;padding:.62rem 2rem .62rem .9rem;font-size:.88rem;font-weight:500;color:var(--navy);outline:none;cursor:pointer}
+  .f-select:focus{border-color:var(--teal)}
+  .btn-clear{background:#fff;border:1px solid var(--line);border-radius:11px;padding:.62rem 1rem;font-size:.86rem;font-weight:600;color:var(--muted);cursor:pointer;transition:.2s;white-space:nowrap;width:100%}
+  .btn-clear:hover{border-color:var(--cancel-fg);color:var(--cancel-fg)}
+
+  .result-line{font-size:.86rem;color:var(--muted);margin:.2rem 0 1rem;padding:0 .2rem}
+  .result-line b{color:var(--navy);font-weight:600}
+
+  /* BULK BAR */
+  .bulk-bar{display:none;align-items:center;gap:.8rem;background:var(--navy);color:#fff;border-radius:12px;padding:.6rem 1rem;margin-bottom:1rem}
+  .bulk-bar.show{display:flex}
+  .bulk-bar b{font-family:'Sora';font-size:.9rem}
+  .bulk-bar .bulk-btn{margin-left:auto;background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:999px;padding:.35rem .9rem;font-size:.82rem;font-weight:600;cursor:pointer;transition:.2s}
+  .bulk-bar .bulk-btn+.bulk-btn{margin-left:.5rem}
+  .bulk-bar .bulk-btn:hover{background:rgba(255,255,255,.22)}
+  .bulk-bar .bulk-btn.danger:hover{background:var(--cancel-fg)}
+
+  /* TABLE */
+  .tbl-wrap{overflow-x:auto}
+  table.tx{width:100%;border-collapse:separate;border-spacing:0;min-width:1020px}
+  table.tx th{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--line);white-space:nowrap}
+  table.tx th.sortable{cursor:pointer;user-select:none}
+  table.tx th.sortable:hover{color:var(--teal-dark)}
+  table.tx th .sar{opacity:.4;margin-left:.2rem}
+  table.tx th.sorted .sar{opacity:1;color:var(--teal-dark)}
+  table.tx td{padding:.8rem 1rem;border-bottom:1px solid var(--line-2);font-size:.88rem;color:var(--navy);vertical-align:middle}
+  table.tx tbody tr{transition:.15s}
+  table.tx tbody tr:hover{background:var(--cream)}
+  .chk{width:17px;height:17px;accent-color:var(--teal-dark);cursor:pointer}
+
+  .tour-cell{display:flex;align-items:center;gap:.7rem;min-width:220px}
+  .tour-cell img{width:52px;height:52px;border-radius:11px;object-fit:cover;flex:none}
+  .tour-cell b{font-family:'Sora';font-weight:600;font-size:.9rem;color:var(--navy);display:block;line-height:1.25}
+  .tour-cell span{font-size:.78rem;color:var(--teal-dark);font-weight:500}
+  .cat-pill{font-size:.76rem;color:var(--navy);background:var(--cream);border:1px solid var(--line);padding:.22rem .6rem;border-radius:999px;white-space:nowrap}
+  .amount{font-family:'Sora';font-weight:600;white-space:nowrap}
+  .muted-cell{color:var(--muted);white-space:nowrap}
+
+  .cap{min-width:96px}
+  .cap .cap-top{font-size:.84rem;font-weight:600;color:var(--navy);margin-bottom:.28rem}
+  .cap .cap-top .full{color:var(--cancel-fg)}
+  .cap-track{height:5px;background:var(--line-2);border-radius:999px;overflow:hidden}
+  .cap-fill{height:100%;border-radius:999px;background:var(--teal)}
+  .cap-fill.high{background:#e0a83d}
+  .cap-fill.full{background:var(--cancel-fg)}
+
+  .badge-x{font-size:.74rem;font-weight:600;padding:.28rem .7rem;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:.35rem}
+  .badge-x::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .b-ok{background:var(--ok-bg);color:var(--ok-fg)}
+  .b-pasif{background:var(--cancel-bg);color:var(--cancel-fg)}
+  .b-taslak{background:var(--wait-bg);color:var(--wait-fg)}
+
+  /* actions dropdown */
+  .act-btn{width:34px;height:34px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);cursor:pointer;transition:.2s}
+  .act-btn:hover{border-color:var(--teal);color:var(--teal-dark)}
+  .dropdown-menu{border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-md);padding:.4rem;font-size:.88rem;min-width:180px}
+  .dropdown-item{border-radius:8px;padding:.5rem .7rem;font-weight:500;color:var(--navy);display:flex;align-items:center;gap:.6rem}
+  .dropdown-item:hover{background:var(--cream);color:var(--teal-dark)}
+  .dropdown-item svg{color:var(--muted)}
+  .dropdown-item:hover svg{color:var(--teal-dark)}
+  .dropdown-item.danger{color:var(--cancel-fg)}
+  .dropdown-item.danger svg{color:var(--cancel-fg)}
+  .dropdown-item.danger:hover{background:var(--cancel-bg)}
+
+  /* pagination */
+  .pager-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;padding:1rem 1.1rem}
+  .pager{display:flex;gap:.35rem}
+  .pager a{min-width:38px;height:38px;display:grid;place-items:center;border-radius:10px;background:#fff;border:1px solid var(--line);color:var(--navy);font-weight:600;font-size:.88rem;transition:.2s;padding:0 .3rem}
+  .pager a:hover{border-color:var(--teal);color:var(--teal-dark)}
+  .pager a.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .pager a.disabled{opacity:.45;pointer-events:none}
+  .per-page{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--muted)}
+  .per-page select{border:1px solid var(--line);border-radius:9px;padding:.35rem 1.6rem .35rem .6rem;font-size:.85rem;font-weight:600;color:var(--navy);outline:none;cursor:pointer}
+
+  /* empty */
+  .empty{text-align:center;padding:3.5rem 1rem}
+  .empty .eic{width:60px;height:60px;border-radius:16px;background:rgba(15,163,163,.1);color:var(--teal-dark);display:grid;place-items:center;margin:0 auto 1rem}
+  .empty h3{font-family:'Sora';font-weight:700;color:var(--navy);font-size:1.2rem}
+  .empty p{color:var(--muted);margin:.3rem 0 1.2rem}
+
+  .admin-foot{padding:1.1rem 1.8rem;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--muted)}
+  .sb-overlay{display:none;position:fixed;inset:0;background:rgba(14,42,59,.45);z-index:1044}
+  .sb-overlay.show{display:block}
+
+  .modal-content{border-radius:var(--r);border:none}
+
+  @media(max-width:1100px){
+    .sidebar{transform:translateX(-100%);transition:transform .3s ease}
+    .sidebar.show{transform:none}
+    .main{margin-left:0}
+    .hamb{display:grid}
+  }
+  @media(max-width:575px){
+    .content{padding:1.1rem}
+    .tb-search{display:none}
+    .tb-user .nm{display:none}
+    .topbar{padding:.8rem 1rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR (birebir dashboard ile aynı) -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <span class="dot"></span>
+    <span class="txt"><b>Travelio</b><span>Admin Panel</span></span>
+  </div>
+  <nav class="sb-menu">
+    <div class="sb-cap">Yönetim</div>
+    <a class="sb-link" href="admin-dashboard.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Dashboard
+    </a>
+    <a class="sb-link active" href="admin-tours.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      Turlar
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Rezervasyonlar
+      <span class="sb-badge">126</span>
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Yorumlar
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+      Sorular
+      <span class="sb-badge">17</span>
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Kullanıcılar
+    </a>
+    <div class="sb-cap">Katalog</div>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg>
+      Kategoriler
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Destinasyonlar
+    </a>
+    <div class="sb-cap">Diğer</div>
+    <a class="sb-link" href="index.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M9 21V9h6v12"/></svg>
+      Siteye Dön
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Çıkış Yap
+    </a>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="av">MY</div>
+      <div><b>Murat Yücedağ</b><span>Yönetici</span></div>
+    </div>
+  </div>
+</aside>
+<div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar(false)"></div>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <button class="hamb" onclick="toggleSidebar(true)" aria-label="Menü">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="tb-title">Tur Yönetimi</span>
+    <div class="tb-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Ara: rezervasyon, tur, kullanıcı...">
+    </div>
+    <div class="tb-right">
+      <button class="tb-icon" aria-label="Bildirimler">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="n-badge">3</span>
+      </button>
+      <div class="tb-user">
+        <div class="av">MY</div>
+        <div class="nm"><b>Murat Yücedağ</b><span>Yönetici</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- INTRO -->
+    <div class="crumb"><a href="admin-dashboard.html">Dashboard</a> / <span class="cur">Turlar</span></div>
+    <div class="page-intro">
+      <div>
+        <h1>Tur Yönetimi</h1>
+        <p>Travelio'daki tüm turları görüntüleyebilir, filtreleyebilir ve yönetebilirsiniz.</p>
+      </div>
+      <a href="admin-tour-create.html" class="btn-teal">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Yeni Tur Ekle
+      </a>
+    </div>
+
+    <!-- KPI mini -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3"><div class="kpi"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div><div><div class="num">48</div><div class="lab">Toplam Tur</div></div></div></div>
+      <div class="col-6 col-lg-3"><div class="kpi"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="num">42</div><div class="lab">Aktif Tur</div></div></div></div>
+      <div class="col-6 col-lg-3"><div class="kpi"><div class="ic gray"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="num">6</div><div class="lab">Pasif Tur</div></div></div></div>
+      <div class="col-6 col-lg-3"><div class="kpi"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div><div><div class="num">1.246</div><div class="lab">Toplam Kontenjan</div></div></div></div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="card-x filter-bar mb-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-lg-4 col-md-6">
+          <div class="f-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="fSearch" placeholder="Tur adı veya destinasyon ara...">
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <select class="f-select" id="fDest">
+            <option value="">Tüm Destinasyonlar</option>
+            <option>Fransa</option><option>İtalya</option><option>İspanya</option><option>Hollanda</option>
+            <option>Avusturya</option><option>İsviçre</option><option>Norveç</option><option>Japonya</option><option>Portekiz</option>
+          </select>
+        </div>
+        <div class="col-lg-2 col-md-4">
+          <select class="f-select" id="fCat">
+            <option value="">Tüm Kategoriler</option>
+            <option>Kültür Turu</option><option>Şehir Turu</option><option>Doğa & Macera</option>
+            <option>Romantik Rota</option><option>Gastronomi</option><option>Kış & Kuzey Işıkları</option><option>Uzak Doğu</option>
+          </select>
+        </div>
+        <div class="col-lg-2 col-md-4">
+          <select class="f-select" id="fStatus">
+            <option value="">Tüm Durumlar</option>
+            <option value="Aktif">Aktif</option><option value="Pasif">Pasif</option><option value="Taslak">Taslak</option>
+          </select>
+        </div>
+        <div class="col-lg-1 col-md-4">
+          <button class="btn-clear" onclick="clearFilters()">Temizle</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-line"><b id="resultCount">12</b> tur listeleniyor</div>
+
+    <!-- BULK BAR -->
+    <div class="bulk-bar" id="bulkBar">
+      <b id="bulkCount">0 tur seçildi</b>
+      <button class="bulk-btn" onclick="bulkStatus('Aktif')">Aktif Yap</button>
+      <button class="bulk-btn" onclick="bulkStatus('Pasif')">Pasif Yap</button>
+      <button class="bulk-btn danger" onclick="bulkDelete()">Sil</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card-x mb-3">
+      <div class="tbl-wrap">
+        <table class="tx">
+          <thead>
+            <tr>
+              <th style="width:36px"><input type="checkbox" class="chk" id="checkAll" onchange="toggleAll(this)"></th>
+              <th class="sortable" onclick="sortBy('title')">Tur <span class="sar">↕</span></th>
+              <th>Kategori</th>
+              <th>Süre</th>
+              <th class="sortable" onclick="sortBy('price')">Fiyat <span class="sar">↕</span></th>
+              <th class="sortable" onclick="sortBy('date')">Yaklaşan Tarih <span class="sar">↕</span></th>
+              <th>Kontenjan</th>
+              <th class="sortable" onclick="sortBy('res')">Rezervasyon <span class="sar">↕</span></th>
+              <th>Durum</th>
+              <th style="width:56px">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody id="tourRows"></tbody>
+        </table>
+      </div>
+      <div id="emptyState" style="display:none">
+        <div class="empty">
+          <div class="eic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+          <h3>Tur bulunamadı</h3>
+          <p>Arama veya filtre kriterlerinizi değiştirerek tekrar deneyebilirsiniz.</p>
+          <button class="btn-teal" style="margin:0 auto" onclick="clearFilters()">Filtreleri Temizle</button>
+        </div>
+      </div>
+      <div class="pager-row" id="pagerRow">
+        <div class="per-page">
+          Sayfa başına
+          <select id="perPage"><option>10</option><option>25</option><option>50</option></select>
+        </div>
+        <div class="pager">
+          <a href="#" class="disabled">Önceki</a>
+          <a href="#" class="active">1</a>
+          <a href="#">2</a>
+          <a href="#">3</a>
+          <a href="#">4</a>
+          <a href="#">Sonraki</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="admin-foot">
+    <span>© 2026 Travelio Admin Panel</span>
+    <span>v1.0</span>
+  </footer>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal fade" id="delModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center p-4">
+        <div style="width:56px;height:56px;border-radius:16px;background:var(--cancel-bg);color:var(--cancel-fg);display:grid;place-items:center;margin:0 auto 1rem">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </div>
+        <h5 style="font-family:'Sora';font-weight:700;color:var(--navy)">Turu Sil</h5>
+        <p style="color:var(--muted);font-size:.92rem;margin-bottom:.2rem" id="delMsg"></p>
+        <p style="color:var(--muted);font-size:.82rem">Bu işlem geri alınamaz.</p>
+        <div class="d-flex gap-2 justify-content-center mt-3">
+          <button class="btn-clear" style="width:auto;padding:.6rem 1.3rem" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal" style="background:var(--cancel-fg)" onclick="confirmDelete()">Turu Sil</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function toggleSidebar(show){
+  document.getElementById("sidebar").classList.toggle("show", show);
+  document.getElementById("sbOverlay").classList.toggle("show", show);
+}
+
+const IMG={
+  roma:"https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=160&q=80",
+  paris:"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=160&q=80",
+  amsterdam:"https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=160&q=80",
+  prag:"https://images.unsplash.com/photo-1541849546-216549ae216d?auto=format&fit=crop&w=160&q=80",
+  barcelona:"https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&w=160&q=80",
+  swiss:"https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=160&q=80",
+  norway:"https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=160&q=80",
+  tokyo:"https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=160&q=80",
+  lisbon:"https://images.unsplash.com/photo-1585208798174-6cedd86e019a?auto=format&fit=crop&w=160&q=80",
+  alsace:"https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=160&q=80",
+  amalfi:"https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=160&q=80",
+  salzburg:"https://images.unsplash.com/photo-1516466723877-e4ec1d736c8a?auto=format&fit=crop&w=160&q=80"
+};
+
+let TOURS=[
+  {id:1,title:"Roma & Toskana Keşfi",country:"İtalya",cat:"Kültür Turu",dur:"6 Gün / 5 Gece",price:42500,date:"12 Ekim 2026",ds:"2026-10-12",cap:28,res:21,status:"Aktif",img:IMG.roma},
+  {id:2,title:"Paris & Disneyland",country:"Fransa",cat:"Şehir Turu",dur:"5 Gün / 4 Gece",price:38900,date:"18 Eylül 2026",ds:"2026-09-18",cap:32,res:29,status:"Aktif",img:IMG.paris},
+  {id:3,title:"Amsterdam Kanalları",country:"Hollanda",cat:"Şehir Turu",dur:"4 Gün / 3 Gece",price:29900,date:"5 Ekim 2026",ds:"2026-10-05",cap:24,res:18,status:"Aktif",img:IMG.amsterdam},
+  {id:4,title:"Prag & Viyana Kültür Turu",country:"Çekya · Avusturya",cat:"Kültür Turu",dur:"6 Gün / 5 Gece",price:36400,date:"3 Ekim 2026",ds:"2026-10-03",cap:30,res:26,status:"Aktif",img:IMG.prag},
+  {id:5,title:"Barselona Akdeniz Turu",country:"İspanya",cat:"Şehir Turu",dur:"5 Gün / 4 Gece",price:34700,date:"25 Eylül 2026",ds:"2026-09-25",cap:28,res:24,status:"Aktif",img:IMG.barcelona},
+  {id:6,title:"İsviçre Alpleri",country:"İsviçre",cat:"Doğa & Macera",dur:"7 Gün / 6 Gece",price:58200,date:"21 Eylül 2026",ds:"2026-09-21",cap:22,res:20,status:"Aktif",img:IMG.swiss},
+  {id:7,title:"Kuzey Işıkları Norveç",country:"Norveç",cat:"Kış & Kuzey Işıkları",dur:"6 Gün / 5 Gece",price:64900,date:"8 Ocak 2027",ds:"2027-01-08",cap:20,res:17,status:"Aktif",img:IMG.norway},
+  {id:8,title:"Tokyo & Kyoto",country:"Japonya",cat:"Uzak Doğu",dur:"8 Gün / 7 Gece",price:79900,date:"7 Kasım 2026",ds:"2026-11-07",cap:24,res:16,status:"Aktif",img:IMG.tokyo},
+  {id:9,title:"Lizbon & Porto",country:"Portekiz",cat:"Gastronomi",dur:"6 Gün / 5 Gece",price:39500,date:"14 Kasım 2026",ds:"2026-11-14",cap:26,res:11,status:"Aktif",img:IMG.lisbon},
+  {id:10,title:"Paris & Alsace",country:"Fransa",cat:"Romantik Rota",dur:"7 Gün / 6 Gece",price:47900,date:"12 Aralık 2026",ds:"2026-12-12",cap:24,res:9,status:"Taslak",img:IMG.alsace},
+  {id:11,title:"Amalfi & Napoli",country:"İtalya",cat:"Romantik Rota",dur:"6 Gün / 5 Gece",price:49500,date:"19 Ekim 2026",ds:"2026-10-19",cap:24,res:22,status:"Aktif",img:IMG.amalfi},
+  {id:12,title:"Salzburg & Hallstatt",country:"Avusturya",cat:"Doğa & Macera",dur:"5 Gün / 4 Gece",price:44900,date:"26 Kasım 2026",ds:"2026-11-26",cap:26,res:0,status:"Pasif",img:IMG.salzburg}
+];
+
+let sortKey=null, sortDir=1;
+const fmt=n=>n.toLocaleString("tr-TR");
+const statusClass={Aktif:"b-ok",Pasif:"b-pasif",Taslak:"b-taslak"};
+
+function getFiltered(){
+  const q=document.getElementById("fSearch").value.trim().toLowerCase();
+  const dest=document.getElementById("fDest").value;
+  const cat=document.getElementById("fCat").value;
+  const st=document.getElementById("fStatus").value;
+  let list=TOURS.filter(t=>{
+    if(q && !(t.title.toLowerCase().includes(q)||t.country.toLowerCase().includes(q))) return false;
+    if(dest && !t.country.includes(dest)) return false;
+    if(cat && t.cat!==cat) return false;
+    if(st && t.status!==st) return false;
+    return true;
+  });
+  if(sortKey){
+    list.sort((a,b)=>{
+      let av,bv;
+      if(sortKey==="title"){av=a.title;bv=b.title;return av.localeCompare(bv,"tr")*sortDir;}
+      if(sortKey==="price"){av=a.price;bv=b.price;}
+      if(sortKey==="res"){av=a.res;bv=b.res;}
+      if(sortKey==="date"){av=a.ds;bv=b.ds;return av.localeCompare(bv)*sortDir;}
+      return (av-bv)*sortDir;
+    });
+  }
+  return list;
+}
+
+function capClass(res,cap){
+  const p=cap? res/cap : 0;
+  if(res>=cap && cap>0) return "full";
+  if(p>=.85) return "high";
+  return "";
+}
+
+function render(){
+  const list=getFiltered();
+  const tb=document.getElementById("tourRows");
+  document.getElementById("resultCount").textContent=list.length;
+  const empty=document.getElementById("emptyState");
+  const pager=document.getElementById("pagerRow");
+
+  if(list.length===0){ tb.innerHTML=""; empty.style.display="block"; pager.style.display="none"; updateBulk(); return; }
+  empty.style.display="none"; pager.style.display="flex";
+
+  tb.innerHTML=list.map(t=>{
+    const cc=capClass(t.res,t.cap);
+    const pct=t.cap? Math.min(100,Math.round(t.res/t.cap*100)):0;
+    return `
+    <tr data-id="${t.id}">
+      <td><input type="checkbox" class="chk row-chk" value="${t.id}" onchange="updateBulk()"></td>
+      <td>
+        <div class="tour-cell">
+          <img src="${t.img}" alt="${t.title}">
+          <div><b>${t.title}</b><span>${t.country}</span></div>
+        </div>
+      </td>
+      <td><span class="cat-pill">${t.cat}</span></td>
+      <td class="muted-cell">${t.dur}</td>
+      <td><span class="amount">${fmt(t.price)} TL</span></td>
+      <td class="muted-cell">${t.date}</td>
+      <td>
+        <div class="cap">
+          <div class="cap-top">${t.res} / ${t.cap} ${cc==="full"?'<span class="full">· Dolu</span>':''}</div>
+          <div class="cap-track"><div class="cap-fill ${cc}" style="width:${pct}%"></div></div>
+        </div>
+      </td>
+      <td style="font-weight:600">${t.res}</td>
+      <td><span class="badge-x ${statusClass[t.status]}">${t.status}</span></td>
+      <td>
+        <div class="dropdown">
+          <button class="act-btn" data-bs-toggle="dropdown" aria-label="İşlemler">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="tour-detail.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg> Görüntüle</a></li>
+            <li><a class="dropdown-item" href="admin-tour-edit.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg> Düzenle</a></li>
+            <li><a class="dropdown-item" href="#" onclick="copyTour(${t.id});return false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Kopyala</a></li>
+            <li><a class="dropdown-item" href="#" onclick="toggleStatus(${t.id});return false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><polyline points="21 3 21 9 15 9"/></svg> ${t.status==="Aktif"?"Pasif Yap":"Aktif Yap"}</a></li>
+            <li><a class="dropdown-item danger" href="#" onclick="askDelete(${t.id});return false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg> Sil</a></li>
+          </ul>
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+  document.getElementById("checkAll").checked=false;
+  updateBulk();
+}
+
+/* sorting */
+function sortBy(key){
+  if(sortKey===key) sortDir*=-1; else{sortKey=key;sortDir=1;}
+  document.querySelectorAll("th.sortable").forEach(th=>th.classList.remove("sorted"));
+  event.currentTarget.classList.add("sorted");
+  render();
+}
+
+/* filters */
+["fSearch","fDest","fCat","fStatus"].forEach(id=>{
+  document.getElementById(id).addEventListener("input",render);
+  document.getElementById(id).addEventListener("change",render);
+});
+function clearFilters(){
+  document.getElementById("fSearch").value="";
+  document.getElementById("fDest").value="";
+  document.getElementById("fCat").value="";
+  document.getElementById("fStatus").value="";
+  sortKey=null;sortDir=1;
+  document.querySelectorAll("th.sortable").forEach(th=>th.classList.remove("sorted"));
+  render();
+}
+
+/* status toggle */
+function toggleStatus(id){
+  const t=TOURS.find(x=>x.id===id);
+  t.status = t.status==="Aktif" ? "Pasif" : "Aktif";
+  render();
+}
+function copyTour(id){
+  const t=TOURS.find(x=>x.id===id);
+  const copy={...t,id:Math.max(...TOURS.map(x=>x.id))+1,title:t.title+" (Kopya)",res:0,status:"Taslak"};
+  TOURS.splice(TOURS.indexOf(t)+1,0,copy);
+  render();
+}
+
+/* delete */
+let delId=null;
+function askDelete(id){
+  delId=id;
+  const t=TOURS.find(x=>x.id===id);
+  document.getElementById("delMsg").innerHTML=`"<b style="color:var(--navy)">${t.title}</b>" turunu silmek istediğinize emin misiniz?`;
+  new bootstrap.Modal(document.getElementById("delModal")).show();
+}
+function confirmDelete(){
+  TOURS=TOURS.filter(x=>x.id!==delId);
+  bootstrap.Modal.getInstance(document.getElementById("delModal")).hide();
+  render();
+}
+
+/* bulk */
+function toggleAll(cb){ document.querySelectorAll(".row-chk").forEach(c=>c.checked=cb.checked); updateBulk(); }
+function selectedIds(){ return [...document.querySelectorAll(".row-chk:checked")].map(c=>+c.value); }
+function updateBulk(){
+  const ids=selectedIds();
+  const bar=document.getElementById("bulkBar");
+  bar.classList.toggle("show",ids.length>0);
+  document.getElementById("bulkCount").textContent=ids.length+" tur seçildi";
+}
+function bulkStatus(st){ selectedIds().forEach(id=>{TOURS.find(x=>x.id===id).status=st;}); render(); }
+function bulkDelete(){ const ids=selectedIds(); TOURS=TOURS.filter(x=>!ids.includes(x.id)); render(); }
+
+render();
+</script>
+</body>
+</html>

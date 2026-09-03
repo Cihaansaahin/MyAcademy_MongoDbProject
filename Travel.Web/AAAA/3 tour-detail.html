@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Roma & Toskana Keşfi — Travelio</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#0e2a3b;--navy-2:#12384c;--teal:#0fa3a3;--teal-dark:#0b7f80;
+    --cream:#f7f5f0;--white:#ffffff;--ink:#0e2a3b;--muted:#5d7180;--line:#e7e2d8;
+    --shadow-sm:0 4px 18px rgba(14,42,59,.06);--shadow-md:0 18px 50px rgba(14,42,59,.12);--r:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--cream);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4,.brand{font-family:'Sora',sans-serif;}
+  .eyebrow{font-family:'Sora',sans-serif;text-transform:uppercase;letter-spacing:.22em;font-size:.72rem;font-weight:700;color:var(--teal-dark);}
+  a{text-decoration:none}
+  .btn-teal{background:var(--teal);color:#fff;border:none;border-radius:999px;font-weight:600;padding:.8rem 1.6rem;transition:.25s;}
+  .btn-teal:hover{background:var(--teal-dark);color:#fff;transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,163,163,.32)}
+
+  /* NAV */
+  .navbar{background:rgba(247,245,240,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:.9rem 0;}
+  .brand{font-weight:800;font-size:1.5rem;color:var(--navy);letter-spacing:-.5px;display:flex;align-items:center;gap:.5rem;}
+  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--teal);display:inline-block;box-shadow:0 0 0 4px rgba(15,163,163,.18)}
+  .navbar .nav-link{color:var(--navy);font-weight:500;margin:0 .35rem;position:relative}
+  .navbar .nav-link:hover{color:var(--teal-dark)}
+  .navbar .nav-link.active{color:var(--teal-dark)}
+  .navbar .nav-link.active::after{content:"";position:absolute;left:.7rem;right:.7rem;bottom:-2px;height:2px;background:var(--teal);border-radius:2px}
+  .profile-pill{display:flex;align-items:center;gap:.55rem;border:1px solid var(--line);background:#fff;border-radius:999px;padding:.35rem .35rem .35rem .95rem;font-weight:600;color:var(--navy);transition:.2s}
+  .profile-pill:hover{box-shadow:var(--shadow-sm);color:var(--navy)}
+  .profile-pill .avatar{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:.85rem;font-weight:700}
+
+  /* BREADCRUMB */
+  .crumb{padding:1.6rem 0 .2rem;font-size:.85rem;color:var(--muted)}
+  .crumb a{color:var(--muted)}
+  .crumb a:hover{color:var(--teal-dark)}
+  .crumb .cur{color:var(--navy);font-weight:600}
+
+  /* DETAIL HEADER */
+  .detail-head{padding:1rem 0 1.6rem}
+  .cat-line{font-size:.82rem;color:var(--teal-dark);font-weight:600;letter-spacing:.02em}
+  .detail-head h1{font-weight:800;font-size:clamp(1.9rem,3.5vw,2.8rem);letter-spacing:-.6px;color:var(--navy);margin:.4rem 0 .7rem}
+  .head-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1.3rem;color:var(--muted);font-size:.92rem}
+  .head-meta .rating{color:var(--navy);font-weight:600}
+  .head-meta .star{color:#f4a92c}
+  .head-meta .dot-sep{width:4px;height:4px;border-radius:50%;background:var(--line);display:inline-block}
+  .head-actions{display:flex;gap:.6rem}
+  .icon-btn{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--line);background:#fff;border-radius:999px;padding:.6rem 1.1rem;font-weight:600;color:var(--navy);font-size:.9rem;transition:.2s;cursor:pointer}
+  .icon-btn:hover{box-shadow:var(--shadow-sm);color:var(--teal-dark);border-color:var(--teal)}
+  .icon-btn.on{color:#e0575b;border-color:#f0c5c7}
+  .icon-btn.on svg{fill:currentColor}
+
+  /* GALLERY */
+  .gallery{padding-bottom:2.4rem}
+  .gallery .row{--bs-gutter-x:.9rem;--bs-gutter-y:.9rem}
+  .g-img{width:100%;height:100%;object-fit:cover;border-radius:16px;display:block;cursor:pointer;transition:.35s}
+  .g-main{height:434px}
+  .g-small{height:209px}
+  .g-img:hover{filter:brightness(.94)}
+  .g-wrap{position:relative;overflow:hidden;border-radius:16px;height:100%}
+  .g-more{position:absolute;right:.7rem;bottom:.7rem;background:rgba(14,42,59,.82);color:#fff;font-size:.8rem;font-weight:600;padding:.4rem .8rem;border-radius:999px}
+
+  /* LAYOUT */
+  .body-section{padding-bottom:4rem}
+  .content-block{background:#fff;border-radius:var(--r);box-shadow:var(--shadow-sm);border:1px solid rgba(231,226,216,.7);padding:1.9rem 1.9rem;margin-bottom:1.5rem}
+  .content-block h2{font-family:'Sora';font-weight:700;font-size:1.35rem;color:var(--navy);margin-bottom:1rem}
+  .content-block p{color:var(--muted);line-height:1.75;margin-bottom:1rem}
+  .content-block p:last-child{margin-bottom:0}
+
+  /* HIGHLIGHTS */
+  .hl-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+  .hl-list li{display:flex;align-items:flex-start;gap:.7rem;color:var(--navy);font-size:.95rem;font-weight:500}
+  .hl-ico{flex:none;width:26px;height:26px;border-radius:8px;background:rgba(15,163,163,.12);color:var(--teal-dark);display:grid;place-items:center;margin-top:1px}
+
+  /* ITINERARY */
+  .itin-item{border:1px solid var(--line);border-radius:14px;margin-bottom:.8rem;overflow:hidden;background:#fff;transition:.25s}
+  .itin-item.open{box-shadow:var(--shadow-sm);border-color:rgba(15,163,163,.4)}
+  .itin-head{display:flex;align-items:center;gap:1rem;padding:1.05rem 1.2rem;cursor:pointer;user-select:none}
+  .day-tag{flex:none;font-family:'Sora';font-weight:700;font-size:.74rem;letter-spacing:.03em;color:var(--teal-dark);background:rgba(15,163,163,.1);padding:.35rem .7rem;border-radius:999px;white-space:nowrap}
+  .itin-title{font-family:'Sora';font-weight:600;color:var(--navy);font-size:1rem;flex:1}
+  .itin-toggle{flex:none;width:30px;height:30px;border-radius:50%;background:var(--cream);display:grid;place-items:center;color:var(--navy);transition:.3s}
+  .itin-item.open .itin-toggle{background:var(--navy);color:#fff;transform:rotate(180deg)}
+  .itin-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .itin-inner{padding:0 1.2rem 1.2rem 1.2rem;color:var(--muted);line-height:1.7;font-size:.94rem}
+  .itin-inner ul{margin:.4rem 0 .8rem;padding-left:1.1rem}
+  .itin-inner li{margin-bottom:.25rem}
+  .itin-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+  .itin-tags span{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;color:var(--navy);background:var(--cream);border:1px solid var(--line);padding:.28rem .7rem;border-radius:999px}
+
+  /* INCLUDES */
+  .inc-list{list-style:none;margin:0;padding:0}
+  .inc-list li{display:flex;align-items:flex-start;gap:.65rem;color:var(--navy);font-size:.94rem;padding:.42rem 0}
+  .inc-yes{color:var(--teal-dark);flex:none;margin-top:1px}
+  .inc-no{color:#c26060;flex:none;margin-top:1px}
+
+  /* INFO GRID */
+  .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem}
+  .info-cell{padding:.2rem 0}
+  .info-cell .k{font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin-bottom:.2rem}
+  .info-cell .v{font-family:'Sora';font-weight:600;color:var(--navy);font-size:.98rem}
+  .meet-note{background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin-top:1.2rem}
+  .meet-note b{color:var(--navy);font-family:'Sora'}
+  .meet-note p{margin:.3rem 0 0;font-size:.9rem}
+
+  /* BOOKING CARD */
+  .book-card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow-md);border:1px solid rgba(231,226,216,.7);padding:1.6rem 1.5rem}
+  .book-sticky{position:sticky;top:90px}
+  .price-top small{color:var(--muted);font-size:.82rem}
+  .price-top .big{font-family:'Sora';font-weight:800;font-size:2rem;color:var(--navy);line-height:1.1}
+  .price-top .big span{font-size:1rem;color:var(--muted);font-weight:600}
+  .price-note{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+  .book-label{font-family:'Sora';font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--navy);margin:1.3rem 0 .7rem}
+  .date-opt{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem;margin-bottom:.55rem;cursor:pointer;transition:.2s}
+  .date-opt:hover{border-color:var(--teal)}
+  .date-opt.sel{border-color:var(--teal);background:rgba(15,163,163,.06);box-shadow:0 0 0 2px rgba(15,163,163,.12)}
+  .date-opt .d{font-weight:600;color:var(--navy);font-size:.92rem}
+  .date-opt .left{font-size:.72rem;color:#c26a45;font-weight:600}
+  .date-opt input{display:none}
+  .counter-row{display:flex;align-items:center;justify-content:space-between;padding:.55rem 0}
+  .counter-row .cl b{display:block;color:var(--navy);font-size:.94rem;font-family:'Sora'}
+  .counter-row .cl span{font-size:.78rem;color:var(--muted)}
+  .counter{display:flex;align-items:center;gap:.8rem}
+  .counter button{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--navy);font-size:1.1rem;font-weight:600;display:grid;place-items:center;cursor:pointer;transition:.2s;line-height:1}
+  .counter button:hover{border-color:var(--teal);color:var(--teal-dark)}
+  .counter button:disabled{opacity:.4;cursor:not-allowed}
+  .counter .val{min-width:20px;text-align:center;font-weight:700;color:var(--navy)}
+  .summary{border-top:1px solid var(--line);margin-top:1rem;padding-top:1rem}
+  .summary .row-line{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted);margin-bottom:.45rem}
+  .summary .row-line b{color:var(--navy);font-weight:600}
+  .summary .total{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin-top:.6rem;padding-top:.8rem}
+  .summary .total span{font-family:'Sora';font-weight:600;color:var(--navy)}
+  .summary .total b{font-family:'Sora';font-weight:800;font-size:1.5rem;color:var(--navy)}
+  .book-card .btn-teal{width:100%;margin-top:1.1rem}
+  .trust{display:flex;justify-content:center;gap:1.2rem;margin-top:.9rem;font-size:.78rem;color:var(--muted)}
+  .trust span{display:inline-flex;align-items:center;gap:.35rem}
+
+  /* REVIEWS */
+  .rev-summary{display:flex;gap:2.4rem;flex-wrap:wrap;align-items:center}
+  .rev-score{text-align:center}
+  .rev-score .num{font-family:'Sora';font-weight:800;font-size:3rem;color:var(--navy);line-height:1}
+  .rev-score .stars{color:#f4a92c;margin:.3rem 0}
+  .rev-score .cnt{font-size:.82rem;color:var(--muted)}
+  .rev-bars{flex:1;min-width:220px}
+  .bar-row{display:flex;align-items:center;gap:.7rem;margin-bottom:.5rem}
+  .bar-row .lab{font-size:.82rem;color:var(--muted);width:52px}
+  .bar-track{flex:1;height:8px;background:var(--cream);border-radius:999px;overflow:hidden}
+  .bar-fill{height:100%;background:var(--teal);border-radius:999px}
+  .bar-row .pct{font-size:.8rem;color:var(--muted);width:36px;text-align:right}
+
+  .review-card{border-top:1px solid var(--line);padding:1.3rem 0}
+  .review-card:first-of-type{border-top:none}
+  .rev-user{display:flex;align-items:center;gap:.8rem;margin-bottom:.5rem}
+  .rev-user img{width:44px;height:44px;border-radius:50%;object-fit:cover}
+  .rev-user b{display:block;color:var(--navy);font-size:.95rem;font-family:'Sora'}
+  .rev-user .sub{color:var(--muted);font-size:.8rem}
+  .rev-stars{color:#f4a92c;font-size:.85rem;margin-left:auto}
+  .rev-stars .off{color:#d8cfc0}
+  .review-card p{color:var(--navy);line-height:1.65;margin:0;font-size:.95rem}
+
+  .write-box{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:1.4rem 1.5rem;margin-top:1.4rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+  .write-box b{font-family:'Sora';color:var(--navy);font-size:1.05rem}
+  .write-box p{margin:.2rem 0 0;color:var(--muted);font-size:.88rem}
+
+  /* Q&A */
+  .qa-item{border-top:1px solid var(--line);padding:1.2rem 0}
+  .qa-item:first-of-type{border-top:none}
+  .qa-q{display:flex;align-items:flex-start;gap:.7rem;margin-bottom:.7rem}
+  .qa-avatar{flex:none;width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:.82rem;font-weight:700;font-family:'Sora'}
+  .qa-q .who{font-family:'Sora';font-weight:600;color:var(--navy);font-size:.92rem}
+  .qa-q .txt{color:var(--navy);font-size:.94rem;margin-top:.1rem}
+  .qa-a{display:flex;gap:.7rem;margin-left:2.1rem;background:rgba(15,163,163,.06);border-radius:12px;padding:.8rem 1rem}
+  .qa-a .brand-mini{flex:none;font-family:'Sora';font-weight:700;color:var(--teal-dark);font-size:.82rem;white-space:nowrap}
+  .qa-a .txt{color:var(--muted);font-size:.9rem;line-height:1.6}
+  .ask-box{margin-top:1.4rem}
+  .ask-box textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:.9rem 1rem;font-size:.92rem;color:var(--navy);outline:none;background:var(--cream);resize:vertical;min-height:90px}
+  .ask-box textarea:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(15,163,163,.12)}
+
+  /* SIMILAR TOURS */
+  .tour-card{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);transition:.3s;height:100%;display:flex;flex-direction:column;border:1px solid rgba(231,226,216,.7);}
+  .tour-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-md)}
+  .tour-media{position:relative;height:200px;overflow:hidden}
+  .tour-media img{width:100%;height:100%;object-fit:cover;transition:.5s}
+  .tour-card:hover .tour-media img{transform:scale(1.07)}
+  .tour-badge{position:absolute;top:.85rem;left:.85rem;background:rgba(255,255,255,.94);color:var(--navy);font-weight:600;font-size:.75rem;padding:.32rem .7rem;border-radius:999px;}
+  .tour-body{padding:1.15rem 1.25rem 1.3rem;display:flex;flex-direction:column;flex:1}
+  .tour-country{font-size:.78rem;color:var(--teal-dark);font-weight:600}
+  .tour-title{font-family:'Sora';font-weight:700;font-size:1.1rem;margin:.15rem 0 .5rem;color:var(--navy)}
+  .tour-meta{display:flex;align-items:center;gap:.9rem;font-size:.84rem;color:var(--muted);margin-bottom:.9rem}
+  .tour-meta .star{color:#f4a92c}
+  .tour-foot{display:flex;align-items:flex-end;justify-content:space-between;margin-top:auto;padding-top:.5rem;border-top:1px solid var(--line)}
+  .price small{color:var(--muted);font-size:.72rem;display:block}
+  .price b{font-family:'Sora';font-size:1.24rem;color:var(--navy)}
+  .price b span{font-size:.85rem;font-weight:600;color:var(--muted)}
+  .btn-incele{background:var(--navy);color:#fff;border-radius:999px;font-size:.85rem;font-weight:600;padding:.55rem 1.1rem;border:none;transition:.25s}
+  .btn-incele:hover{background:var(--teal-dark);color:#fff}
+
+  /* FOOTER */
+  footer{background:var(--navy);color:rgba(255,255,255,.72);padding:4rem 0 2rem}
+  footer .brand{color:#fff}
+  footer h6{color:#fff;font-family:'Sora';font-weight:600;letter-spacing:.02em;margin-bottom:1rem}
+  footer a{color:rgba(255,255,255,.72);display:block;margin-bottom:.55rem;font-size:.92rem}
+  footer a:hover{color:#7fe3e3}
+  .foot-social a{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);margin-right:.5rem}
+  .foot-social a:hover{background:var(--teal)}
+  .foot-bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:2.5rem;padding-top:1.5rem;font-size:.85rem}
+
+  .modal-content{border-radius:var(--r);border:none}
+  .star-pick{font-size:1.7rem;color:#d8cfc0;cursor:pointer;transition:.15s}
+  .star-pick.on{color:#f4a92c}
+
+  @media(max-width:991px){
+    .book-sticky{position:static;margin-top:1.5rem}
+    .g-main{height:280px}.g-small{height:150px}
+    .info-grid{grid-template-columns:1fr 1fr}
+    .hl-list{grid-template-columns:1fr}
+  }
+  @media(max-width:575px){
+    .info-grid{grid-template-columns:1fr}
+    .rev-summary{gap:1.4rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="brand" href="index.html"><span class="dot"></span>Travelio</a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Ana Sayfa</a></li>
+        <li class="nav-item"><a class="nav-link active" href="tours.html">Turlar</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#destinasyonlar">Destinasyonlar</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#yorumlar">Yorumlar</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#hakkimizda">Hakkımızda</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#iletisim">İletişim</a></li>
+      </ul>
+      <a href="#" class="profile-pill"><span>Profilim</span><span class="avatar">EY</span></a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <!-- BREADCRUMB -->
+  <div class="crumb">
+    <a href="index.html">Ana Sayfa</a> / <a href="tours.html">Turlar</a> / <span class="cur">Roma & Toskana Keşfi</span>
+  </div>
+
+  <!-- DETAIL HEADER -->
+  <div class="detail-head">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <div class="cat-line">İtalya · Kültür Turu</div>
+        <h1>Roma & Toskana Keşfi</h1>
+        <div class="head-meta">
+          <span class="rating"><span class="star">★</span> 4.8</span>
+          <span>1.687 değerlendirme</span>
+          <span class="dot-sep"></span>
+          <span>6 Gün / 5 Gece</span>
+          <span class="dot-sep"></span>
+          <span>Roma · Floransa · Pisa · Toskana</span>
+        </div>
+      </div>
+      <div class="head-actions">
+        <button class="icon-btn" id="favBtn" onclick="this.classList.toggle('on')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          Kaydet
+        </button>
+        <button class="icon-btn" onclick="sharePage()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+          Paylaş
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="gallery">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="g-wrap">
+          <img class="g-img g-main" src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1000&q=80" alt="Roma Kolezyum" />
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="row">
+          <div class="col-6"><div class="g-wrap"><img class="g-img g-small" src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=600&q=80" alt="Toskana" /></div></div>
+          <div class="col-6"><div class="g-wrap"><img class="g-img g-small" src="https://images.unsplash.com/photo-1541370976299-4d24ebbc9077?auto=format&fit=crop&w=600&q=80" alt="Floransa" /></div></div>
+          <div class="col-6"><div class="g-wrap"><img class="g-img g-small" src="https://images.unsplash.com/photo-1522918448933-c7bc4a67dfc1?auto=format&fit=crop&w=600&q=80" alt="Pisa" /></div></div>
+          <div class="col-6"><div class="g-wrap"><img class="g-img g-small" src="https://images.unsplash.com/photo-1531572753322-ad063cecc140?auto=format&fit=crop&w=600&q=80" alt="Vatikan" /><span class="g-more">+8 fotoğraf</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="container body-section">
+  <div class="row g-4">
+    <!-- LEFT -->
+    <div class="col-lg-8">
+
+      <!-- ABOUT -->
+      <div class="content-block">
+        <h2>Tur Hakkında</h2>
+        <p>Roma'nın tarihi sokaklarından Toskana'nın üzüm bağlarına uzanan bu özel rota; İtalya'nın kültürünü, mimarisini ve gastronomisini bir arada keşfetmek isteyen gezginler için hazırlandı. Kolezyum'un gölgesinde başlayan yolculuk, Vatikan'ın sanat hazineleriyle derinleşiyor ve Floransa'nın Rönesans atmosferiyle bambaşka bir renk kazanıyor.</p>
+        <p>Pisa'nın ikonik kulesi ve Toskana'nın panoramik kasabalarıyla tamamlanan program, rehberli geziler ile serbest zamanı dengeli biçimde harmanlıyor. Böylece hem İtalya'nın en önemli noktalarını görüyor hem de şehirleri kendi ritminde keşfetmeye vakit buluyorsun.</p>
+      </div>
+
+      <!-- HIGHLIGHTS -->
+      <div class="content-block">
+        <h2>Turun Öne Çıkanları</h2>
+        <ul class="hl-list">
+          <li><span class="hl-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Kolezyum ve tarihi Roma turu</li>
+          <li><span class="hl-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Vatikan ve Aziz Petrus Bazilikası</li>
+          <li><span class="hl-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Floransa şehir turu</li>
+          <li><span class="hl-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Pisa Kulesi ve Mucizeler Meydanı</li>
+          <li><span class="hl-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Toskana kasabaları ve üzüm bağları</li>
+          <li><span class="hl-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Profesyonel Türkçe rehber</li>
+        </ul>
+      </div>
+
+      <!-- ITINERARY -->
+      <div class="content-block">
+        <h2>Gün Gün Tur Programı</h2>
+        <div id="itinerary"></div>
+      </div>
+
+      <!-- INCLUDES -->
+      <div class="content-block">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <h2>Fiyata Dahil Olanlar</h2>
+            <ul class="inc-list">
+              <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Gidiş-dönüş uçak bileti</li>
+              <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>5 gece otel konaklaması</li>
+              <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Kahvaltılar</li>
+              <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Havalimanı transferleri</li>
+              <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Şehirler arası ulaşım</li>
+              <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Profesyonel Türkçe rehberlik</li>
+              <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Panoramik şehir turları</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h2>Fiyata Dahil Olmayanlar</h2>
+            <ul class="inc-list">
+              <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Müze ve ören yeri giriş ücretleri</li>
+              <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Öğle ve akşam yemekleri</li>
+              <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Kişisel harcamalar</li>
+              <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Yurt dışı çıkış harcı</li>
+              <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Seyahat sağlık sigortası</li>
+              <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Opsiyonel etkinlikler</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div class="content-block">
+        <h2>Tur Bilgileri</h2>
+        <div class="info-grid">
+          <div class="info-cell"><div class="k">Tur Süresi</div><div class="v">6 Gün / 5 Gece</div></div>
+          <div class="info-cell"><div class="k">Başlangıç Şehri</div><div class="v">İstanbul</div></div>
+          <div class="info-cell"><div class="k">Ulaşım</div><div class="v">Uçak + Otobüs</div></div>
+          <div class="info-cell"><div class="k">Konaklama</div><div class="v">4 Yıldızlı Oteller</div></div>
+          <div class="info-cell"><div class="k">Rehber Dili</div><div class="v">Türkçe</div></div>
+          <div class="info-cell"><div class="k">Grup Büyüklüğü</div><div class="v">Maks. 28 Kişi</div></div>
+          <div class="info-cell"><div class="k">Vize</div><div class="v">Schengen Vizesi</div></div>
+        </div>
+        <div class="meet-note">
+          <b>Buluşma Noktası</b>
+          <p>İstanbul Havalimanı Dış Hatlar Terminali. Tur başlangıcından 3 saat önce rehberimizle buluşma yapılır.</p>
+        </div>
+      </div>
+
+      <!-- REVIEWS -->
+      <div class="content-block">
+        <h2>Misafir Yorumları</h2>
+        <div class="rev-summary mb-3">
+          <div class="rev-score">
+            <div class="num">4.8</div>
+            <div class="stars">★★★★★</div>
+            <div class="cnt">1.687 değerlendirme</div>
+          </div>
+          <div class="rev-bars">
+            <div class="bar-row"><span class="lab">5 yıldız</span><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div><span class="pct">%82</span></div>
+            <div class="bar-row"><span class="lab">4 yıldız</span><div class="bar-track"><div class="bar-fill" style="width:13%"></div></div><span class="pct">%13</span></div>
+            <div class="bar-row"><span class="lab">3 yıldız</span><div class="bar-track"><div class="bar-fill" style="width:4%"></div></div><span class="pct">%4</span></div>
+            <div class="bar-row"><span class="lab">2 yıldız</span><div class="bar-track"><div class="bar-fill" style="width:1%"></div></div><span class="pct">%1</span></div>
+            <div class="bar-row"><span class="lab">1 yıldız</span><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><span class="pct">%0</span></div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="rev-user">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80" alt="" />
+            <div><b>Elif Yılmaz</b><span class="sub">Roma & Toskana Turu · 12 Haziran 2026</span></div>
+            <span class="rev-stars">★★★★★</span>
+          </div>
+          <p>Roma zaten çok güzeldi ama Toskana bölümü turu bambaşka bir seviyeye taşıdı. Rehberimiz hem bilgili hem de çok ilgiliydi.</p>
+        </div>
+        <div class="review-card">
+          <div class="rev-user">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="" />
+            <div><b>Mert Kaya</b><span class="sub">Roma & Toskana Turu · 4 Haziran 2026</span></div>
+            <span class="rev-stars">★★★★★</span>
+          </div>
+          <p>Program oldukça dengeliydi. Hem rehberli gezilere hem de kendi başımıza şehri keşfetmeye zamanımız oldu.</p>
+        </div>
+        <div class="review-card">
+          <div class="rev-user">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80" alt="" />
+            <div><b>Zeynep Demir</b><span class="sub">Roma & Toskana Turu · 21 Mayıs 2026</span></div>
+            <span class="rev-stars">★★★★★</span>
+          </div>
+          <p>Floransa ve Toskana kesinlikle favorim oldu. Oteller temizdi ve transferlerde hiçbir sorun yaşamadık.</p>
+        </div>
+        <div class="review-card">
+          <div class="rev-user">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80" alt="" />
+            <div><b>Burak Şahin</b><span class="sub">Roma & Toskana Turu · 9 Mayıs 2026</span></div>
+            <span class="rev-stars">★★★★<span class="off">★</span></span>
+          </div>
+          <p>Tur genel olarak çok başarılıydı. Vatikan günü biraz yoğun geçti ama organizasyon ve rehberlik çok iyiydi.</p>
+        </div>
+
+        <div class="write-box">
+          <div>
+            <b>Bu Tura Katıldın mı?</b>
+            <p>Deneyimini diğer gezginlerle paylaş.</p>
+          </div>
+          <button class="btn-teal" data-bs-toggle="modal" data-bs-target="#reviewModal">Yorum Yaz</button>
+        </div>
+      </div>
+
+      <!-- Q&A -->
+      <div class="content-block">
+        <h2>Tur Hakkında Sorular</h2>
+        <div class="qa-item">
+          <div class="qa-q">
+            <span class="qa-avatar">AD</span>
+            <div><div class="who">Ayşe Demir</div><div class="txt">Vatikan giriş bileti tur ücretine dahil mi?</div></div>
+          </div>
+          <div class="qa-a"><span class="brand-mini">Travelio</span><span class="txt">Vatikan müzeleri giriş ücretleri tur paketine dahil değildir. Güncel giriş ücretleri tur öncesinde misafirlerimizle paylaşılır.</span></div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">
+            <span class="qa-avatar">MK</span>
+            <div><div class="who">Mehmet Kaya</div><div class="txt">Tur sırasında serbest zamanımız olacak mı?</div></div>
+          </div>
+          <div class="qa-a"><span class="brand-mini">Travelio</span><span class="txt">Evet. Roma ve Floransa programlarında misafirlerimizin bireysel keşif yapabilmesi için serbest zaman bulunmaktadır.</span></div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">
+            <span class="qa-avatar">SA</span>
+            <div><div class="who">Selin Arslan</div><div class="txt">Schengen vizem yok, vize hizmeti veriyor musunuz?</div></div>
+          </div>
+          <div class="qa-a"><span class="brand-mini">Travelio</span><span class="txt">Tur paketine vize ücreti dahil değildir ancak gerekli evrak süreci konusunda danışmanlık sağlanmaktadır.</span></div>
+        </div>
+
+        <div class="ask-box">
+          <div class="book-label" style="margin-top:0">Bu tur hakkında merak ettiğin bir şey mi var?</div>
+          <textarea id="askInput" placeholder="Sorunu yaz..."></textarea>
+          <button class="btn-teal mt-3" onclick="sendQuestion()">Soru Gönder</button>
+          <div id="askOk" style="display:none;color:var(--teal-dark);font-weight:600;font-size:.9rem;margin-top:.8rem">Sorun alındı! Ekibimiz en kısa sürede yanıtlayacak.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: BOOKING -->
+    <div class="col-lg-4">
+      <div class="book-sticky">
+        <div class="book-card">
+          <div class="price-top">
+            <small>Kişi başı</small>
+            <div class="big" id="unitPrice">42.500 <span>TL</span></div>
+            <div class="price-note">Vergiler ve belirtilen hizmetler dahildir.</div>
+          </div>
+
+          <div class="book-label">Tur Tarihi</div>
+          <div id="dateOptions">
+            <label class="date-opt sel"><span class="d">12 - 17 Ekim 2026</span><input type="radio" name="tourDate" checked><span class="left">Son 4 Kontenjan</span></label>
+            <label class="date-opt"><span class="d">9 - 14 Kasım 2026</span><input type="radio" name="tourDate"></label>
+            <label class="date-opt"><span class="d">7 - 12 Aralık 2026</span><input type="radio" name="tourDate"><span class="left">Son 6 Kontenjan</span></label>
+            <label class="date-opt"><span class="d">14 - 19 Mart 2027</span><input type="radio" name="tourDate"></label>
+          </div>
+
+          <div class="book-label">Kişi Sayısı</div>
+          <div class="counter-row">
+            <div class="cl"><b>Yetişkin</b><span>12 yaş ve üzeri</span></div>
+            <div class="counter">
+              <button onclick="changeCount('adult',-1)" id="adultMinus">−</button>
+              <span class="val" id="adultVal">2</span>
+              <button onclick="changeCount('adult',1)">+</button>
+            </div>
+          </div>
+          <div class="counter-row">
+            <div class="cl"><b>Çocuk</b><span>2 - 11 yaş</span></div>
+            <div class="counter">
+              <button onclick="changeCount('child',-1)" id="childMinus">−</button>
+              <span class="val" id="childVal">0</span>
+              <button onclick="changeCount('child',1)">+</button>
+            </div>
+          </div>
+
+          <div class="summary">
+            <div class="row-line"><span id="adultLine">2 Yetişkin</span><b id="adultSum">85.000 TL</b></div>
+            <div class="row-line" id="childRow" style="display:none"><span id="childLine">0 Çocuk</span><b id="childSum">0 TL</b></div>
+            <div class="row-line"><span>Ara Toplam</span><b id="subtotal">85.000 TL</b></div>
+            <div class="total"><span>Toplam</span><b id="grandTotal">85.000 TL</b></div>
+          </div>
+
+          <button class="btn-teal" onclick="reserve()">Rezervasyon Yap</button>
+          <div class="trust">
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Güvenli rezervasyon</span>
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Ücretsiz ön rezervasyon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIMILAR TOURS -->
+  <div class="mt-4">
+    <h2 style="font-family:'Sora';font-weight:700;font-size:1.6rem;color:var(--navy);margin-bottom:1.4rem">Bunları da Beğenebilirsin</h2>
+    <div class="row g-4" id="similarGrid"></div>
+  </div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div class="modal fade" id="reviewModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" style="font-family:'Sora';font-weight:700;color:var(--navy)">Deneyimini Paylaş</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="book-label" style="margin-top:0">Puanın</div>
+        <div id="starPicker" class="mb-3">
+          <span class="star-pick" data-v="1">★</span><span class="star-pick" data-v="2">★</span><span class="star-pick" data-v="3">★</span><span class="star-pick" data-v="4">★</span><span class="star-pick" data-v="5">★</span>
+        </div>
+        <div class="book-label" style="margin-top:0">Yorumun</div>
+        <textarea id="reviewText" class="form-control" style="border-radius:14px;border-color:var(--line);min-height:110px" placeholder="Tur deneyimini birkaç cümleyle anlat..."></textarea>
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn-teal" onclick="submitReview()">Yorumu Gönder</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <a class="brand mb-3" href="index.html"><span class="dot"></span>Travelio</a>
+        <p style="max-width:34ch">Dünyanın dört bir yanına, özenle tasarlanmış turlarla unutulmaz seyahatler.</p>
+        <div class="foot-social mt-3">
+          <a href="#" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+          <a href="#" aria-label="Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84 0 0 0 .497-3.753c-.002-.249 1.51-2.772 1.818-4.013z"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        </div>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Keşfet</h6>
+        <a href="tours.html">Turlar</a><a href="index.html#destinasyonlar">Destinasyonlar</a><a href="index.html#yorumlar">Yorumlar</a><a href="#">Kampanyalar</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Kurumsal</h6>
+        <a href="index.html#hakkimizda">Hakkımızda</a><a href="#">Kariyer</a><a href="#">Blog</a><a href="index.html#iletisim">İletişim</a>
+      </div>
+      <div class="col-lg-4">
+        <h6>Bültene Katıl</h6>
+        <p style="max-width:36ch">Yeni rotalardan ve erken rezervasyon fırsatlarından ilk sen haberdar ol.</p>
+        <div class="d-flex gap-2 mt-2" style="max-width:360px">
+          <input class="form-control" style="border-radius:999px" placeholder="E-posta adresin" />
+          <button class="btn-teal" style="white-space:nowrap">Katıl</button>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom d-flex flex-wrap justify-content-between gap-2">
+      <span>© 2026 Travelio. Tüm hakları saklıdır.</span>
+      <span>Gizlilik · Kullanım Koşulları · Çerezler</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ---------- ITINERARY ---------- */
+const ITIN = [
+  {day:"1. Gün", title:"İstanbul → Roma", stay:"Roma", trans:"Uçak + Transfer", meal:"—",
+    body:`İstanbul Havalimanı'nda buluşma ve Roma uçuşu. Havalimanında profesyonel tur rehberimiz tarafından karşılanıp otele transfer. Otele yerleşmenin ardından şehir merkezinde kısa bir tanışma yürüyüşü ve akşam serbest zaman.`},
+  {day:"2. Gün", title:"Antik Roma", stay:"Roma", trans:"Yürüyüş", meal:"Kahvaltı",
+    body:`Kahvaltının ardından kapsamlı Roma şehir turu. Gün boyu gezilecek başlıca noktalar:`,
+    list:["Kolezyum","Roma Forumu","Palatino Tepesi","Trevi Çeşmesi","İspanyol Merdivenleri","Piazza Navona"], after:`Turun ardından akşam serbest zaman.`},
+  {day:"3. Gün", title:"Vatikan & Roma", stay:"Roma", trans:"Yürüyüş", meal:"Kahvaltı",
+    body:`Sabah Vatikan turu. Gezilecek yerler:`,
+    list:["Vatikan Müzeleri","Sistine Şapeli","Aziz Petrus Bazilikası","Castel Sant'Angelo çevresi"], after:`Öğleden sonra serbest zaman.`},
+  {day:"4. Gün", title:"Roma → Floransa", stay:"Floransa", trans:"Otobüs", meal:"Kahvaltı",
+    body:`Kahvaltı sonrası Floransa'ya hareket ve şehir yürüyüş turu:`,
+    list:["Duomo","Piazza della Signoria","Ponte Vecchio","Santa Croce","Michelangelo Meydanı"], after:`Akşam Floransa'da serbest zaman.`},
+  {day:"5. Gün", title:"Pisa & Toskana", stay:"Floransa", trans:"Otobüs", meal:"Kahvaltı",
+    body:`Sabah Pisa'ya hareket; Pisa Kulesi ve Mucizeler Meydanı gezisi. Ardından Toskana bölgesine geçiş; panoramik kasabalar, üzüm bağları ve manzaralar eşliğinde keyifli bir gün. Akşam Floransa'ya dönüş.`},
+  {day:"6. Gün", title:"Floransa → İstanbul", stay:"—", trans:"Transfer + Uçak", meal:"Kahvaltı",
+    body:`Kahvaltı sonrası serbest zaman ve alışveriş imkanı. Belirlenen saatte havalimanına transfer, İstanbul uçuşu ve turumuzun sona ermesi.`}
+];
+
+const itinEl = document.getElementById("itinerary");
+itinEl.innerHTML = ITIN.map((d,i)=>`
+  <div class="itin-item ${i===0?'open':''}">
+    <div class="itin-head" onclick="toggleDay(this)">
+      <span class="day-tag">${d.day}</span>
+      <span class="itin-title">${d.title}</span>
+      <span class="itin-toggle"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+    <div class="itin-body">
+      <div class="itin-inner">
+        <p style="margin-bottom:.4rem">${d.body}</p>
+        ${d.list?`<ul>${d.list.map(x=>`<li>${x}</li>`).join("")}</ul>`:""}
+        ${d.after?`<p style="margin:0">${d.after}</p>`:""}
+        <div class="itin-tags">
+          <span>🏨 ${d.stay}</span>
+          <span>🚌 ${d.trans}</span>
+          <span>🍽️ ${d.meal}</span>
+        </div>
+      </div>
+    </div>
+  </div>`).join("");
+
+// open first
+itinEl.querySelector(".itin-item.open .itin-body").style.maxHeight = "600px";
+
+function toggleDay(head){
+  const item = head.parentElement;
+  const body = item.querySelector(".itin-body");
+  const isOpen = item.classList.contains("open");
+  if(isOpen){ item.classList.remove("open"); body.style.maxHeight = "0"; }
+  else { item.classList.add("open"); body.style.maxHeight = body.scrollHeight + 40 + "px"; }
+}
+
+/* ---------- BOOKING ---------- */
+const UNIT = 42500;
+let adult = 2, child = 0;
+const childPrice = () => Math.round(UNIT * 0.6); // çocuk %40 indirimli
+
+function fmt(n){ return n.toLocaleString("tr-TR") + " TL"; }
+
+function changeCount(type, delta){
+  if(type==="adult"){ adult = Math.max(1, adult + delta); }
+  else { child = Math.max(0, child + delta); }
+  updateSummary();
+}
+
+function updateSummary(){
+  document.getElementById("adultVal").textContent = adult;
+  document.getElementById("childVal").textContent = child;
+  document.getElementById("adultMinus").disabled = adult<=1;
+  document.getElementById("childMinus").disabled = child<=0;
+
+  const adultSum = adult * UNIT;
+  const childSum = child * childPrice();
+  const sub = adultSum + childSum;
+
+  document.getElementById("adultLine").textContent = adult + " Yetişkin (" + fmt(UNIT) + ")";
+  document.getElementById("adultSum").textContent = fmt(adultSum);
+
+  const childRow = document.getElementById("childRow");
+  if(child>0){
+    childRow.style.display = "flex";
+    document.getElementById("childLine").textContent = child + " Çocuk (" + fmt(childPrice()) + ")";
+    document.getElementById("childSum").textContent = fmt(childSum);
+  } else { childRow.style.display = "none"; }
+
+  document.getElementById("subtotal").textContent = fmt(sub);
+  document.getElementById("grandTotal").textContent = fmt(sub);
+}
+updateSummary();
+
+// date selection
+document.querySelectorAll(".date-opt").forEach(opt=>{
+  opt.addEventListener("click", ()=>{
+    document.querySelectorAll(".date-opt").forEach(o=>o.classList.remove("sel"));
+    opt.classList.add("sel");
+    opt.querySelector("input").checked = true;
+  });
+});
+
+function reserve(){
+  const date = document.querySelector(".date-opt.sel .d").textContent;
+  const total = document.getElementById("grandTotal").textContent;
+  alert("Ön rezervasyonun alındı!\n\nTur: Roma & Toskana Keşfi\nTarih: " + date + "\nKişi: " + adult + " yetişkin" + (child? ", " + child + " çocuk":"") + "\nToplam: " + total + "\n\nBu bir demo sayfasıdır.");
+}
+
+function sharePage(){
+  if(navigator.share){ navigator.share({title:"Roma & Toskana Keşfi — Travelio", url:location.href}).catch(()=>{}); }
+  else { alert("Bağlantı panoya kopyalandı (demo)."); }
+}
+
+/* ---------- REVIEW MODAL ---------- */
+let pickedStars = 0;
+document.querySelectorAll(".star-pick").forEach(s=>{
+  s.addEventListener("click", ()=>{
+    pickedStars = +s.dataset.v;
+    document.querySelectorAll(".star-pick").forEach(x=> x.classList.toggle("on", +x.dataset.v <= pickedStars));
+  });
+});
+function submitReview(){
+  const txt = document.getElementById("reviewText").value.trim();
+  if(!pickedStars){ alert("Lütfen bir puan seç."); return; }
+  if(!txt){ alert("Lütfen yorumunu yaz."); return; }
+  bootstrap.Modal.getInstance(document.getElementById("reviewModal")).hide();
+  alert("Yorumun için teşekkürler! (demo)");
+  document.getElementById("reviewText").value = "";
+  pickedStars = 0;
+  document.querySelectorAll(".star-pick").forEach(x=>x.classList.remove("on"));
+}
+
+/* ---------- ASK ---------- */
+function sendQuestion(){
+  const v = document.getElementById("askInput").value.trim();
+  if(!v){ return; }
+  document.getElementById("askInput").value = "";
+  document.getElementById("askOk").style.display = "block";
+}
+
+/* ---------- SIMILAR ---------- */
+const SIMILAR = [
+  {title:"Amalfi & Napoli", country:"İtalya", dur:"6 Gün / 5 Gece", rating:4.9, reviews:886, price:"49.500", badge:"Popüler", img:"https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80"},
+  {title:"Paris & Alsace", country:"Fransa", dur:"7 Gün / 6 Gece", rating:4.8, reviews:721, price:"47.900", badge:"", img:"https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=800&q=80"},
+  {title:"Prag & Viyana Kültür Turu", country:"Çekya · Avusturya", dur:"6 Gün / 5 Gece", rating:4.8, reviews:1421, price:"36.400", badge:"", img:"https://images.unsplash.com/photo-1541849546-216549ae216d?auto=format&fit=crop&w=800&q=80"}
+];
+document.getElementById("similarGrid").innerHTML = SIMILAR.map(t=>`
+  <div class="col-md-6 col-lg-4">
+    <article class="tour-card">
+      <div class="tour-media">
+        <img src="${t.img}" alt="${t.title}" loading="lazy" />
+        ${t.badge?`<span class="tour-badge">${t.badge}</span>`:''}
+      </div>
+      <div class="tour-body">
+        <div class="tour-country">${t.country}</div>
+        <h3 class="tour-title">${t.title}</h3>
+        <div class="tour-meta">
+          <span>🗓️ ${t.dur}</span>
+          <span><span class="star">★</span> ${t.rating.toFixed(1)} <span style="color:var(--muted)">(${t.reviews.toLocaleString("tr-TR")})</span></span>
+        </div>
+        <div class="tour-foot">
+          <div class="price"><small>Kişi başı</small><b>${t.price} <span>TL</span></b></div>
+          <a href="tour-detail.html" class="btn-incele">Turu İncele</a>
+        </div>
+      </div>
+    </article>
+  </div>`).join("");
+</script>
+</body>
+</html>

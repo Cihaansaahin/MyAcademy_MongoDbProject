@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard — Travelio Admin</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#0e2a3b;--navy-2:#12384c;--navy-3:#1b455c;--teal:#0fa3a3;--teal-dark:#0b7f80;
+    --cream:#f7f5f0;--bg:#f4f5f4;--white:#fff;--ink:#0e2a3b;--muted:#6a7c88;--line:#e7e2d8;--line-2:#eef0ef;
+    --shadow-sm:0 4px 18px rgba(14,42,59,.06);--shadow-md:0 18px 50px rgba(14,42,59,.12);
+    --sidebar-w:266px;--r:16px;
+    --ok-bg:#e3f4f0;--ok-fg:#0b7f80;
+    --wait-bg:#fbf1dc;--wait-fg:#a9741a;
+    --cancel-bg:#f6e4e2;--cancel-fg:#b45a4f;
+  }
+  *{box-sizing:border-box}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--bg);margin:0;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4,.brand{font-family:'Sora',sans-serif}
+  a{text-decoration:none}
+  .eyebrow{font-family:'Sora',sans-serif;text-transform:uppercase;letter-spacing:.2em;font-size:.7rem;font-weight:700;color:var(--teal-dark)}
+
+  /* ============ SIDEBAR ============ */
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--navy);
+    display:flex;flex-direction:column;z-index:1045;
+  }
+  .sb-brand{padding:1.5rem 1.5rem 1.3rem;display:flex;align-items:center;gap:.65rem;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb-brand .dot{width:11px;height:11px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(15,163,163,.22);flex:none}
+  .sb-brand .txt b{font-family:'Sora';font-weight:800;color:#fff;font-size:1.25rem;letter-spacing:-.4px;display:block;line-height:1}
+  .sb-brand .txt span{font-size:.7rem;color:#7fe3e3;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+  .sb-menu{flex:1;overflow-y:auto;padding:1rem .8rem;display:flex;flex-direction:column;gap:.15rem}
+  .sb-cap{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.35);font-weight:600;padding:.4rem .8rem .3rem}
+  .sb-link{display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border-radius:11px;color:rgba(255,255,255,.72);font-weight:500;font-size:.92rem;transition:.18s;position:relative}
+  .sb-link svg{flex:none;opacity:.85}
+  .sb-link:hover{background:rgba(255,255,255,.07);color:#fff}
+  .sb-link.active{background:var(--teal);color:#fff;box-shadow:0 8px 20px rgba(15,163,163,.28)}
+  .sb-link.active svg{opacity:1}
+  .sb-badge{margin-left:auto;background:rgba(255,255,255,.16);color:#fff;font-size:.7rem;font-weight:700;padding:.1rem .45rem;border-radius:999px}
+  .sb-link.active .sb-badge{background:rgba(255,255,255,.25)}
+  .sb-foot{padding:.8rem;border-top:1px solid rgba(255,255,255,.08)}
+  .sb-user{display:flex;align-items:center;gap:.7rem;padding:.6rem .7rem;border-radius:12px;background:rgba(255,255,255,.05)}
+  .sb-user .av{width:38px;height:38px;border-radius:10px;background:var(--teal);color:#fff;display:grid;place-items:center;font-family:'Sora';font-weight:700;font-size:.85rem;flex:none}
+  .sb-user b{display:block;color:#fff;font-size:.86rem;font-family:'Sora';line-height:1.2}
+  .sb-user span{font-size:.74rem;color:rgba(255,255,255,.55)}
+
+  /* ============ MAIN ============ */
+  .main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column}
+
+  /* TOPBAR */
+  .topbar{
+    position:sticky;top:0;z-index:1030;background:rgba(244,245,244,.85);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);padding:.85rem 1.8rem;display:flex;align-items:center;gap:1rem;
+  }
+  .hamb{display:none;background:#fff;border:1px solid var(--line);border-radius:10px;width:40px;height:40px;place-items:center;color:var(--navy);cursor:pointer}
+  .topbar .tb-title{font-family:'Sora';font-weight:700;font-size:1.05rem;color:var(--navy)}
+  .tb-search{margin-left:.5rem;position:relative;flex:1;max-width:320px}
+  .tb-search svg{position:absolute;left:.8rem;top:50%;transform:translateY(-50%);color:var(--muted)}
+  .tb-search input{width:100%;border:1px solid var(--line);background:#fff;border-radius:999px;padding:.55rem .9rem .55rem 2.3rem;font-size:.88rem;outline:none;color:var(--navy)}
+  .tb-search input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,163,163,.1)}
+  .tb-right{margin-left:auto;display:flex;align-items:center;gap:.9rem}
+  .tb-icon{position:relative;width:40px;height:40px;border-radius:11px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--navy);cursor:pointer;transition:.2s}
+  .tb-icon:hover{border-color:var(--teal);color:var(--teal-dark)}
+  .tb-icon .n-badge{position:absolute;top:-5px;right:-5px;background:#e0575b;color:#fff;font-size:.66rem;font-weight:700;min-width:17px;height:17px;border-radius:999px;display:grid;place-items:center;padding:0 3px}
+  .tb-user{display:flex;align-items:center;gap:.6rem;padding-left:.4rem}
+  .tb-user .av{width:38px;height:38px;border-radius:10px;background:var(--navy);color:#fff;display:grid;place-items:center;font-family:'Sora';font-weight:700;font-size:.82rem}
+  .tb-user .nm{line-height:1.15}
+  .tb-user .nm b{font-family:'Sora';font-size:.86rem;color:var(--navy);display:block}
+  .tb-user .nm span{font-size:.74rem;color:var(--muted)}
+
+  /* CONTENT */
+  .content{padding:1.8rem;flex:1}
+  .page-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+  .page-intro h1{font-weight:700;font-size:1.7rem;color:var(--navy);margin:.3rem 0 .3rem}
+  .page-intro p{color:var(--muted);margin:0;font-size:.94rem;max-width:60ch}
+  .date-pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:.5rem 1rem;font-size:.85rem;font-weight:600;color:var(--navy);display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap}
+  .date-pill svg{color:var(--teal-dark)}
+
+  /* CARDS */
+  .card-x{background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm)}
+  .card-head{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.3rem .2rem}
+  .card-head h3{font-family:'Sora';font-weight:700;font-size:1.05rem;color:var(--navy);margin:0}
+  .card-body{padding:1.3rem}
+
+  /* KPI */
+  .kpi{background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.25rem 1.3rem;height:100%}
+  .kpi .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem}
+  .kpi .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(15,163,163,.1);color:var(--teal-dark)}
+  .kpi .ic.warn{background:rgba(169,116,26,.12);color:#a9741a}
+  .kpi .trend{font-size:.74rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--ok-bg);color:var(--ok-fg)}
+  .kpi .num{font-family:'Sora';font-weight:800;font-size:1.9rem;color:var(--navy);line-height:1}
+  .kpi .lab{font-size:.85rem;color:var(--muted);margin-top:.25rem}
+  .kpi .sub{font-size:.78rem;color:var(--muted);margin-top:.55rem;display:flex;align-items:center;gap:.35rem}
+  .kpi .sub .up{color:var(--teal-dark);font-weight:600}
+  .kpi .sub.warn{color:#a9741a;font-weight:600}
+
+  /* CHART */
+  .chart-select{border:1px solid var(--line);background:#fff;border-radius:999px;padding:.4rem 1.9rem .4rem .9rem;font-size:.82rem;font-weight:600;color:var(--navy);cursor:pointer;outline:none}
+  .chart-wrap{position:relative;height:280px}
+
+  /* POPULAR TOURS */
+  .pt-item{display:flex;align-items:center;gap:.8rem;padding:.7rem 0;border-top:1px solid var(--line-2)}
+  .pt-item:first-child{padding-top:.2rem;border-top:none}
+  .pt-item img{width:48px;height:48px;border-radius:11px;object-fit:cover;flex:none}
+  .pt-item .nm{flex:1;min-width:0}
+  .pt-item .nm b{font-family:'Sora';font-weight:600;font-size:.9rem;color:var(--navy);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pt-item .nm span{font-size:.78rem;color:var(--muted)}
+  .pt-item .rank{font-family:'Sora';font-weight:700;color:var(--line);font-size:1.1rem;width:20px;text-align:center;flex:none}
+
+  /* TABLE */
+  .tbl-wrap{overflow-x:auto}
+  table.tx{width:100%;border-collapse:separate;border-spacing:0;min-width:760px}
+  table.tx th{font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;text-align:left;padding:.7rem 1rem;border-bottom:1px solid var(--line)}
+  table.tx td{padding:.85rem 1rem;border-bottom:1px solid var(--line-2);font-size:.88rem;color:var(--navy);vertical-align:middle}
+  table.tx tr:last-child td{border-bottom:none}
+  table.tx tbody tr{transition:.15s}
+  table.tx tbody tr:hover{background:var(--cream)}
+  .res-no{font-family:'Sora';font-weight:600;color:var(--navy)}
+  .guest{display:flex;align-items:center;gap:.6rem}
+  .guest .av{width:32px;height:32px;border-radius:9px;background:var(--navy-2);color:#fff;display:grid;place-items:center;font-size:.72rem;font-weight:700;font-family:'Sora';flex:none}
+  .amount{font-family:'Sora';font-weight:600}
+  .badge-x{font-size:.74rem;font-weight:600;padding:.28rem .7rem;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:.35rem}
+  .badge-x::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .b-ok{background:var(--ok-bg);color:var(--ok-fg)}
+  .b-wait{background:var(--wait-bg);color:var(--wait-fg)}
+  .b-cancel{background:var(--cancel-bg);color:var(--cancel-fg)}
+  .btn-soft{background:#fff;border:1px solid var(--line);border-radius:999px;padding:.4rem .9rem;font-size:.8rem;font-weight:600;color:var(--navy);cursor:pointer;transition:.2s}
+  .btn-soft:hover{border-color:var(--teal);color:var(--teal-dark)}
+
+  /* REVIEWS mini */
+  .rv{padding:.85rem 0;border-top:1px solid var(--line-2)}
+  .rv:first-child{border-top:none;padding-top:.1rem}
+  .rv .h{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem}
+  .rv .av{width:34px;height:34px;border-radius:9px;background:var(--navy-2);color:#fff;display:grid;place-items:center;font-size:.72rem;font-weight:700;font-family:'Sora';flex:none}
+  .rv .h b{font-family:'Sora';font-size:.86rem;color:var(--navy);display:block;line-height:1.2}
+  .rv .h span{font-size:.74rem;color:var(--muted)}
+  .rv .stars{margin-left:auto;color:#f4a92c;font-size:.8rem}
+  .rv .stars .off{color:#d8cfc0}
+  .rv p{margin:0;font-size:.85rem;color:var(--muted);line-height:1.5}
+
+  /* QUESTIONS mini */
+  .qz{padding:.85rem 0;border-top:1px solid var(--line-2);display:flex;gap:.8rem;align-items:flex-start}
+  .qz:first-child{border-top:none;padding-top:.1rem}
+  .qz .body{flex:1;min-width:0}
+  .qz .tour{font-size:.74rem;color:var(--teal-dark);font-weight:600}
+  .qz .q{font-size:.87rem;color:var(--navy);font-weight:500;margin:.15rem 0 .2rem}
+  .qz .time{font-size:.74rem;color:var(--muted)}
+  .qz .btn-soft{flex:none;align-self:center}
+
+  /* QUICK ACTIONS */
+  .qa-link{display:flex;align-items:center;gap:.75rem;padding:.75rem .85rem;border-radius:12px;border:1px solid var(--line-2);color:var(--navy);font-weight:600;font-size:.88rem;transition:.2s;margin-bottom:.6rem;background:#fff}
+  .qa-link:last-child{margin-bottom:0}
+  .qa-link:hover{border-color:var(--teal);background:var(--cream);color:var(--teal-dark)}
+  .qa-link .qa-ic{width:34px;height:34px;border-radius:10px;background:rgba(15,163,163,.1);color:var(--teal-dark);display:grid;place-items:center;flex:none;transition:.2s}
+  .qa-link:hover .qa-ic{background:var(--teal);color:#fff}
+  .qa-link .arr{margin-left:auto;color:var(--muted)}
+
+  /* FOOTER */
+  .admin-foot{padding:1.1rem 1.8rem;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--muted)}
+
+  /* OFFCANVAS backdrop for mobile sidebar */
+  .sb-overlay{display:none;position:fixed;inset:0;background:rgba(14,42,59,.45);z-index:1044}
+  .sb-overlay.show{display:block}
+
+  @media(max-width:1100px){
+    .sidebar{transform:translateX(-100%);transition:transform .3s ease}
+    .sidebar.show{transform:none}
+    .main{margin-left:0}
+    .hamb{display:grid}
+  }
+  @media(max-width:575px){
+    .content{padding:1.1rem}
+    .tb-search{display:none}
+    .tb-user .nm{display:none}
+    .topbar{padding:.8rem 1rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <span class="dot"></span>
+    <span class="txt"><b>Travelio</b><span>Admin Panel</span></span>
+  </div>
+  <nav class="sb-menu">
+    <div class="sb-cap">Yönetim</div>
+    <a class="sb-link active" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Dashboard
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      Turlar
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Rezervasyonlar
+      <span class="sb-badge">126</span>
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Yorumlar
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+      Sorular
+      <span class="sb-badge">17</span>
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Kullanıcılar
+    </a>
+    <div class="sb-cap">Katalog</div>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7" y2="7"/></svg>
+      Kategoriler
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Destinasyonlar
+    </a>
+    <div class="sb-cap">Diğer</div>
+    <a class="sb-link" href="index.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M9 21V9h6v12"/></svg>
+      Siteye Dön
+    </a>
+    <a class="sb-link" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Çıkış Yap
+    </a>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="av">MY</div>
+      <div><b>Murat Yücedağ</b><span>Yönetici</span></div>
+    </div>
+  </div>
+</aside>
+<div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar(false)"></div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button class="hamb" onclick="toggleSidebar(true)" aria-label="Menü">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="tb-title">Dashboard</span>
+    <div class="tb-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Ara: rezervasyon, tur, kullanıcı...">
+    </div>
+    <div class="tb-right">
+      <button class="tb-icon" aria-label="Bildirimler">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="n-badge">3</span>
+      </button>
+      <div class="tb-user">
+        <div class="av">MY</div>
+        <div class="nm"><b>Murat Yücedağ</b><span>Yönetici</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="page-intro">
+      <div>
+        <div class="eyebrow">Genel Bakış</div>
+        <h1>Hoş Geldiniz, Murat 👋</h1>
+        <p>Travelio platformundaki son gelişmeleri ve önemli verileri buradan takip edebilirsiniz.</p>
+      </div>
+      <div class="date-pill">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        13 Ağustos 2026
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-xl-3">
+        <div class="kpi">
+          <div class="top">
+            <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+            <span class="trend">+3</span>
+          </div>
+          <div class="num">48</div>
+          <div class="lab">Toplam Tur</div>
+          <div class="sub"><span class="up">42 aktif tur</span></div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="kpi">
+          <div class="top">
+            <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <span class="trend">+12%</span>
+          </div>
+          <div class="num">1.284</div>
+          <div class="lab">Toplam Rezervasyon</div>
+          <div class="sub"><span class="up">Bu ay +126</span> · geçen aya göre %12 artış</div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="kpi">
+          <div class="top">
+            <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
+            <span class="trend">+318</span>
+          </div>
+          <div class="num">8.642</div>
+          <div class="lab">Toplam Kullanıcı</div>
+          <div class="sub"><span class="up">Bu ay +318</span></div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="kpi">
+          <div class="top">
+            <div class="ic warn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg></div>
+          </div>
+          <div class="num">17</div>
+          <div class="lab">Bekleyen Sorular</div>
+          <div class="sub warn">Yanıt bekliyor</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW: chart + popular -->
+    <div class="row g-3 mb-3">
+      <div class="col-lg-8">
+        <div class="card-x h-100">
+          <div class="card-head">
+            <h3>Rezervasyon İstatistikleri</h3>
+            <select class="chart-select" id="rangeSelect">
+              <option>Son 7 Gün</option>
+              <option>Son 30 Gün</option>
+              <option selected>Son 6 Ay</option>
+            </select>
+          </div>
+          <div class="card-body">
+            <div class="chart-wrap"><canvas id="resChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card-x h-100">
+          <div class="card-head"><h3>En Popüler Turlar</h3></div>
+          <div class="card-body pt-2" id="popularTours"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECENT BOOKINGS -->
+    <div class="card-x mb-3">
+      <div class="card-head">
+        <h3>Son Rezervasyonlar</h3>
+        <button class="btn-soft">Tümünü Gör</button>
+      </div>
+      <div class="card-body pt-2">
+        <div class="tbl-wrap">
+          <table class="tx">
+            <thead>
+              <tr><th>Rezervasyon No</th><th>Misafir</th><th>Tur</th><th>Tur Tarihi</th><th>Kişi</th><th>Tutar</th><th>Durum</th></tr>
+            </thead>
+            <tbody id="bookingRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM 3 COLS -->
+    <div class="row g-3">
+      <div class="col-lg-4">
+        <div class="card-x h-100">
+          <div class="card-head"><h3>Son Yorumlar</h3></div>
+          <div class="card-body pt-2" id="recentReviews"></div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card-x h-100">
+          <div class="card-head"><h3>Yanıt Bekleyen Sorular</h3></div>
+          <div class="card-body pt-2" id="pendingQuestions"></div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card-x h-100">
+          <div class="card-head"><h3>Hızlı İşlemler</h3></div>
+          <div class="card-body pt-2" id="quickActions"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="admin-foot">
+    <span>© 2026 Travelio Admin Panel</span>
+    <span>v1.0</span>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+/* ---- sidebar mobile ---- */
+function toggleSidebar(show){
+  document.getElementById("sidebar").classList.toggle("show", show);
+  document.getElementById("sbOverlay").classList.toggle("show", show);
+}
+
+/* ---- data ---- */
+const IMG = {
+  roma:"https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=200&q=80",
+  paris:"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=200&q=80",
+  barcelona:"https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&w=200&q=80",
+  prag:"https://images.unsplash.com/photo-1541849546-216549ae216d?auto=format&fit=crop&w=200&q=80",
+  swiss:"https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=200&q=80"
+};
+
+const popular = [
+  {name:"Roma & Toskana Keşfi", res:186, img:IMG.roma},
+  {name:"Paris & Disneyland", res:172, img:IMG.paris},
+  {name:"Barselona Akdeniz Turu", res:148, img:IMG.barcelona},
+  {name:"Prag & Viyana", res:139, img:IMG.prag},
+  {name:"İsviçre Alpleri", res:126, img:IMG.swiss}
+];
+document.getElementById("popularTours").innerHTML = popular.map((t,i)=>`
+  <div class="pt-item">
+    <span class="rank">${i+1}</span>
+    <img src="${t.img}" alt="${t.name}">
+    <div class="nm"><b>${t.name}</b><span>${t.res} rezervasyon</span></div>
+  </div>`).join("");
+
+const bookings = [
+  {no:"TRV-30291", guest:"Zeynep Demir", tour:"Roma & Toskana Keşfi", date:"12 Ekim 2026", pax:"2 kişi", amount:"85.000 TL", status:"ok"},
+  {no:"TRV-30290", guest:"Mehmet Kaya", tour:"Paris & Disneyland", date:"18 Eylül 2026", pax:"3 kişi", amount:"116.700 TL", status:"wait"},
+  {no:"TRV-30289", guest:"Elif Yılmaz", tour:"Tokyo & Kyoto", date:"7 Kasım 2026", pax:"2 kişi", amount:"159.800 TL", status:"ok"},
+  {no:"TRV-30288", guest:"Burak Şahin", tour:"İsviçre Alpleri", date:"21 Eylül 2026", pax:"1 kişi", amount:"58.200 TL", status:"cancel"},
+  {no:"TRV-30287", guest:"Ayşe Arslan", tour:"Prag & Viyana", date:"3 Ekim 2026", pax:"2 kişi", amount:"72.800 TL", status:"ok"}
+];
+const initials = n => n.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
+const stBadge = { ok:['b-ok','Onaylandı'], wait:['b-wait','Bekliyor'], cancel:['b-cancel','İptal Edildi'] };
+document.getElementById("bookingRows").innerHTML = bookings.map(b=>`
+  <tr>
+    <td><span class="res-no">${b.no}</span></td>
+    <td><div class="guest"><span class="av">${initials(b.guest)}</span>${b.guest}</div></td>
+    <td>${b.tour}</td>
+    <td>${b.date}</td>
+    <td>${b.pax}</td>
+    <td><span class="amount">${b.amount}</span></td>
+    <td><span class="badge-x ${stBadge[b.status][0]}">${stBadge[b.status][1]}</span></td>
+  </tr>`).join("");
+
+const reviews = [
+  {name:"Elif Yılmaz", tour:"Roma & Toskana", stars:5, text:"Tur organizasyonu gerçekten çok başarılıydı, her detay düşünülmüştü."},
+  {name:"Mert Kaya", tour:"Amsterdam Kanalları", stars:4, text:"Rehber ve program oldukça iyiydi, keyifli bir seyahatti."},
+  {name:"Zeynep Demir", tour:"İsviçre Alpleri", stars:5, text:"Muhteşem bir deneyimdi, manzaralar beklentimin ötesindeydi."}
+];
+const starStr = n => { let s=""; for(let i=1;i<=5;i++) s+= i<=n?"★":"<span class='off'>★</span>"; return s; };
+document.getElementById("recentReviews").innerHTML = reviews.map(r=>`
+  <div class="rv">
+    <div class="h">
+      <span class="av">${initials(r.name)}</span>
+      <div><b>${r.name}</b><span>${r.tour}</span></div>
+      <span class="stars">${starStr(r.stars)}</span>
+    </div>
+    <p>${r.text}</p>
+  </div>`).join("");
+
+const questions = [
+  {tour:"Kuzey Işıkları Norveç", q:"Termal kıyafet sağlanıyor mu?", time:"2 saat önce"},
+  {tour:"Tokyo & Kyoto", q:"Japonya vizesi konusunda destek veriliyor mu?", time:"5 saat önce"},
+  {tour:"Roma & Toskana", q:"Havalimanı transferi fiyata dahil mi?", time:"1 gün önce"}
+];
+document.getElementById("pendingQuestions").innerHTML = questions.map(q=>`
+  <div class="qz">
+    <div class="body">
+      <div class="tour">${q.tour}</div>
+      <div class="q">${q.q}</div>
+      <div class="time">${q.time}</div>
+    </div>
+    <button class="btn-soft">Cevapla</button>
+  </div>`).join("");
+
+const actions = [
+  {t:"Yeni Tur Ekle", ic:'<path d="M12 5v14M5 12h14"/>'},
+  {t:"Rezervasyonları Gör", ic:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'},
+  {t:"Soruları Yanıtla", ic:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'},
+  {t:"Yeni Destinasyon Ekle", ic:'<path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'}
+];
+document.getElementById("quickActions").innerHTML = actions.map(a=>`
+  <a href="#" class="qa-link">
+    <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${a.ic}</svg></span>
+    ${a.t}
+    <span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+  </a>`).join("");
+
+/* ---- chart ---- */
+const ctx = document.getElementById("resChart");
+const grad = ctx.getContext("2d").createLinearGradient(0,0,0,280);
+grad.addColorStop(0,"rgba(15,163,163,.28)");
+grad.addColorStop(1,"rgba(15,163,163,0)");
+
+const chart = new Chart(ctx, {
+  type:"line",
+  data:{
+    labels:["Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos"],
+    datasets:[{
+      label:"Rezervasyon",
+      data:[142,176,204,239,267,256],
+      borderColor:"#0fa3a3",
+      backgroundColor:grad,
+      borderWidth:3,
+      fill:true,
+      tension:.38,
+      pointBackgroundColor:"#fff",
+      pointBorderColor:"#0fa3a3",
+      pointBorderWidth:2.5,
+      pointRadius:4,
+      pointHoverRadius:6
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false},
+      tooltip:{backgroundColor:"#0e2a3b",padding:12,cornerRadius:10,titleFont:{family:"Sora"},displayColors:false,
+        callbacks:{label:c=>c.parsed.y+" rezervasyon"}}
+    },
+    scales:{
+      y:{beginAtZero:false,grid:{color:"#eef0ef"},border:{display:false},ticks:{color:"#6a7c88",font:{size:11}}},
+      x:{grid:{display:false},border:{display:false},ticks:{color:"#6a7c88",font:{size:12}}}
+    }
+  }
+});
+
+/* demo: range select just re-animates */
+document.getElementById("rangeSelect").addEventListener("change",()=>chart.update());
+</script>
+</body>
+</html>

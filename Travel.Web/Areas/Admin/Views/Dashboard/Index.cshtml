@@ -1,0 +1,151 @@
+﻿@model Travel.Web.DTOs.DashboardDtos.DashboardStatisticsDto
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- BAŞLIK & TARİH -->
+<div class="page-intro d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <div class="eyebrow">Genel Bakış</div>
+        <h1 style="font-size: 1.8rem; font-weight: 700; color: var(--navy);">Hoş Geldiniz, Yönetici 👋</h1>
+        <p style="color: var(--muted); margin: 0;">Travelio platformundaki son gelişmeleri ve önemli verileri buradan takip edebilirsiniz.</p>
+    </div>
+    <div class="date-pill" style="background:#fff;border:1px solid var(--line);border-radius:999px;padding:.5rem 1rem;font-size:.85rem;font-weight:600;color:var(--navy);display:inline-flex;align-items:center;gap:.5rem;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+        @DateTime.Now.ToString("dd MMMM yyyy")
+    </div>
+</div>
+
+<!-- 4 ADET KPI SAYACI -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="kpi" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.25rem 1.3rem;height:100%">
+            <div class="top d-flex align-items-center justify-content-between mb-3">
+                <div class="ic" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(15,163,163,.1);color:var(--teal-dark)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18v12H3z" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                </div>
+            </div>
+            <div class="num" style="font-family:'Sora';font-weight:800;font-size:1.9rem;color:var(--navy);line-height:1">@Model.TotalTours</div>
+            <div class="lab" style="font-size:.85rem;color:var(--muted);margin-top:.25rem">Toplam Tur</div>
+            <div class="sub" style="font-size:.78rem;color:var(--teal-dark);font-weight:600;margin-top:.55rem">@Model.ActiveTours aktif tur</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.25rem 1.3rem;height:100%">
+            <div class="top d-flex align-items-center justify-content-between mb-3">
+                <div class="ic" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(15,163,163,.1);color:var(--teal-dark)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+                </div>
+            </div>
+            <div class="num" style="font-family:'Sora';font-weight:800;font-size:1.9rem;color:var(--navy);line-height:1">@Model.TotalReservations</div>
+            <div class="lab" style="font-size:.85rem;color:var(--muted);margin-top:.25rem">Toplam Rezervasyon</div>
+            <div class="sub" style="font-size:.78rem;color:var(--teal-dark);font-weight:600;margin-top:.55rem">Bu ay +@Model.ThisMonthReservationsCount rezervasyon</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.25rem 1.3rem;height:100%">
+            <div class="top d-flex align-items-center justify-content-between mb-3">
+                <div class="ic" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(15,163,163,.1);color:var(--teal-dark)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /></svg>
+                </div>
+            </div>
+            <div class="num" style="font-family:'Sora';font-weight:800;font-size:1.9rem;color:var(--navy);line-height:1">@(Model.ToursByCategory?.Count ?? 0)</div>
+            <div class="lab" style="font-size:.85rem;color:var(--muted);margin-top:.25rem">Kategori Sayısı</div>
+            <div class="sub" style="font-size:.78rem;color:var(--muted);margin-top:.55rem">Katalog aktif</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.25rem 1.3rem;height:100%">
+            <div class="top d-flex align-items-center justify-content-between mb-3">
+                <div class="ic" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(169,116,26,.12);color:#a9741a">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12" y2="17" /></svg>
+                </div>
+            </div>
+            <div class="num" style="font-family:'Sora';font-weight:800;font-size:1.9rem;color:var(--navy);line-height:1">@Model.PendingQuestionsCount</div>
+            <div class="lab" style="font-size:.85rem;color:var(--muted);margin-top:.25rem">Bekleyen Sorular</div>
+            <div class="sub" style="font-size:.78rem;color:#a9741a;font-weight:600;margin-top:.55rem">Yanıt bekliyor</div>
+        </div>
+    </div>
+</div>
+
+<!-- GRAFİK VE POPÜLER TURLAR (AGGREGATION) -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="card-x" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.3rem;height:100%">
+            <h3 style="font-family:'Sora';font-weight:700;font-size:1.05rem;color:var(--navy);margin-bottom:1rem">Son 6 Aylık Rezervasyon Trendi</h3>
+            <div style="position:relative;height:280px">
+                <canvas id="resChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card-x" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.3rem;height:100%">
+            <h3 style="font-family:'Sora';font-weight:700;font-size:1.05rem;color:var(--navy);margin-bottom:1rem">En Çok Satan Turlar</h3>
+            <div class="d-flex flex-column gap-2">
+                @if (Model.Top5SellingTours != null && Model.Top5SellingTours.Any())
+                {
+                    int rank = 1;
+                    foreach (var tour in Model.Top5SellingTours)
+                    {
+                        <div class="d-flex align-items-center gap-3 py-2 border-bottom">
+                            <span style="font-family:'Sora';font-weight:700;color:var(--teal-dark);font-size:1.1rem;width:20px;text-align:center">@(rank++)</span>
+                            <div class="flex-grow-1" style="min-width:0">
+                                <b style="font-family:'Sora';font-size:.9rem;color:var(--navy);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">@tour.TourTitle</b>
+                                <span style="font-size:.78rem;color:var(--muted)">@tour.TotalBookings kişi · @tour.TotalRevenue.ToString("N0") ₺</span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p style="color:var(--muted);font-size:.9rem;margin-top:1rem;">Henüz tamamlanan satış verisi bulunmuyor.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CHART.JS ENTEGRASYONU -->
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        const ctx = document.getElementById("resChart");
+        if (ctx) {
+        const grad = ctx.getContext("2d").createLinearGradient(0, 0, 0, 280);
+        grad.addColorStop(0, "rgba(15,163,163,.28)");
+        grad.addColorStop(1, "rgba(15,163,163,0)");
+
+        const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyChartLabels ?? new List<string>()));
+        const data = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyChartData ?? new List<int>()));
+
+        new Chart(ctx, {
+        type: "line",
+        data: {
+        labels: labels,
+        datasets: [{
+        label: "Rezervasyon",
+        data: data,
+        borderColor: "#0fa3a3",
+        backgroundColor: grad,
+        borderWidth: 3,
+        fill: true,
+        tension: .38,
+        pointBackgroundColor: "#fff",
+        pointBorderColor: "#0fa3a3",
+        pointBorderWidth: 2.5,
+        pointRadius: 4
+        }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+        y: { beginAtZero: true, grid: { color: "#eef0ef" } },
+        x: { grid: { display: false } }
+        }
+        }
+        });
+        }
+    </script>
+}

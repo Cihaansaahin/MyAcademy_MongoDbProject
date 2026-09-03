@@ -13,10 +13,10 @@ namespace Travel.Web.Services.DashboardServices
         private readonly IMongoCollection<Question> _questionCollection;
         private readonly IMongoCollection<Category> _categoryCollection;
 
-        public DashboardService(IDatabaseSettings databaseSettings)
+        public DashboardService(IDataBaseSettings databaseSettings)
         {
             var client = new MongoClient(databaseSettings.ConnectionString);
-            var database = client.GetDatabase(databaseSettings.DatabaseName);
+            var database = client.GetDatabase(databaseSettings.DataBaseName);
 
             _tourCollection = database.GetCollection<Tour>(databaseSettings.TourCollectionName);
             _reservationCollection = database.GetCollection<Reservation>(databaseSettings.ReservationCollectionName);
@@ -39,14 +39,14 @@ namespace Travel.Web.Services.DashboardServices
 
             dto.PendingQuestionsCount = await _questionCollection.CountDocumentsAsync(x => string.IsNullOrEmpty(x.AnswerText));
 
-            // 2. Aggregation Pipeline: En Çok Satan 5 Tur & Gelirler (Case Madde 16)
+            // 2. Aggregation Pipeline: En Çok Satan 5 Tur & Gelirler
             var top5Pipeline = _reservationCollection.Aggregate()
                 .Match(x => x.Status != ReservationStatus.Cancelled)
                 .Group(x => new { x.TourId, x.TourTitle }, g => new TopSellingTourDto
                 {
                     TourId = g.Key.TourId,
                     TourTitle = g.Key.TourTitle,
-                    TotalBookings = g.Sum(x => x.TotalParticipants),
+                    TotalBookings = g.Sum(x => x.AdultCount + x.ChildCount),
                     TotalRevenue = g.Sum(x => x.TotalPrice)
                 })
                 .SortByDescending(x => x.TotalBookings)
@@ -59,7 +59,7 @@ namespace Travel.Web.Services.DashboardServices
                 dto.TopBookedTourName = dto.Top5SellingTours.First().TourTitle;
             }
 
-            // 3. Aggregation Pipeline: Kategori Bazında Tur Sayısı (Case Madde 16)
+            // 3. Aggregation Pipeline: Kategori Bazında Tur Sayısı
             var categoryGroupPipeline = _tourCollection.Aggregate()
                 .Group(x => x.CategoryId, g => new
                 {
@@ -76,7 +76,7 @@ namespace Travel.Web.Services.DashboardServices
                 dto.ToursByCategory.Add(new CategoryTourCountDto
                 {
                     CategoryId = item.CategoryId,
-                    CategoryName = category != null ? category.Name.Value : "Belirtilmemiş",
+                    CategoryName = category != null ? category.Name?.ToString() ?? "Kategorisiz" : "Belirtilmemiş",
                     TourCount = item.Count
                 });
             }

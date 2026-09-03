@@ -8,9 +8,10 @@ namespace Travel.Web.Mappings
     {
         public TourMappings()
         {
-            CreateMap<CreateTourDto, Tour>();
-            CreateMap<UpdateTourDto, Tour>();
+            CreateMap<CreateTourDto, Tour>().ReverseMap();
+            CreateMap<UpdateTourDto, Tour>().ReverseMap();
             CreateMap<Tour, ResultTourDto>().ReverseMap();
+            CreateMap<ResultTourDto, UpdateTourDto>().ReverseMap();
         }
     }
 }

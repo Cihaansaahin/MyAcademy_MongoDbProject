@@ -1,0 +1,77 @@
+﻿@model Travel.Web.DTOs.TourDtos.CreateTourDto
+@{
+    ViewData["Title"] = "Yeni Tur Ekle";
+}
+
+<div class="page-intro mb-4">
+    <div class="eyebrow">Katalog Yönetimi</div>
+    <h1 style="font-size: 1.8rem; font-weight: 700; color: var(--navy); margin-bottom: .25rem;">Yeni Tur Ekle</h1>
+    <p style="color: var(--muted); margin: 0;">Sisteme yeni bir tur rotası ve detaylarını eklemek için aşağıdaki formu doldurun.</p>
+</div>
+
+<form asp-area="Admin" asp-controller="Tour" asp-action="CreateTour" method="post">
+    <div class="card-x p-4" style="background: #fff; border: 1px solid var(--line-2); border-radius: var(--r); box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+
+        <h4 style="font-size: 1.1rem; color: var(--navy); margin-bottom: 1.25rem; font-weight: 700;">Temel Bilgiler</h4>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Tur Başlığı (Türkçe)</label>
+                <input type="text" asp-for="Title.Tr" class="form-control" placeholder="Örn: Kapadokya Balon Turu" required style="border-radius: 10px; border-color: var(--line);" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Fiyat (₺)</label>
+                <input type="number" step="0.01" asp-for="Price" class="form-control" placeholder="0.00" required style="border-radius: 10px; border-color: var(--line);" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Süre (Gün)</label>
+                <input type="number" asp-for="DurationDays" class="form-control" placeholder="Örn: 3" required style="border-radius: 10px; border-color: var(--line);" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Ülke</label>
+                <input type="text" asp-for="Country" class="form-control" placeholder="Örn: Türkiye" required style="border-radius: 10px; border-color: var(--line);" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Şehir</label>
+                <input type="text" asp-for="City" class="form-control" placeholder="Örn: Nevşehir" required style="border-radius: 10px; border-color: var(--line);" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Kategori</label>
+                <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select" style="border-radius: 10px; border-color: var(--line);">
+                    <option value="">-- Kategori Seçin --</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Kapak Görseli URL</label>
+                <input type="text" asp-for="CoverImageUrl" class="form-control" placeholder="https://..." style="border-radius: 10px; border-color: var(--line);" />
+            </div>
+
+            <div class="col-12">
+                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Açıklama</label>
+                <textarea asp-for="Description.Tr" class="form-control" rows="4" placeholder="Tur detayları hakkında bilgi verin..." style="border-radius: 10px; border-color: var(--line);"></textarea>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center gap-4 mt-3">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" asp-for="IsActive" id="isActiveCheck" checked>
+                    <label class="form-check-label" for="isActiveCheck" style="font-size: .88rem; font-weight: 600;">Yayında (Aktif)</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" asp-for="IsPopular" id="isPopularCheck">
+                    <label class="form-check-label" for="isPopularCheck" style="font-size: .88rem; font-weight: 600;">Popüler Tur</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4 pt-3" style="border-top: 1px solid var(--line-2);">
+            <a href="/Admin/Tour/Index" class="btn" style="background: #eef3f6; color: var(--navy); border-radius: 10px; font-weight: 600; padding: .65rem 1.3rem;">İptal</a>
+            <button type="submit" class="btn" style="background: var(--teal); color: #fff; border-radius: 10px; font-weight: 600; padding: .65rem 1.6rem; box-shadow: 0 4px 14px rgba(15,163,163,.3);">Turu Kaydet</button>
+        </div>
+    </div>
+</form>

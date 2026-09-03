@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Profilim — Travelio</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#0e2a3b;--navy-2:#12384c;--teal:#0fa3a3;--teal-dark:#0b7f80;
+    --cream:#f7f5f0;--white:#ffffff;--ink:#0e2a3b;--muted:#5d7180;--line:#e7e2d8;
+    --shadow-sm:0 4px 18px rgba(14,42,59,.06);--shadow-md:0 18px 50px rgba(14,42,59,.12);--r:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--cream);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4,.brand{font-family:'Sora',sans-serif;}
+  .eyebrow{font-family:'Sora',sans-serif;text-transform:uppercase;letter-spacing:.22em;font-size:.72rem;font-weight:700;color:var(--teal-dark);}
+  a{text-decoration:none}
+  .btn-teal{background:var(--teal);color:#fff;border:none;border-radius:999px;font-weight:600;padding:.8rem 1.6rem;transition:.25s;}
+  .btn-teal:hover{background:var(--teal-dark);color:#fff;transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,163,163,.32)}
+  .btn-outline{background:#fff;border:1px solid var(--line);color:var(--navy);border-radius:999px;font-weight:600;padding:.55rem 1.15rem;font-size:.88rem;transition:.2s;cursor:pointer}
+  .btn-outline:hover{border-color:var(--teal);color:var(--teal-dark)}
+
+  /* NAV */
+  .navbar{background:rgba(247,245,240,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:.9rem 0;}
+  .brand{font-weight:800;font-size:1.5rem;color:var(--navy);letter-spacing:-.5px;display:flex;align-items:center;gap:.5rem;}
+  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--teal);display:inline-block;box-shadow:0 0 0 4px rgba(15,163,163,.18)}
+  .navbar .nav-link{color:var(--navy);font-weight:500;margin:0 .35rem;position:relative}
+  .navbar .nav-link:hover{color:var(--teal-dark)}
+  .navbar .nav-link.active{color:var(--teal-dark)}
+  .navbar .nav-link.active::after{content:"";position:absolute;left:.7rem;right:.7rem;bottom:-2px;height:2px;background:var(--teal);border-radius:2px}
+  .profile-pill{display:flex;align-items:center;gap:.55rem;border:1px solid var(--line);background:#fff;border-radius:999px;padding:.35rem .35rem .35rem .95rem;font-weight:600;color:var(--navy);transition:.2s}
+  .profile-pill.active,.profile-pill:hover{box-shadow:var(--shadow-sm);color:var(--navy);border-color:var(--teal)}
+  .profile-pill .avatar{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:.85rem;font-weight:700}
+
+  /* PAGE HEAD */
+  .prof-head{padding:2rem 0 1.2rem}
+  .crumb{font-size:.85rem;color:var(--muted);margin-bottom:1rem}
+  .crumb a{color:var(--muted)} .crumb a:hover{color:var(--teal-dark)} .crumb .cur{color:var(--navy);font-weight:600}
+  .prof-head h1{font-weight:800;font-size:clamp(1.8rem,3.2vw,2.5rem);letter-spacing:-.5px;color:var(--navy);margin:.35rem 0 .5rem}
+  .prof-head p{color:var(--muted);max-width:56ch;margin:0}
+
+  /* SIDEBAR */
+  .side-card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow-sm);border:1px solid rgba(231,226,216,.7);overflow:hidden}
+  .side-user{padding:1.5rem 1.4rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.9rem}
+  .side-user .av{width:52px;height:52px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-family:'Sora';font-weight:700;font-size:1.15rem;flex:none}
+  .side-user b{display:block;font-family:'Sora';color:var(--navy);font-size:1rem}
+  .side-user span{font-size:.8rem;color:var(--muted);word-break:break-all}
+  .side-menu{padding:.7rem}
+  .side-link{display:flex;align-items:center;gap:.8rem;padding:.7rem .9rem;border-radius:12px;color:var(--navy);font-weight:500;font-size:.94rem;cursor:pointer;transition:.18s;margin-bottom:.15rem;border:none;background:none;width:100%;text-align:left}
+  .side-link svg{color:var(--muted);flex:none;transition:.18s}
+  .side-link:hover{background:var(--cream)}
+  .side-link.active{background:rgba(15,163,163,.1);color:var(--teal-dark);font-weight:600}
+  .side-link.active svg{color:var(--teal-dark)}
+  .side-sep{height:1px;background:var(--line);margin:.5rem .5rem}
+  .side-link.logout{color:#c0554f}
+  .side-link.logout svg{color:#c0554f}
+  .side-link.logout:hover{background:rgba(192,85,79,.08)}
+  .side-sticky{position:sticky;top:90px}
+
+  .menu-btn-mobile{background:#fff;border:1px solid var(--line);border-radius:14px;padding:.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between;width:100%;font-weight:600;color:var(--navy);box-shadow:var(--shadow-sm)}
+
+  /* CONTENT */
+  .pane{display:none}
+  .pane.active{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .pane-head{margin-bottom:1.4rem}
+  .pane-head h1{font-family:'Sora';font-weight:700;font-size:1.6rem;color:var(--navy);margin-bottom:.3rem}
+  .pane-head p{color:var(--muted);margin:0}
+
+  .card-soft{background:#fff;border-radius:var(--r);box-shadow:var(--shadow-sm);border:1px solid rgba(231,226,216,.7);padding:1.6rem}
+
+  /* STAT CARDS */
+  .stat-card{background:#fff;border-radius:16px;box-shadow:var(--shadow-sm);border:1px solid rgba(231,226,216,.7);padding:1.2rem 1.3rem;height:100%}
+  .stat-card .ico{width:40px;height:40px;border-radius:11px;background:rgba(15,163,163,.1);color:var(--teal-dark);display:grid;place-items:center;margin-bottom:.7rem}
+  .stat-card .num{font-family:'Sora';font-weight:800;font-size:1.7rem;color:var(--navy);line-height:1}
+  .stat-card .lab{font-size:.84rem;color:var(--muted);margin-top:.2rem}
+
+  /* UPCOMING FEATURE */
+  .upcoming{position:relative;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-md);color:#fff;min-height:250px;display:flex;align-items:flex-end}
+  .upcoming img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .upcoming::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(14,42,59,.9) 0%,rgba(14,42,59,.55) 55%,rgba(11,127,128,.35) 100%)}
+  .upcoming .inner{position:relative;z-index:2;padding:1.8rem}
+  .up-badge{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);font-size:.72rem;font-weight:600;padding:.3rem .75rem;border-radius:999px;margin-bottom:.7rem;backdrop-filter:blur(4px)}
+  .upcoming h3{font-weight:700;font-size:1.4rem;margin:0 0 .2rem}
+  .upcoming .sub{color:rgba(255,255,255,.82);font-size:.9rem}
+  .up-meta{display:flex;flex-wrap:wrap;gap:.6rem 1.4rem;margin:1rem 0 1.2rem;font-size:.88rem;color:rgba(255,255,255,.92)}
+  .up-meta b{color:#fff;font-family:'Sora';font-weight:600}
+  .status-chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:600;padding:.3rem .75rem;border-radius:999px}
+  .status-ok{background:rgba(15,163,163,.16);color:#8ce7e7;border:1px solid rgba(143,231,231,.3)}
+  .up-btns .btn-white{background:#fff;color:var(--navy);border:none;border-radius:999px;font-weight:600;padding:.6rem 1.2rem;font-size:.88rem;transition:.2s}
+  .up-btns .btn-white:hover{background:var(--teal);color:#fff}
+  .up-btns .btn-linewhite{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:999px;font-weight:600;padding:.6rem 1.2rem;font-size:.88rem;transition:.2s}
+  .up-btns .btn-linewhite:hover{background:#fff;color:var(--navy)}
+
+  /* ACTIVITY */
+  .act-item{display:flex;align-items:flex-start;gap:.85rem;padding:.85rem 0;border-top:1px solid var(--line)}
+  .act-item:first-child{border-top:none;padding-top:0}
+  .act-ico{flex:none;width:34px;height:34px;border-radius:10px;background:var(--cream);display:grid;place-items:center;color:var(--teal-dark)}
+  .act-item .t{color:var(--navy);font-size:.93rem}
+  .act-item .time{color:var(--muted);font-size:.78rem;margin-top:.1rem}
+
+  /* FORM */
+  .field label{font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.35rem;display:block}
+  .field input,.field select{width:100%;border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem;font-size:.93rem;color:var(--navy);background:var(--cream);outline:none;transition:.2s}
+  .field input:focus,.field select:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(15,163,163,.12)}
+
+  /* TABS (turlarim) */
+  .subtabs{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:.25rem;margin-bottom:1.4rem}
+  .subtab{border:none;background:none;border-radius:999px;padding:.45rem 1.1rem;font-weight:600;font-size:.88rem;color:var(--muted);cursor:pointer;transition:.2s}
+  .subtab.active{background:var(--navy);color:#fff}
+
+  /* BOOKING ROW CARD */
+  .trip-card{display:flex;gap:1.1rem;background:#fff;border-radius:16px;box-shadow:var(--shadow-sm);border:1px solid rgba(231,226,216,.7);padding:.9rem;margin-bottom:1rem;align-items:center}
+  .trip-card img{width:120px;height:92px;border-radius:12px;object-fit:cover;flex:none}
+  .trip-info{flex:1;min-width:0}
+  .trip-info .country{font-size:.76rem;color:var(--teal-dark);font-weight:600}
+  .trip-info h4{font-family:'Sora';font-weight:700;font-size:1.05rem;color:var(--navy);margin:.1rem 0 .3rem}
+  .trip-info .meta{font-size:.84rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.3rem 1rem}
+  .trip-info .resno{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+  .trip-right{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:.6rem}
+  .badge-soft{font-size:.74rem;font-weight:600;padding:.3rem .7rem;border-radius:999px}
+  .badge-ok{background:rgba(15,163,163,.12);color:var(--teal-dark)}
+  .badge-done{background:rgba(14,42,59,.08);color:var(--navy)}
+  .trip-right .acts{display:flex;gap:.4rem}
+  .mini-btn{font-size:.8rem;font-weight:600;padding:.4rem .8rem;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--navy);cursor:pointer;transition:.2s}
+  .mini-btn:hover{border-color:var(--teal);color:var(--teal-dark)}
+  .mini-btn.solid{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .mini-btn.solid:hover{background:var(--teal-dark);border-color:var(--teal-dark);color:#fff}
+
+  /* FAVORITE TOUR CARD */
+  .tour-card{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);transition:.3s;height:100%;display:flex;flex-direction:column;border:1px solid rgba(231,226,216,.7);}
+  .tour-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-md)}
+  .tour-media{position:relative;height:180px;overflow:hidden}
+  .tour-media img{width:100%;height:100%;object-fit:cover;transition:.5s}
+  .tour-card:hover .tour-media img{transform:scale(1.07)}
+  .fav{position:absolute;top:.7rem;right:.75rem;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;color:#e0575b;cursor:pointer;border:none;transition:.2s}
+  .fav svg{fill:currentColor}
+  .fav:hover{transform:scale(1.1)}
+  .tour-body{padding:1.05rem 1.15rem 1.2rem;display:flex;flex-direction:column;flex:1}
+  .tour-country{font-size:.76rem;color:var(--teal-dark);font-weight:600}
+  .tour-title{font-family:'Sora';font-weight:700;font-size:1.05rem;margin:.15rem 0 .45rem;color:var(--navy)}
+  .tour-meta{display:flex;align-items:center;gap:.8rem;font-size:.82rem;color:var(--muted);margin-bottom:.8rem}
+  .tour-foot{display:flex;align-items:flex-end;justify-content:space-between;margin-top:auto;padding-top:.5rem;border-top:1px solid var(--line)}
+  .price small{color:var(--muted);font-size:.72rem;display:block}
+  .price b{font-family:'Sora';font-size:1.18rem;color:var(--navy)}
+  .price b span{font-size:.82rem;font-weight:600;color:var(--muted)}
+  .btn-incele{background:var(--navy);color:#fff;border-radius:999px;font-size:.82rem;font-weight:600;padding:.5rem 1rem;border:none;transition:.25s}
+  .btn-incele:hover{background:var(--teal-dark);color:#fff}
+
+  /* MY REVIEWS */
+  .rev-card{background:#fff;border-radius:16px;box-shadow:var(--shadow-sm);border:1px solid rgba(231,226,216,.7);padding:1.3rem 1.4rem;margin-bottom:1rem}
+  .rev-card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap}
+  .rev-card h4{font-family:'Sora';font-weight:700;font-size:1.05rem;color:var(--navy);margin:0}
+  .rev-stars{color:#f4a92c;font-size:.9rem}
+  .rev-stars .off{color:#d8cfc0}
+  .rev-date{font-size:.78rem;color:var(--muted)}
+  .rev-card p{color:var(--navy);line-height:1.6;margin:.7rem 0 .9rem;font-size:.93rem}
+  .rev-acts{display:flex;gap:.5rem}
+
+  /* QUESTIONS */
+  .q-card{background:#fff;border-radius:16px;box-shadow:var(--shadow-sm);border:1px solid rgba(231,226,216,.7);padding:1.3rem 1.4rem;margin-bottom:1rem}
+  .q-card .top{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:center}
+  .q-card .tour-name{font-size:.78rem;color:var(--teal-dark);font-weight:600}
+  .q-card .q-txt{font-family:'Sora';font-weight:600;color:var(--navy);margin:.35rem 0 .2rem;font-size:1rem}
+  .q-card .q-date{font-size:.78rem;color:var(--muted)}
+  .badge-wait{background:rgba(214,158,46,.15);color:#a9741a}
+  .q-answer{background:rgba(15,163,163,.06);border-radius:12px;padding:.8rem 1rem;margin-top:.9rem;display:flex;gap:.7rem}
+  .q-answer .who{font-family:'Sora';font-weight:700;color:var(--teal-dark);font-size:.82rem;white-space:nowrap}
+  .q-answer .txt{color:var(--muted);font-size:.9rem;line-height:1.55}
+  .q-wait-note{color:var(--muted);font-size:.85rem;margin-top:.8rem;font-style:italic}
+
+  /* RATINGS */
+  .rate-card{background:#fff;border-radius:16px;box-shadow:var(--shadow-sm);border:1px solid rgba(231,226,216,.7);padding:1.2rem 1.3rem;height:100%;display:flex;flex-direction:column}
+  .rate-card .country{font-size:.76rem;color:var(--teal-dark);font-weight:600}
+  .rate-card h4{font-family:'Sora';font-weight:700;font-size:1.02rem;color:var(--navy);margin:.15rem 0 .5rem}
+  .rate-card .stars{color:#f4a92c;font-size:1.15rem;letter-spacing:2px}
+  .rate-card .stars .off{color:#d8cfc0}
+  .rate-card .score{font-family:'Sora';font-weight:600;color:var(--navy);font-size:.9rem;margin-top:.3rem}
+  .rate-card .date{font-size:.76rem;color:var(--muted);margin-top:.15rem}
+  .rate-card .mini-btn{margin-top:auto;align-self:flex-start}
+
+  /* EMPTY */
+  .empty{text-align:center;padding:3rem 1rem}
+  .empty .ico{width:60px;height:60px;border-radius:16px;background:rgba(15,163,163,.1);color:var(--teal-dark);display:grid;place-items:center;margin:0 auto 1rem}
+  .empty h3{font-family:'Sora';font-weight:700;color:var(--navy);font-size:1.2rem}
+  .empty p{color:var(--muted);margin:.3rem 0 1.2rem}
+
+  /* TOAST */
+  .toast-ok{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:.9rem 1.3rem;border-radius:14px;box-shadow:var(--shadow-md);font-size:.9rem;font-weight:500;display:flex;align-items:center;gap:.6rem;z-index:1080;opacity:0;transform:translateY(12px);transition:.3s;pointer-events:none}
+  .toast-ok.show{opacity:1;transform:none}
+  .toast-ok svg{color:#7fe3e3}
+
+  .modal-content{border-radius:var(--r);border:none}
+  .star-pick{font-size:1.7rem;color:#d8cfc0;cursor:pointer;transition:.15s}
+  .star-pick.on{color:#f4a92c}
+
+  /* FOOTER */
+  footer{background:var(--navy);color:rgba(255,255,255,.72);padding:4rem 0 2rem;margin-top:4rem}
+  footer .brand{color:#fff}
+  footer h6{color:#fff;font-family:'Sora';font-weight:600;letter-spacing:.02em;margin-bottom:1rem}
+  footer a{color:rgba(255,255,255,.72);display:block;margin-bottom:.55rem;font-size:.92rem}
+  footer a:hover{color:#7fe3e3}
+  .foot-social a{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);margin-right:.5rem}
+  .foot-social a:hover{background:var(--teal)}
+  .foot-bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:2.5rem;padding-top:1.5rem;font-size:.85rem}
+
+  @media(max-width:991px){ .side-sticky{position:static} }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="brand" href="index.html"><span class="dot"></span>Travelio</a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Ana Sayfa</a></li>
+        <li class="nav-item"><a class="nav-link" href="tours.html">Turlar</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#destinasyonlar">Destinasyonlar</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#yorumlar">Yorumlar</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#hakkimizda">Hakkımızda</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#iletisim">İletişim</a></li>
+      </ul>
+      <a href="profile.html" class="profile-pill active"><span>Profilim</span><span class="avatar">EY</span></a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE HEAD -->
+<div class="container prof-head">
+  <div class="crumb"><a href="index.html">Ana Sayfa</a> / <span class="cur">Profilim</span></div>
+  <div class="eyebrow">Hesabım</div>
+  <h1>Profilim</h1>
+  <p>Seyahatlerini, favorilerini ve Travelio deneyimini buradan yönetebilirsin.</p>
+</div>
+
+<div class="container pb-2">
+  <!-- mobile menu button -->
+  <div class="d-lg-none mb-3">
+    <button class="menu-btn-mobile" type="button" data-bs-toggle="offcanvas" data-bs-target="#accountMenu">
+      <span>Hesap Menüsü</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="row g-4">
+    <!-- SIDEBAR (desktop) -->
+    <div class="col-lg-3 d-none d-lg-block">
+      <div class="side-sticky">
+        <div class="side-card" id="sidebarDesktop"></div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="col-lg-9" id="contentArea"></div>
+  </div>
+</div>
+
+<!-- OFFCANVAS (mobile menu) -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="accountMenu" style="width:300px;background:var(--cream)">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" style="font-family:'Sora';font-weight:700;color:var(--navy)">Hesap Menüsü</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body p-2">
+    <div class="side-card" id="sidebarMobile"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <a class="brand mb-3" href="index.html"><span class="dot"></span>Travelio</a>
+        <p style="max-width:34ch">Dünyanın dört bir yanına, özenle tasarlanmış turlarla unutulmaz seyahatler.</p>
+        <div class="foot-social mt-3">
+          <a href="#" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+          <a href="#" aria-label="Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84 0 0 0 .497-3.753c-.002-.249 1.51-2.772 1.818-4.013z"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        </div>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Keşfet</h6>
+        <a href="tours.html">Turlar</a><a href="index.html#destinasyonlar">Destinasyonlar</a><a href="index.html#yorumlar">Yorumlar</a><a href="#">Kampanyalar</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Kurumsal</h6>
+        <a href="index.html#hakkimizda">Hakkımızda</a><a href="#">Kariyer</a><a href="#">Blog</a><a href="index.html#iletisim">İletişim</a>
+      </div>
+      <div class="col-lg-4">
+        <h6>Bültene Katıl</h6>
+        <p style="max-width:36ch">Yeni rotalardan ve erken rezervasyon fırsatlarından ilk sen haberdar ol.</p>
+        <div class="d-flex gap-2 mt-2" style="max-width:360px">
+          <input class="form-control" style="border-radius:999px" placeholder="E-posta adresin" />
+          <button class="btn-teal" style="white-space:nowrap">Katıl</button>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom d-flex flex-wrap justify-content-between gap-2">
+      <span>© 2026 Travelio. Tüm hakları saklıdır.</span>
+      <span>Gizlilik · Kullanım Koşulları · Çerezler</span>
+    </div>
+  </div>
+</footer>
+
+<!-- LOGOUT MODAL -->
+<div class="modal fade" id="logoutModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center p-4">
+        <div style="width:56px;height:56px;border-radius:16px;background:rgba(192,85,79,.1);color:#c0554f;display:grid;place-items:center;margin:0 auto 1rem">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+        <h5 style="font-family:'Sora';font-weight:700;color:var(--navy)">Çıkış yapmak istediğine emin misin?</h5>
+        <p style="color:var(--muted);font-size:.9rem">Hesabından çıkış yapıldığında rezervasyonların ve favorilerin güvende kalır.</p>
+        <div class="d-flex gap-2 justify-content-center mt-3">
+          <button class="btn-outline" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal" style="background:#c0554f" onclick="doLogout()">Çıkış Yap</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RATING MODAL -->
+<div class="modal fade" id="rateModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" style="font-family:'Sora';font-weight:700;color:var(--navy)">Değerlendirmeyi Güncelle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="rateTourName" style="color:var(--muted);font-size:.9rem;margin-bottom:.6rem"></p>
+        <div id="ratePicker">
+          <span class="star-pick" data-v="1">★</span><span class="star-pick" data-v="2">★</span><span class="star-pick" data-v="3">★</span><span class="star-pick" data-v="4">★</span><span class="star-pick" data-v="5">★</span>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn-teal" onclick="saveRating()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE REVIEW MODAL -->
+<div class="modal fade" id="delModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center p-4">
+        <h5 style="font-family:'Sora';font-weight:700;color:var(--navy)">Yorumu silmek istiyor musun?</h5>
+        <p style="color:var(--muted);font-size:.9rem">Bu işlem geri alınamaz.</p>
+        <div class="d-flex gap-2 justify-content-center mt-3">
+          <button class="btn-outline" data-bs-dismiss="modal">Vazgeç</button>
+          <button class="btn-teal" style="background:#c0554f" onclick="confirmDeleteReview()">Sil</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-ok" id="toast">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg">Kaydedildi.</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* =============== ICONS =============== */
+const IC = {
+  overview:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  profile:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
+  trips:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  fav:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+  reviews:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  questions:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg>',
+  ratings:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8.5 22 9.3 17 14 18.2 21 12 17.6 5.8 21 7 14 2 9.3 9 8.5 12 2"/></svg>',
+  logout:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
+};
+const MENU = [
+  {id:"overview", label:"Genel Bakış", ic:"overview"},
+  {id:"profile", label:"Profil Bilgilerim", ic:"profile"},
+  {id:"trips", label:"Turlarım", ic:"trips"},
+  {id:"favorites", label:"Favorilerim", ic:"fav"},
+  {id:"reviews", label:"Yorumlarım", ic:"reviews"},
+  {id:"questions", label:"Sorularım", ic:"questions"},
+  {id:"ratings", label:"Değerlendirmelerim", ic:"ratings"}
+];
+
+/* =============== DATA =============== */
+const IMG = {
+  prag:"https://images.unsplash.com/photo-1541849546-216549ae216d?auto=format&fit=crop&w=800&q=80",
+  norway:"https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=800&q=80",
+  roma:"https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=800&q=80",
+  paris:"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80",
+  amsterdam:"https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=800&q=80",
+  tokyo:"https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80",
+  swiss:"https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=800&q=80",
+  alsace:"https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=800&q=80"
+};
+
+let FAVORITES = [
+  {title:"Tokyo & Kyoto", country:"Japonya", dur:"8 Gün / 7 Gece", rating:4.8, price:"79.900", img:IMG.tokyo},
+  {title:"İsviçre Alpleri", country:"İsviçre", dur:"7 Gün / 6 Gece", rating:5.0, price:"58.200", img:IMG.swiss},
+  {title:"Kuzey Işıkları Norveç", country:"Norveç", dur:"6 Gün / 5 Gece", rating:4.9, price:"64.900", img:IMG.norway},
+  {title:"Paris & Alsace", country:"Fransa", dur:"7 Gün / 6 Gece", rating:4.8, price:"47.900", img:IMG.alsace}
+];
+
+let MYREVIEWS = [
+  {id:1, title:"Roma & Toskana Keşfi", stars:5, date:"12 Haziran 2026", text:"Roma zaten çok güzeldi ama Toskana bölümü turun en unutulmaz kısmıydı. Rehberimiz de çok ilgiliydi."},
+  {id:2, title:"Paris & Disneyland", stars:5, date:"18 Mart 2026", text:"İlk Paris seyahatimizdi ve organizasyon gerçekten çok başarılıydı."},
+  {id:3, title:"Amsterdam Kanalları", stars:4, date:"16 Kasım 2025", text:"Tur çok güzeldi, yalnızca serbest zaman biraz daha uzun olabilirdi."}
+];
+
+const TRIPS = {
+  upcoming:[
+    {title:"Prag & Viyana Kültür Turu", country:"Çekya · Avusturya", date:"12 - 17 Ekim 2026", res:"TRV-28491", status:"Onaylandı", img:IMG.prag},
+    {title:"Kuzey Işıkları Norveç", country:"Norveç", date:"8 - 13 Ocak 2027", res:"TRV-30214", status:"Onaylandı", img:IMG.norway}
+  ],
+  completed:[
+    {title:"Roma & Toskana Keşfi", country:"İtalya", date:"4 - 9 Haziran 2026", res:"TRV-24187", status:"Tamamlandı", reviewed:true, img:IMG.roma},
+    {title:"Paris & Disneyland", country:"Fransa", date:"10 - 14 Mart 2026", res:"TRV-21930", status:"Tamamlandı", reviewed:true, img:IMG.paris},
+    {title:"Amsterdam Kanalları", country:"Hollanda", date:"8 - 11 Kasım 2025", res:"TRV-19004", status:"Tamamlandı", reviewed:false, img:IMG.amsterdam}
+  ]
+};
+
+const QUESTIONS = [
+  {tour:"Roma & Toskana Keşfi", q:"Vatikan giriş bileti tur ücretine dahil mi?", date:"3 Haziran 2026", status:"answered", a:"Vatikan müzeleri giriş ücretleri tur paketine dahil değildir."},
+  {tour:"Kuzey Işıkları Norveç", q:"Termal kıyafet sağlanıyor mu?", date:"28 Temmuz 2026", status:"waiting"},
+  {tour:"Tokyo & Kyoto", q:"Tur sırasında hızlı tren kullanılıyor mu?", date:"15 Temmuz 2026", status:"answered", a:"Evet. Tokyo - Kyoto geçişinde Shinkansen hızlı treni kullanılmaktadır."}
+];
+
+let RATINGS = [
+  {title:"Roma & Toskana Keşfi", country:"İtalya", stars:5, date:"12 Haziran 2026"},
+  {title:"Paris & Disneyland", country:"Fransa", stars:5, date:"18 Mart 2026"},
+  {title:"Amsterdam Kanalları", country:"Hollanda", stars:4, date:"16 Kasım 2025"},
+  {title:"Prag Noel Pazarları", country:"Çekya", stars:5, date:"22 Aralık 2025"}
+];
+
+/* =============== HELPERS =============== */
+function starStr(n){ let s=""; for(let i=1;i<=5;i++) s+= i<=n?"★":"<span class='off'>★</span>"; return s; }
+function toast(msg){ const t=document.getElementById("toast"); document.getElementById("toastMsg").textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2600); }
+
+/* =============== SIDEBAR =============== */
+function sidebarHTML(){
+  return `
+  <div class="side-user">
+    <div class="av">EY</div>
+    <div style="min-width:0"><b>Eylül Yılmaz</b><span>eylul.yilmaz@email.com</span></div>
+  </div>
+  <div class="side-menu">
+    ${MENU.map(m=>`<button class="side-link" data-pane="${m.id}" onclick="go('${m.id}')">${IC[m.ic]} ${m.label}</button>`).join("")}
+    <div class="side-sep"></div>
+    <button class="side-link logout" data-bs-toggle="modal" data-bs-target="#logoutModal">${IC.logout} Çıkış Yap</button>
+  </div>`;
+}
+document.getElementById("sidebarDesktop").innerHTML = sidebarHTML();
+document.getElementById("sidebarMobile").innerHTML = sidebarHTML();
+
+/* =============== NAVIGATION =============== */
+let current = "overview";
+function go(id){
+  current = id;
+  document.querySelectorAll(".side-link[data-pane]").forEach(b=> b.classList.toggle("active", b.dataset.pane===id));
+  document.getElementById("contentArea").innerHTML = RENDER[id]();
+  const oc = document.getElementById("accountMenu");
+  const inst = bootstrap.Offcanvas.getInstance(oc);
+  if(inst) inst.hide();
+  window.scrollTo({top:0, behavior:"smooth"});
+  if(id==="ratings") bindRatingButtons();
+}
+
+/* =============== RENDERERS =============== */
+const RENDER = {
+  overview(){
+    const stats = [
+      {ic:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>', num:2, lab:"Yaklaşan Tur"},
+      {ic:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>', num:4, lab:"Tamamlanan Tur"},
+      {ic:IC.fav, num:7, lab:"Favori Tur"},
+      {ic:IC.reviews, num:5, lab:"Yorum"}
+    ];
+    const t = TRIPS.upcoming[0];
+    const acts = [
+      {t:'<b>Roma & Toskana</b> turuna yorum yaptın.', time:"2 gün önce", ic:IC.reviews},
+      {t:'<b>Tokyo & Kyoto</b> turunu favorilere ekledin.', time:"5 gün önce", ic:IC.fav},
+      {t:'<b>Prag & Viyana</b> rezervasyonun onaylandı.', time:"12 gün önce", ic:IC.trips},
+      {t:'<b>Kuzey Işıkları</b> turu hakkında soru sordun.', time:"18 gün önce", ic:IC.questions}
+    ];
+    return `
+    <div class="pane active">
+      <div class="pane-head">
+        <h1>Merhaba Eylül 👋</h1>
+        <p>Bir sonraki maceranın detaylarına göz atabilir, geçmiş seyahatlerini ve favorilerini yönetebilirsin.</p>
+      </div>
+      <div class="row g-3 mb-4">
+        ${stats.map(s=>`<div class="col-6 col-md-3"><div class="stat-card"><div class="ico">${s.ic}</div><div class="num">${s.num}</div><div class="lab">${s.lab}</div></div></div>`).join("")}
+      </div>
+
+      <h2 style="font-family:'Sora';font-weight:700;font-size:1.25rem;color:var(--navy);margin-bottom:1rem">Yaklaşan Seyahatin</h2>
+      <div class="upcoming mb-4">
+        <img src="${t.img}" alt="${t.title}">
+        <div class="inner">
+          <span class="up-badge">Rezervasyon ${t.res}</span>
+          <h3>${t.title}</h3>
+          <div class="sub">${t.country}</div>
+          <div class="up-meta">
+            <span>📅 <b>${t.date}</b></span>
+            <span>⏳ <b>6 Gün / 5 Gece</b></span>
+            <span>⌛ Kalan: <b>63 gün</b></span>
+            <span class="status-chip status-ok">● ${t.status}</span>
+          </div>
+          <div class="up-btns d-flex gap-2 flex-wrap">
+            <a href="tour-detail.html" class="btn-white">Tur Detayı</a>
+            <button class="btn-linewhite" onclick="go('trips')">Rezervasyonu Gör</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-soft">
+        <h2 style="font-family:'Sora';font-weight:700;font-size:1.15rem;color:var(--navy);margin-bottom:1rem">Son Aktiviteler</h2>
+        ${acts.map(a=>`<div class="act-item"><div class="act-ico">${a.ic}</div><div><div class="t">${a.t}</div><div class="time">${a.time}</div></div></div>`).join("")}
+      </div>
+    </div>`;
+  },
+
+  profile(){
+    return `
+    <div class="pane active">
+      <div class="pane-head"><h1>Profil Bilgilerim</h1><p>Kişisel bilgilerini buradan güncelleyebilirsin.</p></div>
+      <div class="card-soft">
+        <div class="row g-3">
+          <div class="col-md-6 field"><label>Ad</label><input value="Eylül"></div>
+          <div class="col-md-6 field"><label>Soyad</label><input value="Yılmaz"></div>
+          <div class="col-md-6 field"><label>E-posta</label><input type="email" value="eylul.yilmaz@email.com"></div>
+          <div class="col-md-6 field"><label>Telefon</label><input value="+90 532 123 45 67"></div>
+          <div class="col-md-6 field"><label>Doğum Tarihi</label><input type="date" value="1994-09-14"></div>
+          <div class="col-md-6 field"><label>Şehir</label><input value="İstanbul"></div>
+          <div class="col-md-6 field"><label>Ülke</label>
+            <select><option selected>Türkiye</option><option>Almanya</option><option>Hollanda</option><option>Birleşik Krallık</option></select>
+          </div>
+        </div>
+        <button class="btn-teal mt-4" onclick="toast('Profil bilgilerin güncellendi.')">Bilgileri Güncelle</button>
+      </div>
+    </div>`;
+  },
+
+  trips(){
+    const card = (t)=>`
+      <div class="trip-card">
+        <img src="${t.img}" alt="${t.title}">
+        <div class="trip-info">
+          <div class="country">${t.country}</div>
+          <h4>${t.title}</h4>
+          <div class="meta"><span>📅 ${t.date}</span></div>
+          <div class="resno">Rezervasyon: ${t.res}</div>
+        </div>
+        <div class="trip-right">
+          <span class="badge-soft ${t.status==='Onaylandı'?'badge-ok':'badge-done'}">${t.status}</span>
+          <div class="acts">
+            <a href="tour-detail.html" class="mini-btn">Tur Detayı</a>
+            ${t.status==='Tamamlandı' ? (t.reviewed?'<button class="mini-btn" onclick="go(&quot;reviews&quot;)">Yorumunu Gör</button>':'<button class="mini-btn solid" onclick="go(&quot;reviews&quot;)">Yorum Yap</button>') : ''}
+          </div>
+        </div>
+      </div>`;
+    return `
+    <div class="pane active">
+      <div class="pane-head"><h1>Turlarım</h1><p>Yaklaşan ve tamamlanan tüm seyahatlerin.</p></div>
+      <div class="subtabs" role="tablist">
+        <button class="subtab active" onclick="tripFilter(this,'all')">Tümü</button>
+        <button class="subtab" onclick="tripFilter(this,'upcoming')">Yaklaşan</button>
+        <button class="subtab" onclick="tripFilter(this,'completed')">Tamamlanan</button>
+      </div>
+      <div id="tripUpcoming">
+        <h3 style="font-family:'Sora';font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.9rem">Yaklaşan</h3>
+        ${TRIPS.upcoming.map(card).join("")}
+      </div>
+      <div id="tripCompleted">
+        <h3 style="font-family:'Sora';font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:1.6rem 0 .9rem">Tamamlanan</h3>
+        ${TRIPS.completed.map(card).join("")}
+      </div>
+    </div>`;
+  },
+
+  favorites(){
+    if(FAVORITES.length===0){
+      return `<div class="pane active"><div class="pane-head"><h1>Favorilerim</h1><p>Daha sonra incelemek için kaydettiğin turlar.</p></div>
+        <div class="card-soft"><div class="empty">
+          <div class="ico">${IC.fav}</div><h3>Henüz favori turun yok.</h3><p>Yeni rotalar keşfetmeye ne dersin?</p>
+          <a href="tours.html" class="btn-teal">Turları Keşfet</a>
+        </div></div></div>`;
+    }
+    return `
+    <div class="pane active">
+      <div class="pane-head"><h1>Favorilerim</h1><p>Daha sonra incelemek için kaydettiğin turlar.</p></div>
+      <div class="row g-4" id="favGrid">
+        ${FAVORITES.map((t,i)=>`
+          <div class="col-sm-6 col-lg-4" data-fav="${i}">
+            <article class="tour-card">
+              <div class="tour-media">
+                <img src="${t.img}" alt="${t.title}">
+                <button class="fav" title="Favoriden kaldır" onclick="removeFav(${i})">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                </button>
+              </div>
+              <div class="tour-body">
+                <div class="tour-country">${t.country}</div>
+                <h3 class="tour-title">${t.title}</h3>
+                <div class="tour-meta"><span>🗓️ ${t.dur}</span><span><span style="color:#f4a92c">★</span> ${t.rating.toFixed(1)}</span></div>
+                <div class="tour-foot">
+                  <div class="price"><small>Kişi başı</small><b>${t.price} <span>TL</span></b></div>
+                  <a href="tour-detail.html" class="btn-incele">Turu İncele</a>
+                </div>
+              </div>
+            </article>
+          </div>`).join("")}
+      </div>
+    </div>`;
+  },
+
+  reviews(){
+    if(MYREVIEWS.length===0){
+      return `<div class="pane active"><div class="pane-head"><h1>Yorumlarım</h1></div>
+        <div class="card-soft"><div class="empty"><div class="ico">${IC.reviews}</div><h3>Henüz yorumun yok.</h3><p>Tamamladığın turlar hakkında deneyimini paylaşabilirsin.</p><button class="btn-teal" onclick="go('trips')">Turlarıma Git</button></div></div></div>`;
+    }
+    return `
+    <div class="pane active">
+      <div class="pane-head"><h1>Yorumlarım</h1><p>Turlar hakkında paylaştığın değerlendirmeler.</p></div>
+      <div id="reviewList">
+        ${MYREVIEWS.map(r=>`
+          <div class="rev-card" data-rev="${r.id}">
+            <div class="top">
+              <div><h4>${r.title}</h4><span class="rev-date">${r.date}</span></div>
+              <span class="rev-stars">${starStr(r.stars)}</span>
+            </div>
+            <p>${r.text}</p>
+            <div class="rev-acts">
+              <button class="mini-btn" onclick="toast('Düzenleme demo modunda çalışıyor.')">Düzenle</button>
+              <button class="mini-btn" onclick="askDeleteReview(${r.id})">Sil</button>
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>`;
+  },
+
+  questions(){
+    return `
+    <div class="pane active">
+      <div class="pane-head"><h1>Sorularım</h1><p>Tur detay sayfalarında sorduğun sorular ve yanıtları.</p></div>
+      ${QUESTIONS.map(q=>`
+        <div class="q-card">
+          <div class="top">
+            <div>
+              <div class="tour-name">${q.tour}</div>
+              <div class="q-txt">${q.q}</div>
+              <div class="q-date">${q.date}</div>
+            </div>
+            <span class="badge-soft ${q.status==='answered'?'badge-ok':'badge-wait'}">${q.status==='answered'?'Cevaplandı':'Cevap Bekliyor'}</span>
+          </div>
+          ${q.status==='answered'
+            ? `<div class="q-answer"><span class="who">Travelio</span><span class="txt">${q.a}</span></div>`
+            : `<div class="q-wait-note">Ekibimiz sorunu en kısa sürede yanıtlayacak.</div>`}
+        </div>`).join("")}
+    </div>`;
+  },
+
+  ratings(){
+    return `
+    <div class="pane active">
+      <div class="pane-head"><h1>Değerlendirmelerim</h1><p>Katıldığın turlara verdiğin puanlar.</p></div>
+      <div class="row g-3" id="rateGrid">
+        ${RATINGS.map((r,i)=>`
+          <div class="col-sm-6 col-lg-4">
+            <div class="rate-card">
+              <div class="country">${r.country}</div>
+              <h4>${r.title}</h4>
+              <div class="stars" data-stars="${i}">${starStr(r.stars)}</div>
+              <div class="score">${r.stars} / 5</div>
+              <div class="date">${r.date}</div>
+              <button class="mini-btn mt-3" data-rate="${i}">Değerlendirmeyi Güncelle</button>
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>`;
+  }
+};
+
+/* =============== INTERACTIONS =============== */
+// trips filter
+function tripFilter(btn, type){
+  document.querySelectorAll(".subtab").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("tripUpcoming").style.display = (type==="completed")?"none":"block";
+  document.getElementById("tripCompleted").style.display = (type==="upcoming")?"none":"block";
+}
+
+// favorites
+function removeFav(i){
+  FAVORITES.splice(i,1);
+  document.getElementById("contentArea").innerHTML = RENDER.favorites();
+  toast("Favorilerden kaldırıldı.");
+}
+
+// delete review
+let pendingDelId = null;
+function askDeleteReview(id){ pendingDelId = id; new bootstrap.Modal(document.getElementById("delModal")).show(); }
+function confirmDeleteReview(){
+  MYREVIEWS = MYREVIEWS.filter(r=>r.id!==pendingDelId);
+  bootstrap.Modal.getInstance(document.getElementById("delModal")).hide();
+  document.getElementById("contentArea").innerHTML = RENDER.reviews();
+  toast("Yorum silindi.");
+}
+
+// ratings modal
+let rateIndex = null, ratePicked = 0;
+function bindRatingButtons(){
+  document.querySelectorAll("[data-rate]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      rateIndex = +b.dataset.rate;
+      ratePicked = RATINGS[rateIndex].stars;
+      document.getElementById("rateTourName").textContent = RATINGS[rateIndex].title;
+      paintPicker();
+      new bootstrap.Modal(document.getElementById("rateModal")).show();
+    });
+  });
+}
+function paintPicker(){
+  document.querySelectorAll("#ratePicker .star-pick").forEach(s=> s.classList.toggle("on", +s.dataset.v<=ratePicked));
+}
+document.querySelectorAll("#ratePicker .star-pick").forEach(s=>{
+  s.addEventListener("click", ()=>{ ratePicked = +s.dataset.v; paintPicker(); });
+});
+function saveRating(){
+  if(rateIndex===null) return;
+  RATINGS[rateIndex].stars = ratePicked;
+  bootstrap.Modal.getInstance(document.getElementById("rateModal")).hide();
+  document.getElementById("contentArea").innerHTML = RENDER.ratings();
+  bindRatingButtons();
+  toast("Değerlendirmen güncellendi.");
+}
+
+function doLogout(){
+  bootstrap.Modal.getInstance(document.getElementById("logoutModal")).hide();
+  toast("Çıkış yapıldı (demo).");
+}
+
+/* init */
+go("overview");
+</script>
+</body>
+</html>
