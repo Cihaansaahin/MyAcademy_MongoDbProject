@@ -22,5 +22,8 @@ namespace Travel.Web.DTOs.TourDtos
 
         public List<TourDateItem> TourDates { get; set; } = new();
         public List<TourPlanDay> Itinerary { get; set; } = new();
+
+        public List<IFormFile>? GalleryFiles { get; set; }
+        public IFormFile? CoverImageFile { get; set; }
     }
 }

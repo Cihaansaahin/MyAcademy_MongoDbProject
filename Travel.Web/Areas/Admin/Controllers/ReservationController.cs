@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuestPDF.Fluent;
 using Travel.Web.Services.ReservationServices;
@@ -7,6 +8,7 @@ using Travel.Web.Services.TourServices;
 namespace Travel.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")] // Sadece rolü 'Admin' olan oturumlar girebilir
     public class ReservationController : Controller
     {
         private readonly IReservationService _reservationService;

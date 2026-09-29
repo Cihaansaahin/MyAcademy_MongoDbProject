@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Travel.Web.DTOs.TourDtos;
 using Travel.Web.Services.CategoryServices;
@@ -8,6 +9,7 @@ using Travel.Web.Services.TourServices;
 namespace Travel.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")] // Sadece rolü 'Admin' olan oturumlar girebilir
     public class TourController : Controller
     {
         private readonly ITourService _tourService;
@@ -101,26 +103,50 @@ namespace Travel.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateTour(CreateTourDto createTourDto)
+        public async Task<IActionResult> CreateTour(CreateTourDto dto)
         {
-            if (createTourDto.Title != null)
+            var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/tours");
+            if (!Directory.Exists(folder))
             {
-                createTourDto.Title.Tr = createTourDto.Title.Value ?? createTourDto.Title.Tr ?? "";
+                Directory.CreateDirectory(folder);
             }
 
-            if (createTourDto.Description != null)
+            // 1. Kapak fotoğrafı dosyadan yüklendiyse kaydet
+            if (dto.CoverImageFile != null && dto.CoverImageFile.Length > 0)
             {
-                createTourDto.Description.Tr = createTourDto.Description.Value ?? createTourDto.Description.Tr ?? "";
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.CoverImageFile.FileName)}";
+                var filePath = Path.Combine(folder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.CoverImageFile.CopyToAsync(stream);
+                }
+                dto.CoverImageUrl = $"/images/tours/{fileName}";
             }
 
-            createTourDto.GalleryImageUrls ??= new();
-            createTourDto.Features ??= new();
-            createTourDto.TourDates ??= new();
-            createTourDto.Itinerary ??= new();
+            // 2. Galeri fotoğrafları yüklendiyse tek tek kaydet ve listeye ekle
+            if (dto.GalleryFiles != null && dto.GalleryFiles.Any())
+            {
+                dto.GalleryImageUrls = new List<string>();
 
-            await _tourService.CreateAsync(createTourDto);
+                foreach (var file in dto.GalleryFiles)
+                {
+                    if (file.Length > 0)
+                    {
+                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                        var filePath = Path.Combine(folder, fileName);
 
-            return RedirectToAction(nameof(Index));
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+                        dto.GalleryImageUrls.Add($"/images/tours/{fileName}");
+                    }
+                }
+            }
+
+            await _tourService.CreateAsync(dto);
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -172,18 +198,59 @@ namespace Travel.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateTour(UpdateTourDto updateTourDto)
+        public async Task<IActionResult> UpdateTour(UpdateTourDto dto)
         {
-            updateTourDto.Title ??= new();
-            updateTourDto.Description ??= new();
+            // 1. Kapak fotoğrafı dosyadan yüklendiyse kaydet
+            if (dto.CoverImageFile != null && dto.CoverImageFile.Length > 0)
+            {
+                var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/tours");
+                if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
-            updateTourDto.GalleryImageUrls ??= new();
-            updateTourDto.Features ??= new();
-            updateTourDto.TourDates ??= new();
-            updateTourDto.Itinerary ??= new();
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.CoverImageFile.FileName)}";
+                var filePath = Path.Combine(folder, fileName);
 
-            await _tourService.UpdateAsync(updateTourDto);
-            return RedirectToAction(nameof(Index));
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.CoverImageFile.CopyToAsync(stream);
+                }
+                dto.CoverImageUrl = $"/images/tours/{fileName}";
+            }
+
+            // 2. Galeri fotoğrafları yüklendiyse kaydet
+            if (dto.GalleryFiles != null && dto.GalleryFiles.Any())
+            {
+                var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/tours");
+                if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+                dto.GalleryImageUrls ??= new List<string>();
+
+                foreach (var file in dto.GalleryFiles)
+                {
+                    if (file.Length > 0)
+                    {
+                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                        var filePath = Path.Combine(folder, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+                        dto.GalleryImageUrls.Add($"/images/tours/{fileName}");
+                    }
+                }
+            }
+            else
+            {
+                // Yeni galeri yüklenmediyse eski fotoğrafları korumak için:
+                var existing = await _tourService.GetByIdAsync(dto.Id);
+                if (existing?.GalleryImageUrls != null)
+                {
+                    dto.GalleryImageUrls = existing.GalleryImageUrls;
+                }
+            }
+
+            await _tourService.UpdateAsync(dto);
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> DeleteTour(string id)

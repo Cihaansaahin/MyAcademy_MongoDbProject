@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Travel.Web.DTOs.CategoryDtos;
 using Travel.Web.Services.CategoryServices;
 
 namespace Travel.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")] // Sadece rolü 'Admin' olan oturumlar girebilir
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;

@@ -34,12 +34,39 @@ namespace Travel.Web.Services.TourServices
         public async Task CreateAsync(CreateTourDto createTourDto)
         {
             var tour = _mapper.Map<Tour>(createTourDto);
+
+            // Yeni eklenen tarihlerin ID ve RemainingCapacity değerlerini garantiye al
+            if (tour.TourDates != null)
+            {
+                foreach (var td in tour.TourDates)
+                {
+                    if (string.IsNullOrEmpty(td.Id))
+                        td.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+
+                    if (td.RemainingCapacity <= 0)
+                        td.RemainingCapacity = td.Capacity > 0 ? td.Capacity : 28;
+                }
+            }
+
             await _tourCollection.InsertOneAsync(tour);
         }
 
         public async Task UpdateAsync(UpdateTourDto updateTourDto)
         {
             var tour = _mapper.Map<Tour>(updateTourDto);
+
+            if (tour.TourDates != null)
+            {
+                foreach (var td in tour.TourDates)
+                {
+                    if (string.IsNullOrEmpty(td.Id))
+                        td.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+
+                    if (td.RemainingCapacity <= 0)
+                        td.RemainingCapacity = td.Capacity > 0 ? td.Capacity : 28;
+                }
+            }
+
             await _tourCollection.FindOneAndReplaceAsync(x => x.Id == tour.Id, tour);
         }
 
@@ -48,58 +75,65 @@ namespace Travel.Web.Services.TourServices
             await _tourCollection.DeleteOneAsync(x => x.Id == id);
         }
 
-        // Case Madde 7: Array içindeki ilgili tarihin kontenjanını atomik düşürme
+        // Kontenjanı garantili olarak düşürme
         public async Task<bool> DecreaseCapacityAsync(string tourId, string tourDateId, int count)
         {
-            // TourId veya TourDateId eksik ya da 24 haneli ObjectId formatında değilse (tarih seçimi olmadan genel rezervasyon yapıldıysa)
-            if (string.IsNullOrWhiteSpace(tourId) ||
-                string.IsNullOrWhiteSpace(tourDateId) ||
-                !MongoDB.Bson.ObjectId.TryParse(tourId, out _) ||
-                !MongoDB.Bson.ObjectId.TryParse(tourDateId, out _))
+            if (string.IsNullOrWhiteSpace(tourId))
+                return false;
+
+            var tour = await _tourCollection.Find(x => x.Id == tourId).FirstOrDefaultAsync();
+            if (tour == null || tour.TourDates == null || !tour.TourDates.Any())
+                return false;
+
+            // Hedef tarihi bul: ID eşleşmesi ara, yoksa en yakın geçerli tarihi seç
+            var targetDate = (!string.IsNullOrEmpty(tourDateId) ? tour.TourDates.FirstOrDefault(d => d.Id == tourDateId) : null)
+                             ?? tour.TourDates.FirstOrDefault(d => d.StartDate >= DateTime.UtcNow)
+                             ?? tour.TourDates.FirstOrDefault();
+
+            if (targetDate == null)
+                return false;
+
+            // Kalan kontenjan sıfır veya eksik kalmışsa kapasiteye eşitle
+            if (targetDate.RemainingCapacity <= 0)
             {
-                // Kontenjan alt kaydı bulunmadığı varsayılarak rezervasyonun tamamlanmasına izin ver
-                return true;
+                targetDate.RemainingCapacity = targetDate.Capacity > 0 ? targetDate.Capacity : 28;
             }
 
-            var filter = Builders<Tour>.Filter.And(
-                Builders<Tour>.Filter.Eq(x => x.Id, tourId),
-                Builders<Tour>.Filter.ElemMatch(x => x.TourDates, d => d.Id == tourDateId && d.RemainingCapacity >= count)
-            );
+            if (targetDate.RemainingCapacity < count)
+                return false;
 
-            var update = Builders<Tour>.Update.Inc("TourDates.$.RemainingCapacity", -count);
-            var result = await _tourCollection.UpdateOneAsync(filter, update);
-            return result.ModifiedCount > 0;
+            targetDate.RemainingCapacity -= count;
+
+            var result = await _tourCollection.ReplaceOneAsync(x => x.Id == tourId, tour);
+            return result.ModifiedCount > 0 || result.MatchedCount > 0;
         }
 
         // İptal durumunda kontenjan iadesi
         public async Task<bool> IncreaseCapacityAsync(string tourId, string tourDateId, int count)
         {
-            // TourId veya TourDateId eksik ya da 24 haneli ObjectId formatında değilse işlemi sessizce atla
-            if (string.IsNullOrWhiteSpace(tourId) ||
-                string.IsNullOrWhiteSpace(tourDateId) ||
-                !MongoDB.Bson.ObjectId.TryParse(tourId, out _) ||
-                !MongoDB.Bson.ObjectId.TryParse(tourDateId, out _))
-            {
+            if (string.IsNullOrWhiteSpace(tourId))
                 return false;
-            }
 
-            var filter = Builders<Tour>.Filter.And(
-                Builders<Tour>.Filter.Eq(x => x.Id, tourId),
-                Builders<Tour>.Filter.ElemMatch(x => x.TourDates, d => d.Id == tourDateId)
-            );
+            var tour = await _tourCollection.Find(x => x.Id == tourId).FirstOrDefaultAsync();
+            if (tour == null || tour.TourDates == null || !tour.TourDates.Any())
+                return false;
 
-            var update = Builders<Tour>.Update.Inc("TourDates.$.RemainingCapacity", count);
-            var result = await _tourCollection.UpdateOneAsync(filter, update);
-            return result.ModifiedCount > 0;
+            var targetDate = (!string.IsNullOrEmpty(tourDateId) ? tour.TourDates.FirstOrDefault(d => d.Id == tourDateId) : null)
+                             ?? tour.TourDates.FirstOrDefault();
+
+            if (targetDate == null)
+                return false;
+
+            targetDate.RemainingCapacity = Math.Min(targetDate.Capacity, targetDate.RemainingCapacity + count);
+
+            var result = await _tourCollection.ReplaceOneAsync(x => x.Id == tourId, tour);
+            return result.ModifiedCount > 0 || result.MatchedCount > 0;
         }
 
-        // Case Madde 4: Popüler turları listeleme
         public async Task<List<ResultTourDto>> GetPopularToursAsync(int count = 6)
         {
             var tours = await _tourCollection.Find(x => x.IsActive && x.IsPopular).Limit(count).ToListAsync();
             return _mapper.Map<List<ResultTourDto>>(tours);
         }
-
-        
     }
 }

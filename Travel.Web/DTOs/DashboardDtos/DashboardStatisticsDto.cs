@@ -33,5 +33,6 @@
         public string TourTitle { get; set; } = string.Empty;
         public int TotalBookings { get; set; }
         public decimal TotalRevenue { get; set; }
+        public string CoverImageUrl { get; set; }
     }
 }

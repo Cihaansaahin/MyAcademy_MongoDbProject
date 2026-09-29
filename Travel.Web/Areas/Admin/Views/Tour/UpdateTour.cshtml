@@ -901,13 +901,13 @@
                     <b>@(isEn ? "Drag cover image here or browse" : "Ana tur görselini buraya sürükleyin veya seçin.")</b>
                     <span>@(isEn ? "JPG, PNG · Recommended 1600x900" : "JPG, PNG · Önerilen 1600x900")</span>
                 </label>
-                <input type="file" id="coverInput" accept="image/*" style="display:none" onchange="previewCover(this)">
+                <input type="file" id="coverInput" name="CoverImageFile" accept="image/*" style="display:none" onchange="previewCover(this)">
                 <div class="cover-preview" id="coverPreview" style="display:@(string.IsNullOrEmpty(Model.CoverImageUrl) ? "none" : "block")">
                     <img id="coverImg" src="@Model.CoverImageUrl" alt="Cover Preview">
                 </div>
                 <div class="mt-2">
                     <label style="font-size:.76rem;color:var(--muted);font-weight:600">@(isEn ? "Or enter Cover Image URL directly:" : "Veya doğrudan Kapak Görseli URL'si girin:")</label>
-                    <input class="ctrl" asp-for="CoverImageUrl" id="tCoverUrl" placeholder="https://images.unsplash.com/..." oninput="previewCoverUrl(this.value)">
+                   <input type="file" id="galleryInput" name="GalleryFiles" accept="image/*" multiple style="display:none" onchange="previewGallery(this)">
                 </div>
             </div>
 
@@ -1025,13 +1025,15 @@
             if (me.checked) document.getElementById(otherId).checked = false;
         }
 
-        /* ---------- DİNAMİK TUR TARİHLERİ ---------- */
+        /* ---------- DİNAMİK TUR TARİHLERİ (KONTENJAN DÜZELTİLDİ) ---------- */
         const dateList = document.getElementById("dateList");
 
-        function dateRowHTML(index, id = "", start = "", end = "", cap = 28, status = "Aktif") {
+        function dateRowHTML(index, id = "", start = "", end = "", cap = 28, rem = null, status = "Aktif") {
+            const remaining = (rem !== null && rem !== undefined && rem !== "") ? rem : cap;
             return `
             <div class="drow">
                 <input type="hidden" name="TourDates[${index}].Id" value="${id}">
+                <input type="hidden" class="d-rem" name="TourDates[${index}].RemainingCapacity" value="${remaining}">
                 <div class="field">
                     <label>${isEn ? "Start Date" : "Başlangıç Tarihi"}</label>
                     <input type="date" class="ctrl d-start" name="TourDates[${index}].StartDate" value="${start}" required>
@@ -1042,7 +1044,7 @@
                 </div>
                 <div class="field" style="max-width:120px">
                     <label>${isEn ? "Capacity" : "Kontenjan"}</label>
-                    <input type="number" min="1" class="ctrl d-cap" name="TourDates[${index}].Capacity" value="${cap}" placeholder="28" required>
+                    <input type="number" min="1" class="ctrl d-cap" name="TourDates[${index}].Capacity" value="${cap}" placeholder="28" oninput="syncRemaining(this)" required>
                 </div>
                 <div class="field" style="max-width:130px">
                     <label>${isEn ? "Status" : "Durum"}</label>
@@ -1057,11 +1059,23 @@
             </div>`;
         }
 
+        function syncRemaining(input) {
+            const row = input.closest(".drow");
+            const remInput = row.querySelector(".d-rem");
+            if (remInput) {
+                remInput.value = input.value || 0;
+            }
+        }
+
         function refreshDateDelState() {
             const rows = dateList.querySelectorAll(".drow");
             rows.forEach((r, idx) => {
-                const idInp = r.querySelector('input[type="hidden"]');
+                const idInp = r.querySelector('input[type="hidden"][name*="Id"]');
                 if (idInp) idInp.name = `TourDates[${idx}].Id`;
+                
+                const remInp = r.querySelector(".d-rem");
+                if (remInp) remInp.name = `TourDates[${idx}].RemainingCapacity`;
+
                 r.querySelector(".d-start").name = `TourDates[${idx}].StartDate`;
                 r.querySelector(".d-end").name = `TourDates[${idx}].EndDate`;
                 r.querySelector(".d-cap").name = `TourDates[${idx}].Capacity`;
@@ -1069,23 +1083,24 @@
             });
         }
 
-        function addDate(id = "", start = "", end = "", cap = 28) {
+        function addDate(id = "", start = "", end = "", cap = 28, rem = null) {
             const count = dateList.querySelectorAll(".drow").length;
-            dateList.insertAdjacentHTML("beforeend", dateRowHTML(count, id, start, end, cap));
+            dateList.insertAdjacentHTML("beforeend", dateRowHTML(count, id, start, end, cap, rem));
             refreshDateDelState();
         }
 
         // Modeldeki Mevcut Tarihleri Doldur
         @if (Model.TourDates != null && Model.TourDates.Any())
         {
-                foreach (var td in Model.TourDates)
-                {
-                        <text>addDate("@td.Id", "@td.StartDate.ToString("yyyy-MM-dd")", "@td.EndDate.ToString("yyyy-MM-dd")", @td.Capacity);</text>
-                }
+            foreach (var td in Model.TourDates)
+            {
+                var remCap = td.RemainingCapacity > 0 ? td.RemainingCapacity : td.Capacity;
+                <text>addDate("@td.Id", "@td.StartDate.ToString("yyyy-MM-dd")", "@td.EndDate.ToString("yyyy-MM-dd")", @td.Capacity, @remCap);</text>
+            }
         }
         else
         {
-                <text>addDate("", "2026-10-12", "2026-10-17", 28);</text>
+            <text>addDate("", "2026-10-12", "2026-10-17", 28, 28);</text>
         }
 
         /* ---------- GÜN GÜN PROGRAM (AKORDEON) ---------- */
@@ -1179,16 +1194,16 @@
         // Modeldeki Mevcut Programı Doldur
         @if (Model.Itinerary != null && Model.Itinerary.Any())
         {
-                foreach (var it in Model.Itinerary.OrderBy(x => x.DayNumber))
-                {
-                        var itTitle = it.Title?.Tr ?? "";
-                        var itDesc = it.Description?.Tr ?? "";
-                        <text>addDay("@Html.Raw(itTitle.Replace("\"", "\\\""))", "@Html.Raw(itDesc.Replace("\"", "\\\""))");</text>
-                }
+            foreach (var it in Model.Itinerary.OrderBy(x => x.DayNumber))
+            {
+                var itTitle = it.Title?.Tr ?? "";
+                var itDesc = it.Description?.Tr ?? "";
+                <text>addDay("@Html.Raw(itTitle.Replace("\"", "\\\""))", "@Html.Raw(itDesc.Replace("\"", "\\\""))");</text>
+            }
         }
         else
         {
-                <text>addDay("1. Gün", "İstanbul Havalimanı'nda buluşma ve otele transfer.");</text>
+            <text>addDay("1. Gün", "İstanbul Havalimanı'nda buluşma ve otele transfer.");</text>
         }
 
         /* ---------- DİNAMİK LİSTELER (INCLUDES / EXCLUDES / HIGHLIGHTS) ---------- */
@@ -1219,14 +1234,14 @@
 
         @if (Model.Features != null && Model.Features.Any())
         {
-                foreach (var feat in Model.Features)
-                {
-                        <text>addItem("hlList", "Öne çıkan özellik", "@Html.Raw(feat.Replace("\"", "\\\""))");</text>
-                }
+            foreach (var feat in Model.Features)
+            {
+                <text>addItem("hlList", "Öne çıkan özellik", "@Html.Raw(feat.Replace("\"", "\\\""))");</text>
+            }
         }
         else
         {
-                <text>addItem("hlList", "Öne çıkan özellik", "Rehberlik hizmeti ve özel transferler");</text>
+            <text>addItem("hlList", "Öne çıkan özellik", "Rehberlik hizmeti ve özel transferler");</text>
         }
 
         /* ---------- UPLOAD & PREVIEWS ---------- */

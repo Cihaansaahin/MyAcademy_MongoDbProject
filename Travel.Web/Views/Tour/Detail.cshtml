@@ -1295,10 +1295,13 @@
                             var first = true;
                             foreach (var td in Model.TourDates)
                             {
+                                // KONTENJAN DÜZELTMESİ: RemainingCapacity sıfırsa toplam Capacity baz alınır
+                                var availableSeats = td.RemainingCapacity > 0 ? td.RemainingCapacity : (td.Capacity > 0 ? td.Capacity : 28);
+
                                 <label class="date-opt @(first ? "sel" : "")">
                                     <span class="d">@td.StartDate.ToString("dd.MM.yyyy") - @td.EndDate.ToString("dd.MM.yyyy")</span>
                                     <input type="radio" name="tourDate" value="@td.StartDate.ToString("yyyy-MM-dd")" data-date-id="@td.Id" @(first ? "checked" : "") />
-                                    <span class="left">@td.RemainingCapacity @(isEn ? "Seats Left" : "Kontenjan")</span>
+                                    <span class="left">@availableSeats @(isEn ? "Seats Left" : "Kontenjan")</span>
                                 </label>
                                 first = false;
                             }

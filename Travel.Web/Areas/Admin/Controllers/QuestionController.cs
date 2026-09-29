@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Travel.Web.DTOs.QuestionDtos;
 using Travel.Web.Services.QuestionServices;
 
 namespace Travel.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")] // Sadece rolü 'Admin' olan oturumlar girebilir
     public class QuestionController : Controller
     {
         private readonly IQuestionService _questionService;

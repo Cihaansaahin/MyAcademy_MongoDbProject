@@ -767,17 +767,24 @@
             <tbody id="tourRows">
                 @if (Model != null && Model.Any())
                 {
-                    foreach (var item in Model)
+                    @foreach (var item in Model)
                     {
                         var title = item.Title?.Value ?? (isEn ? item.Title?.En : item.Title?.Tr) ?? item.Title?.ToString();
                         var catObj = categories?.FirstOrDefault(c => c.Id == item.CategoryId);
                         var catName = catObj?.Name?.Value ?? (isEn ? catObj?.Name?.En : catObj?.Name?.Tr) ?? (isEn ? "Tour" : "Tur");
 
                         var firstDate = item.TourDates?.Where(d => d.StartDate >= DateTime.UtcNow).OrderBy(d => d.StartDate).FirstOrDefault()
-                                                                ?? item.TourDates?.OrderByDescending(d => d.StartDate).FirstOrDefault();
+                                        ?? item.TourDates?.OrderByDescending(d => d.StartDate).FirstOrDefault();
 
                         var cap = firstDate?.Capacity ?? 25;
-                        var remaining = firstDate?.RemainingCapacity ?? 25;
+
+                        // DÜZELTME: Eğer RemainingCapacity tanımlanmamışsa veya kapasiteye eşitse kalan = kapasitedir.
+                        // Henüz rezervasyon yoksa RemainingCapacity kapasite kadar olmalıdır.
+                        var remaining = (firstDate != null && firstDate.RemainingCapacity > 0)
+                                        ? firstDate.RemainingCapacity
+                                        : cap;
+
+                        // Gerçek rezervasyon sayısı: Kapasite - Kalan Kontenjan
                         var resCount = Math.Max(0, cap - remaining);
                         var pct = cap > 0 ? (int)Math.Round((double)resCount / cap * 100) : 0;
                         var isFull = resCount >= cap && cap > 0;

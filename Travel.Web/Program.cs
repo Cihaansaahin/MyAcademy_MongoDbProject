@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 using System.Globalization;
@@ -48,6 +49,17 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpContextAccessor();
 
+// --- KİMLİK DOĞRULAMA (AUTHENTICATION) & COOKIE AYARLARI ---
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "Travelio.Auth";
+        options.LoginPath = "/Account/Login";              // Giriş yapmamışsa buraya yönlendirir
+        options.AccessDeniedPath = "/Account/AccessDenied"; // Yetkisi yetersizse (Admin değilse) buraya yönlendirir
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
+    });
+
 // Case Madde 12: Localization Servisleri
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
@@ -70,7 +82,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
-// Case Madde 12: Request Localization Middleware (Hata vermeyen, temiz tanımlama)
+// Request Localization Middleware
 var supportedCultures = new[] { "tr-TR", "en-US" };
 var localizationOptions = new RequestLocalizationOptions()
     .SetDefaultCulture("tr-TR")
@@ -81,12 +93,14 @@ localizationOptions.RequestCultureProviders = new List<IRequestCultureProvider>
 {
     new CookieRequestCultureProvider()
 };
-
 app.UseRequestLocalization(localizationOptions);
 
-// UseSession her zaman UseRouting sonrasında, UseAuthorization öncesinde yer almalıdır
+// Oturum
 app.UseSession();
-app.UseAuthorization();
+
+// SIRALAMA ÇOK ÖNEMLİ:
+app.UseAuthentication(); // 1. Kimsin? (Giriş yapılmış mı?)
+app.UseAuthorization();  // 2. Yetkin var mı? (Admin misin?)
 
 app.MapStaticAssets();
 

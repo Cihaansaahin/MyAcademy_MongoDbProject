@@ -619,26 +619,31 @@
                 <h3>@(isEn ? "Most Popular Tours" : "En Popüler Turlar")</h3>
             </div>
             <div class="card-body pt-1" id="popularTours">
-                @if (Model.Top5SellingTours != null && Model.Top5SellingTours.Any())
-                {
-                    int rank = 1;
-                    foreach (var tour in Model.Top5SellingTours.Take(4))
-                    {
-                        <div class="pt-item">
-                            <span class="rank">@(rank++)</span>
-                            <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=200&q=80" alt="@tour.TourTitle">
-                            <div class="nm">
-                                <b>@tour.TourTitle</b>
-                                <span>@(isEn ? $"{tour.TotalBookings} bookings · {tour.TotalRevenue:N0} TL" : $"{tour.TotalBookings} rez · {tour.TotalRevenue:N0} TL")</span>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted mt-2 mb-0" style="font-size:.8rem">@(isEn ? "No popular tour sales recorded yet." : "Henüz tamamlanan satış verisi bulunmuyor.")</p>
-                }
+    @if (Model.Top5SellingTours != null && Model.Top5SellingTours.Any())
+    {
+        int rank = 1;
+        foreach (var tour in Model.Top5SellingTours.Take(4))
+        {
+           
+            var tourImage = !string.IsNullOrEmpty(tour.CoverImageUrl) 
+                ? tour.CoverImageUrl 
+                : "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=200&q=80";
+
+            <div class="pt-item">
+                <span class="rank">@(rank++)</span>
+                <img src="@tourImage" alt="@tour.TourTitle">
+                <div class="nm">
+                    <b>@tour.TourTitle</b>
+                    <span>@(isEn ? $"{tour.TotalBookings} bookings · {tour.TotalRevenue:N0} TL" : $"{tour.TotalBookings} rez · {tour.TotalRevenue:N0} TL")</span>
+                </div>
             </div>
+        }
+    }
+    else
+    {
+        <p class="text-muted mt-2 mb-0" style="font-size:.8rem">@(isEn ? "No popular tour sales recorded yet." : "Henüz tamamlanan satış verisi bulunmuyor.")</p>
+    }
+</div>
         </div>
     </div>
 </div>
@@ -712,7 +717,7 @@
             <div class="card-body pt-1" id="recentReviews">
                 @if (recentComments != null && recentComments.Any())
                 {
-                    foreach (var c in recentComments.Take(2))
+                    foreach (var c in recentComments.Take(5))
                     {
                         var init = string.Join("", (c.UserName ?? "U").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => s[0])).ToUpper();
                         <div class="rv">
@@ -742,7 +747,7 @@
             <div class="card-body pt-1" id="pendingQuestions">
                 @if (pendingQuestions != null && pendingQuestions.Any())
                 {
-                    foreach (var q in pendingQuestions.Take(2))
+                    foreach (var q in pendingQuestions.Take(5))
                     {
                         <div class="qz">
                             <div class="body">
