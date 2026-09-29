@@ -55,6 +55,11 @@ Proje, modern web standartlarına uygun olarak katmanlı mimari ve servis odakl�
 | :---: | :---: |
 | ![My Profile](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/MyProfile.png) | ![Review Management](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/ReviewManagement.png) |
 
+### 🔐 Kimlik Doğrulama Sayfaları (Authentication)
+| Giriş Yap (Sign In) | Hesap Oluştur (Create Account) |
+| :---: | :---: |
+| ![Sign In](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/Sign.png) | ![Create Account](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/CreateAccount.png) |
+
 ---
 
 ## 📄 Gelişmiş Özellikler: PDF & Excel Raporlama Entegrasyonu
