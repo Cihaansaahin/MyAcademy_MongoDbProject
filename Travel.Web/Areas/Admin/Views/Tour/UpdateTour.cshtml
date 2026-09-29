@@ -1,90 +1,1299 @@
 ﻿@model Travel.Web.DTOs.TourDtos.UpdateTourDto
 @{
-    ViewData["Title"] = "Turu Düzenle";
+    var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
+    ViewData["Title"] = isEn ? "Edit Tour" : "Turu Düzenle";
 }
 
-<div class="page-intro mb-4">
-    <div class="eyebrow">Katalog Yönetimi</div>
-    <h1 style="font-size: 1.8rem; font-weight: 700; color: var(--navy); margin-bottom: .25rem;">Turu Düzenle</h1>
-    <p style="color: var(--muted); margin: 0;">Tur rota ve fiyat bilgilerini güncelleyin.</p>
+@section Styles {
+    <style>
+        :root {
+            --navy: #0e2a3b;
+            --navy-2: #12384c;
+            --navy-3: #1b455c;
+            --teal: #0fa3a3;
+            --teal-dark: #0b7f80;
+            --cream: #f7f5f0;
+            --bg: #f4f5f4;
+            --white: #fff;
+            --ink: #0e2a3b;
+            --muted: #6a7c88;
+            --line: #e7e2d8;
+            --line-2: #eef0ef;
+            --shadow-sm: 0 4px 18px rgba(14,42,59,.06);
+            --shadow-md: 0 18px 50px rgba(14,42,59,.12);
+            --r: 16px;
+            --ok-bg: #e3f4f0;
+            --ok-fg: #0b7f80;
+            --wait-bg: #fbf1dc;
+            --wait-fg: #a9741a;
+            --cancel-bg: #f6e4e2;
+            --cancel-fg: #b45a4f;
+        }
+
+        .crumb {
+            font-size: .8rem;
+            color: var(--muted);
+            margin-bottom: .4rem
+        }
+
+            .crumb a {
+                color: var(--muted);
+                text-decoration: none
+            }
+
+                .crumb a:hover {
+                    color: var(--teal-dark)
+                }
+
+            .crumb .cur {
+                color: var(--navy);
+                font-weight: 600
+            }
+
+        .page-intro {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem
+        }
+
+            .page-intro h1 {
+                font-weight: 700;
+                font-size: 1.7rem;
+                color: var(--navy);
+                margin: .15rem 0 .3rem
+            }
+
+            .page-intro p {
+                color: var(--muted);
+                margin: 0;
+                font-size: .94rem;
+                max-width: 64ch
+            }
+
+        .btn-teal {
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-weight: 600;
+            padding: .7rem 1.3rem;
+            font-size: .9rem;
+            transition: .25s;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            white-space: nowrap;
+            cursor: pointer
+        }
+
+            .btn-teal:hover {
+                background: var(--teal-dark);
+                color: #fff;
+                box-shadow: 0 12px 26px rgba(15,163,163,.3)
+            }
+
+        .btn-ghost {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            font-weight: 600;
+            padding: .65rem 1.2rem;
+            font-size: .88rem;
+            color: var(--navy);
+            transition: .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            white-space: nowrap;
+            cursor: pointer;
+            text-decoration: none
+        }
+
+            .btn-ghost:hover {
+                border-color: var(--teal);
+                color: var(--teal-dark)
+            }
+
+        .btn-navy {
+            background: var(--navy);
+            border: none;
+            border-radius: 999px;
+            font-weight: 600;
+            padding: .7rem 1.3rem;
+            font-size: .9rem;
+            color: #fff;
+            transition: .2s;
+            cursor: pointer
+        }
+
+            .btn-navy:hover {
+                background: var(--navy-2)
+            }
+
+        .btn-add {
+            background: rgba(15,163,163,.08);
+            border: 1px dashed rgba(15,163,163,.4);
+            color: var(--teal-dark);
+            border-radius: 11px;
+            font-weight: 600;
+            padding: .6rem 1rem;
+            font-size: .86rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            cursor: pointer;
+            transition: .2s
+        }
+
+            .btn-add:hover {
+                background: rgba(15,163,163,.14);
+                border-style: solid
+            }
+
+        /* SECTION CARD */
+        .sec {
+            background: #fff;
+            border: 1px solid var(--line-2);
+            border-radius: var(--r);
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem 1.6rem;
+            margin-bottom: 1.3rem
+        }
+
+        .sec-head {
+            margin-bottom: 1.2rem
+        }
+
+            .sec-head h2 {
+                font-family: 'Sora';
+                font-weight: 700;
+                font-size: 1.12rem;
+                color: var(--navy);
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: .6rem
+            }
+
+            .sec-head .sec-ic {
+                width: 32px;
+                height: 32px;
+                border-radius: 9px;
+                background: rgba(15,163,163,.1);
+                color: var(--teal-dark);
+                display: grid;
+                place-items: center;
+                flex: none
+            }
+
+            .sec-head p {
+                color: var(--muted);
+                font-size: .86rem;
+                margin: .4rem 0 0
+            }
+
+        /* FIELDS */
+        .field {
+            margin-bottom: 1rem
+        }
+
+            .field label {
+                display: block;
+                font-size: .8rem;
+                font-weight: 600;
+                color: var(--navy);
+                margin-bottom: .35rem
+            }
+
+                .field label .req {
+                    color: var(--cancel-fg)
+                }
+
+        .ctrl {
+            width: 100%;
+            border: 1px solid var(--line);
+            background: var(--cream);
+            border-radius: 11px;
+            padding: .68rem .9rem;
+            font-size: .9rem;
+            color: var(--navy);
+            outline: none;
+            transition: .2s;
+            font-family: inherit
+        }
+
+            .ctrl::placeholder {
+                color: #a7b2ba
+            }
+
+            .ctrl:focus {
+                border-color: var(--teal);
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(15,163,163,.12)
+            }
+
+        select.ctrl {
+            cursor: pointer;
+            padding-right: 2rem
+        }
+
+        textarea.ctrl {
+            resize: vertical;
+            min-height: 80px;
+            line-height: 1.6
+        }
+
+        .input-group-x {
+            position: relative
+        }
+
+            .input-group-x .suffix {
+                position: absolute;
+                right: .9rem;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: .85rem;
+                font-weight: 600;
+                color: var(--muted)
+            }
+
+        .ctrl.err {
+            border-color: var(--cancel-fg);
+            background: #fdf3f1;
+            box-shadow: 0 0 0 3px rgba(180,90,79,.12)
+        }
+
+        /* dynamic date rows */
+        .drow {
+            display: flex;
+            gap: .7rem;
+            align-items: flex-end;
+            background: var(--cream);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: .8rem .9rem;
+            margin-bottom: .7rem;
+            flex-wrap: wrap
+        }
+
+            .drow .field {
+                margin-bottom: 0;
+                flex: 1;
+                min-width: 130px
+            }
+
+                .drow .field label {
+                    font-size: .72rem
+                }
+
+            .drow .ctrl {
+                background: #fff
+            }
+
+        .del-mini {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid var(--line);
+            color: var(--cancel-fg);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: .2s;
+            flex: none
+        }
+
+            .del-mini:hover {
+                background: var(--cancel-bg);
+                border-color: var(--cancel-fg)
+            }
+
+            .del-mini:disabled {
+                opacity: .35;
+                cursor: not-allowed
+            }
+
+        /* itinerary accordion */
+        .day {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            margin-bottom: .7rem;
+            overflow: hidden;
+            background: #fff
+        }
+
+            .day.open {
+                box-shadow: var(--shadow-sm);
+                border-color: rgba(15,163,163,.4)
+            }
+
+        .day-head {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+            padding: .85rem 1rem;
+            cursor: pointer;
+            user-select: none
+        }
+
+        .day-tag {
+            font-family: 'Sora';
+            font-weight: 700;
+            font-size: .72rem;
+            color: var(--teal-dark);
+            background: rgba(15,163,163,.1);
+            padding: .3rem .65rem;
+            border-radius: 999px;
+            white-space: nowrap;
+            flex: none
+        }
+
+        .day-name {
+            font-family: 'Sora';
+            font-weight: 600;
+            color: var(--navy);
+            font-size: .92rem;
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .day-actions {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            flex: none
+        }
+
+        .day-chev {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--cream);
+            display: grid;
+            place-items: center;
+            color: var(--navy);
+            transition: .3s
+        }
+
+        .day.open .day-chev {
+            background: var(--navy);
+            color: #fff;
+            transform: rotate(180deg)
+        }
+
+        .day-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height .3s ease
+        }
+
+        .day-inner {
+            padding: 0 1rem 1.1rem
+        }
+
+        /* dynamic list items */
+        .litem {
+            display: flex;
+            gap: .6rem;
+            align-items: center;
+            margin-bottom: .6rem
+        }
+
+            .litem .ctrl {
+                background: #fff
+            }
+
+        /* upload */
+        .upload {
+            border: 1.5px dashed var(--line);
+            border-radius: 14px;
+            padding: 1.8rem 1rem;
+            text-align: center;
+            background: var(--cream);
+            cursor: pointer;
+            transition: .2s;
+            display: block
+        }
+
+            .upload:hover {
+                border-color: var(--teal);
+                background: rgba(15,163,163,.04)
+            }
+
+            .upload .uic {
+                width: 46px;
+                height: 46px;
+                border-radius: 12px;
+                background: #fff;
+                border: 1px solid var(--line);
+                color: var(--teal-dark);
+                display: grid;
+                place-items: center;
+                margin: 0 auto .7rem
+            }
+
+            .upload b {
+                font-family: 'Sora';
+                font-size: .9rem;
+                color: var(--navy);
+                display: block
+            }
+
+            .upload span {
+                font-size: .78rem;
+                color: var(--muted)
+            }
+
+        .previews {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .6rem;
+            margin-top: .9rem
+        }
+
+        .thumb {
+            width: 74px;
+            height: 60px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid var(--line)
+        }
+
+        .cover-preview {
+            margin-top: .9rem;
+            border-radius: 12px;
+            overflow: hidden;
+            max-width: 280px;
+            border: 1px solid var(--line)
+        }
+
+            .cover-preview img {
+                width: 100%;
+                display: block
+            }
+
+        /* switches */
+        .switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .7rem 0;
+            border-top: 1px solid var(--line-2)
+        }
+
+            .switch-row:first-of-type {
+                border-top: none
+            }
+
+            .switch-row .sl b {
+                font-family: 'Sora';
+                font-size: .9rem;
+                color: var(--navy);
+                display: block
+            }
+
+            .switch-row .sl span {
+                font-size: .78rem;
+                color: var(--muted)
+            }
+
+        .form-check-input {
+            width: 2.6em;
+            height: 1.4em;
+            cursor: pointer
+        }
+
+            .form-check-input:checked {
+                background-color: var(--teal);
+                border-color: var(--teal)
+            }
+
+            .form-check-input:focus {
+                box-shadow: 0 0 0 3px rgba(15,163,163,.15);
+                border-color: var(--teal)
+            }
+
+        .status-pills {
+            display: flex;
+            gap: .6rem;
+            flex-wrap: wrap
+        }
+
+        .status-pill {
+            flex: 1;
+            min-width: 120px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            padding: .7rem .9rem;
+            cursor: pointer;
+            transition: .2s;
+            background: var(--cream)
+        }
+
+            .status-pill:hover {
+                border-color: var(--teal)
+            }
+
+            .status-pill.sel {
+                border-color: var(--teal);
+                background: rgba(15,163,163,.06);
+                box-shadow: 0 0 0 2px rgba(15,163,163,.12)
+            }
+
+            .status-pill b {
+                font-family: 'Sora';
+                font-size: .9rem;
+                color: var(--navy);
+                display: block
+            }
+
+            .status-pill span {
+                font-size: .76rem;
+                color: var(--muted)
+            }
+
+            .status-pill input {
+                display: none
+            }
+
+        /* validation banner */
+        .val-banner {
+            display: none;
+            background: #fdf3f1;
+            border: 1px solid rgba(180,90,79,.3);
+            color: var(--cancel-fg);
+            border-radius: 12px;
+            padding: .85rem 1.1rem;
+            margin-bottom: 1.3rem;
+            font-size: .88rem
+        }
+
+            .val-banner.show {
+                display: block
+            }
+
+            .val-banner b {
+                font-family: 'Sora'
+            }
+
+            .val-banner ul {
+                margin: .3rem 0 0;
+                padding-left: 1.1rem
+            }
+
+        /* action bar */
+        .action-bar {
+            position: sticky;
+            bottom: 0;
+            background: rgba(255,255,255,.92);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line-2);
+            border-radius: 14px;
+            box-shadow: var(--shadow-md);
+            padding: .9rem 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: .4rem;
+            margin-bottom: .4rem;
+            z-index: 100
+        }
+
+            .action-bar .saved {
+                font-size: .83rem;
+                color: var(--muted);
+                display: flex;
+                align-items: center;
+                gap: .5rem
+            }
+
+            .action-bar .btns {
+                display: flex;
+                gap: .6rem;
+                flex-wrap: wrap
+            }
+
+        .toast-ok {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--navy);
+            color: #fff;
+            padding: .9rem 1.3rem;
+            border-radius: 14px;
+            box-shadow: var(--shadow-md);
+            font-size: .9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            z-index: 1080;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: .3s;
+            pointer-events: none
+        }
+
+            .toast-ok.show {
+                opacity: 1;
+                transform: none
+            }
+
+            .toast-ok svg {
+                color: #7fe3e3
+            }
+    </style>
+}
+
+<div class="crumb">
+    <a href="/Admin/Dashboard">Dashboard</a> / <a href="/Admin/Tour/Index">@(isEn ? "Tours" : "Turlar")</a> / <span class="cur">@(isEn ? "Edit Tour" : "Turu Düzenle")</span>
+</div>
+<div class="page-intro">
+    <div>
+        <h1>@(isEn ? "Edit Tour" : "Turu Düzenle")</h1>
+        <p>@(isEn ? "Update tour details, itinerary schedule, departures, and publishing options." : "Tur rota ve fiyat bilgilerini güncelleyin.")</p>
+    </div>
+    <a href="/Admin/Tour/Index" class="btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+        @(isEn ? "Back to Tours" : "Turlara Dön")
+    </a>
 </div>
 
-<form asp-area="Admin" asp-controller="Tour" asp-action="UpdateTour" method="post">
-    <!-- MongoDB ID'sini taşımak için zorunlu gizli alan -->
+<!-- VALIDATION BANNER -->
+<div class="val-banner" id="valBanner">
+    <b>@(isEn ? "Please complete the missing fields:" : "Lütfen eksik alanları tamamlayın:")</b>
+    <ul id="valList"></ul>
+</div>
+
+<form asp-area="Admin" asp-controller="Tour" asp-action="UpdateTour" method="post" id="tourForm" enctype="multipart/form-data">
+    <!-- MongoDB ID -->
     <input type="hidden" asp-for="Id" />
 
-    <div class="card-x p-4" style="background: #fff; border: 1px solid var(--line-2); border-radius: var(--r); box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
-
-        <h4 style="font-size: 1.1rem; color: var(--navy); margin-bottom: 1.25rem; font-weight: 700;">Temel Bilgiler</h4>
-
+    <!-- 1. TEMEL BİLGİLER -->
+    <div class="sec">
+        <div class="sec-head">
+            <h2>
+                <span class="sec-ic">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+                </span>
+                @(isEn ? "Basic Information" : "Temel Bilgiler")
+            </h2>
+            <p>@(isEn ? "Enter the general public information for this tour." : "Turun kullanıcı tarafında görünen temel bilgilerini girin.")</p>
+        </div>
         <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Tur Başlığı (TR)</label>
-                <input type="text" asp-for="Title.Tr" class="form-control" required style="border-radius: 10px; border-color: var(--line);" />
+            <div class="col-md-6 field">
+                <label>@(isEn ? "Tour Title (Turkish)" : "Tur Adı (Türkçe)") <span class="req">*</span></label>
+                <input class="ctrl" asp-for="Title.Tr" id="tNameTr" placeholder="Örn. Roma & Toskana Keşfi" required>
             </div>
-
-            <div class="col-md-6">
-                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Tur Başlığı (EN)</label>
-                <input type="text" asp-for="Title.En" class="form-control" style="border-radius: 10px; border-color: var(--line);" />
+            <div class="col-md-6 field">
+                <label>@(isEn ? "Tour Title (English)" : "Tur Adı (İngilizce)")</label>
+                <input class="ctrl" asp-for="Title.En" placeholder="e.g. Rome & Tuscany Discovery">
             </div>
-
-            <div class="col-md-3">
-                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Fiyat (₺)</label>
-                <input type="number" step="0.01" asp-for="Price" class="form-control" required style="border-radius: 10px; border-color: var(--line);" />
+            <div class="col-12 field">
+                <label>@(isEn ? "Short Summary" : "Kısa Açıklama")</label>
+                <textarea class="ctrl" rows="2" placeholder="@(isEn ? "Highlight the tour's top features in a few sentences..." : "Turun öne çıkan özelliklerini birkaç cümleyle anlatın...")"></textarea>
             </div>
-
-            <div class="col-md-3">
-                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Süre (Gün)</label>
-                <input type="number" asp-for="DurationDays" class="form-control" required style="border-radius: 10px; border-color: var(--line);" />
+            <div class="col-md-6 field">
+                <label>@(isEn ? "Full Description (Turkish)" : "Tur Açıklaması (Türkçe)") <span class="req">*</span></label>
+                <textarea class="ctrl" asp-for="Description.Tr" id="tDescTr" rows="4" placeholder="Turun konsepti, deneyimi ve önemli detayları..." required></textarea>
             </div>
-
-            <div class="col-md-3">
-                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Ülke</label>
-                <input type="text" asp-for="Country" class="form-control" required style="border-radius: 10px; border-color: var(--line);" />
+            <div class="col-md-6 field">
+                <label>@(isEn ? "Full Description (English)" : "Tur Açıklaması (İngilizce)")</label>
+                <textarea class="ctrl" asp-for="Description.En" rows="4" placeholder="Tour concept, experiences and itinerary summary..."></textarea>
             </div>
-
-            <div class="col-md-3">
-                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Şehir</label>
-                <input type="text" asp-for="City" class="form-control" required style="border-radius: 10px; border-color: var(--line);" />
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Kategori</label>
-                <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select" style="border-radius: 10px; border-color: var(--line);">
-                    <option value="">-- Kategori Seçin --</option>
+            <div class="col-md-6 field">
+                <label>@(isEn ? "Category" : "Kategori") <span class="req">*</span></label>
+                <select class="ctrl" asp-for="CategoryId" asp-items="ViewBag.Categories" id="tCat" required>
+                    <option value="">@(isEn ? "Select Category" : "Kategori Seçiniz")</option>
                 </select>
             </div>
-
-            <div class="col-md-6">
-                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Kapak Görseli URL</label>
-                <input type="text" asp-for="CoverImageUrl" class="form-control" style="border-radius: 10px; border-color: var(--line);" />
+            <div class="col-md-6 field">
+                <label>@(isEn ? "Destination" : "Destinasyon") <span class="req">*</span></label>
+                <select class="ctrl" asp-for="DestinationId" asp-items="ViewBag.Destinations" id="tDest" required>
+                    <option value="">@(isEn ? "Select Destination" : "Destinasyon Seçiniz")</option>
+                </select>
             </div>
-
-            <div class="col-md-6">
-                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Açıklama (TR)</label>
-                <textarea asp-for="Description.Tr" class="form-control" rows="3" style="border-radius: 10px; border-color: var(--line);"></textarea>
+            <div class="col-md-8 field">
+                <label>@(isEn ? "Tour Route Path" : "Tur Rotası")</label>
+                <input class="ctrl" placeholder="Roma · Vatikan · Floransa · Pisa · Toskana">
             </div>
-
-            <div class="col-md-6">
-                <label class="form-label" style="font-size: .88rem; font-weight: 600; color: var(--navy);">Açıklama (EN)</label>
-                <textarea asp-for="Description.En" class="form-control" rows="3" style="border-radius: 10px; border-color: var(--line);"></textarea>
+            <div class="col-md-4 field">
+                <label>@(isEn ? "Tour Type" : "Tur Tipi")</label>
+                <select class="ctrl">
+                    <option>@(isEn ? "Culture Tour" : "Kültür Turu")</option>
+                    <option>@(isEn ? "City Tour" : "Şehir Turu")</option>
+                    <option>@(isEn ? "Nature & Adventure" : "Doğa & Macera")</option>
+                    <option>@(isEn ? "Romantic Escapes" : "Romantik Rota")</option>
+                    <option>@(isEn ? "Gastronomy" : "Gastronomi")</option>
+                </select>
             </div>
+            <div class="col-md-6 field">
+                <label>@(isEn ? "Country" : "Ülke") <span class="req">*</span></label>
+                <input class="ctrl" asp-for="Country" id="tCountry" placeholder="İtalya" required>
+            </div>
+            <div class="col-md-6 field">
+                <label>@(isEn ? "City" : "Şehir") <span class="req">*</span></label>
+                <input class="ctrl" asp-for="City" id="tCity" placeholder="Roma" required>
+            </div>
+        </div>
+    </div>
 
-            <div class="col-md-6 d-flex align-items-center gap-4 mt-3">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" asp-for="IsActive" id="isActiveEdit">
-                    <label class="form-check-label" for="isActiveEdit" style="font-size: .88rem; font-weight: 600;">Yayında (Aktif)</label>
+    <!-- 2. FİYAT & KONTENJAN -->
+    <div class="sec">
+        <div class="sec-head">
+            <h2>
+                <span class="sec-ic">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                </span>
+                @(isEn ? "Price & Capacity" : "Fiyat & Kontenjan")
+            </h2>
+            <p>@(isEn ? "Define retail pricing, duration, and participant thresholds." : "Satış fiyatı, süre ve katılımcı limitlerini belirleyin.")</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-6 col-lg-3 field">
+                <label>@(isEn ? "Price per Person" : "Kişi Başı Fiyat") <span class="req">*</span></label>
+                <div class="input-group-x">
+                    <input class="ctrl" asp-for="Price" id="tPrice" type="number" step="0.01" placeholder="42500" style="padding-right:2.6rem" required>
+                    <span class="suffix">TL</span>
                 </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" asp-for="IsPopular" id="isPopularEdit">
-                    <label class="form-check-label" for="isPopularEdit" style="font-size: .88rem; font-weight: 600;">Popüler Tur</label>
+            </div>
+            <div class="col-3 col-lg-2 field">
+                <label>@(isEn ? "Days" : "Gün") <span class="req">*</span></label>
+                <input class="ctrl" asp-for="DurationDays" id="tDays" type="number" min="1" placeholder="6" required>
+            </div>
+            <div class="col-3 col-lg-2 field">
+                <label>@(isEn ? "Nights" : "Gece")</label>
+                <input class="ctrl" type="number" min="0" placeholder="5">
+            </div>
+            <div class="col-6 col-lg-2 field">
+                <label>@(isEn ? "Max Capacity" : "Maks. Kontenjan")</label>
+                <input class="ctrl" type="number" min="1" placeholder="28">
+            </div>
+            <div class="col-6 col-lg-3 field">
+                <label>@(isEn ? "Min Participants" : "Min. Katılımcı")</label>
+                <input class="ctrl" type="number" min="1" placeholder="12">
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-3 field">
+                <label>@(isEn ? "Departure City" : "Başlangıç Şehri")</label>
+                <select class="ctrl"><option selected>İstanbul</option><option>Ankara</option><option>İzmir</option></select>
+            </div>
+            <div class="col-md-6 col-lg-3 field">
+                <label>@(isEn ? "Transport" : "Ulaşım")</label>
+                <select class="ctrl"><option>Uçak</option><option>Otobüs</option><option selected>Uçak + Otobüs</option><option>Tren</option></select>
+            </div>
+            <div class="col-md-6 col-lg-3 field">
+                <label>@(isEn ? "Accommodation" : "Konaklama")</label>
+                <input class="ctrl" placeholder="4 Yıldızlı Oteller">
+            </div>
+            <div class="col-md-6 col-lg-3 field">
+                <label>@(isEn ? "Guide Language" : "Rehber Dili")</label>
+                <select class="ctrl"><option selected>Türkçe</option><option>İngilizce</option><option>Türkçe + İngilizce</option></select>
+            </div>
+            <div class="col-md-6 col-lg-3 field">
+                <label>@(isEn ? "Visa Requirements" : "Vize Bilgisi")</label>
+                <select class="ctrl"><option>Vize Gerekiyor</option><option>Vizesiz</option><option>Kapıda Vize</option><option selected>Schengen Vizesi</option></select>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. TUR TARİHLERİ -->
+    <div class="sec">
+        <div class="sec-head">
+            <h2>
+                <span class="sec-ic">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                </span>
+                @(isEn ? "Tour Departures" : "Tur Tarihleri") <span class="req">*</span>
+            </h2>
+            <p>@(isEn ? "Add one or multiple departure schedules with seat capacities." : "Aynı tur için birden fazla kalkış tarihi ekleyebilirsiniz.")</p>
+        </div>
+        <div id="dateList"></div>
+        <button type="button" class="btn-add" onclick="addDate()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            @(isEn ? "Add New Departure Date" : "Yeni Tarih Ekle")
+        </button>
+    </div>
+
+    <!-- 4. GÜN GÜN PROGRAM -->
+    <div class="sec">
+        <div class="sec-head">
+            <h2>
+                <span class="sec-ic">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+                </span>
+                @(isEn ? "Day by Day Itinerary" : "Gün Gün Tur Programı") <span class="req">*</span>
+            </h2>
+            <p>@(isEn ? "Create day-by-day itineraries displayed on public tour detail pages." : "Misafirlerin tur detay sayfasında göreceği günlük programı oluşturun.")</p>
+        </div>
+        <div id="dayList"></div>
+        <button type="button" class="btn-add" onclick="addDay()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            @(isEn ? "Add New Day" : "Yeni Gün Ekle")
+        </button>
+    </div>
+
+    <!-- 5. HİZMETLER & ÖNE ÇIKANLAR -->
+    <div class="sec">
+        <div class="sec-head">
+            <h2>
+                <span class="sec-ic">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+                </span>
+                @(isEn ? "Services & Highlights" : "Hizmetler & Öne Çıkanlar")
+            </h2>
+            <p>@(isEn ? "Manage inclusions, exclusions, and key tour highlights." : "Fiyata dahil olan / olmayan hizmetleri ve turun öne çıkan özelliklerini yönetin.")</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">@(isEn ? "Included in Price" : "Fiyata Dahil Olanlar")</label>
+                <div id="incList"></div>
+                <button type="button" class="btn-add" onclick="addItem('incList', isEn ? 'New service inclusion' : 'Yeni hizmet')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg> @(isEn ? "Add Service" : "Yeni Hizmet Ekle")
+                </button>
+            </div>
+            <div class="col-lg-6">
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">@(isEn ? "Not Included in Price" : "Fiyata Dahil Olmayanlar")</label>
+                <div id="excList"></div>
+                <button type="button" class="btn-add" onclick="addItem('excList', isEn ? 'New exclusion item' : 'Yeni madde')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg> @(isEn ? "Add Item" : "Yeni Madde Ekle")
+                </button>
+            </div>
+            <div class="col-12">
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">@(isEn ? "Tour Highlights (Features)" : "Turun Öne Çıkanları")</label>
+                <div id="hlList"></div>
+                <button type="button" class="btn-add" onclick="addItem('hlList', isEn ? 'Tour highlight' : 'Öne çıkan özellik')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg> @(isEn ? "Add Highlight" : "Öne Çıkan Özellik Ekle")
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. GÖRSELLER & YAYIN AYARLARI -->
+    <div class="sec">
+        <div class="sec-head">
+            <h2>
+                <span class="sec-ic">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                </span>
+                @(isEn ? "Images & Publication Settings" : "Görseller & Yayın Ayarları")
+            </h2>
+            <p>@(isEn ? "Specify cover images, gallery uploads, and status switches." : "Kapak görselini, galeriyi ve turun yayın durumunu belirleyin.")</p>
+        </div>
+        <div class="row g-4">
+            <!-- Kapak Görseli -->
+            <div class="col-lg-6">
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">@(isEn ? "Cover Image File / URL" : "Ana Kapak Görseli") <span class="req">*</span></label>
+                <label class="upload" for="coverInput">
+                    <div class="uic">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                    </div>
+                    <b>@(isEn ? "Drag cover image here or browse" : "Ana tur görselini buraya sürükleyin veya seçin.")</b>
+                    <span>@(isEn ? "JPG, PNG · Recommended 1600x900" : "JPG, PNG · Önerilen 1600x900")</span>
+                </label>
+                <input type="file" id="coverInput" accept="image/*" style="display:none" onchange="previewCover(this)">
+                <div class="cover-preview" id="coverPreview" style="display:@(string.IsNullOrEmpty(Model.CoverImageUrl) ? "none" : "block")">
+                    <img id="coverImg" src="@Model.CoverImageUrl" alt="Cover Preview">
+                </div>
+                <div class="mt-2">
+                    <label style="font-size:.76rem;color:var(--muted);font-weight:600">@(isEn ? "Or enter Cover Image URL directly:" : "Veya doğrudan Kapak Görseli URL'si girin:")</label>
+                    <input class="ctrl" asp-for="CoverImageUrl" id="tCoverUrl" placeholder="https://images.unsplash.com/..." oninput="previewCoverUrl(this.value)">
+                </div>
+            </div>
+
+            <!-- Galeri Görselleri -->
+            <div class="col-lg-6">
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">@(isEn ? "Gallery Images" : "Galeri Görselleri")</label>
+                <label class="upload" for="galleryInput">
+                    <div class="uic">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                    </div>
+                    <b>@(isEn ? "Select gallery photos" : "Galeri görsellerini seçin.")</b>
+                    <span>@(isEn ? "You can select up to 8 images for the gallery." : "Tur galerisi için en fazla 8 görsel ekleyebilirsiniz.")</span>
+                </label>
+                <input type="file" id="galleryInput" accept="image/*" multiple style="display:none" onchange="previewGallery(this)">
+                <div class="previews" id="galleryPreviews"></div>
+            </div>
+
+            <!-- Durum Hapları -->
+            <div class="col-lg-7">
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">@(isEn ? "Tour Status" : "Tur Durumu")</label>
+                <div class="status-pills">
+                    <label class="status-pill @(Model.IsActive ? "sel" : "")" data-status="true">
+                        <input type="radio" name="IsActive" value="true" @(Model.IsActive ? "checked" : "")>
+                        <b>@(isEn ? "Active" : "Aktif")</b>
+                        <span>@(isEn ? "Live on website" : "Sitede yayında")</span>
+                    </label>
+                    <label class="status-pill @(!Model.IsActive ? "sel" : "")" data-status="false">
+                        <input type="radio" name="IsActive" value="false" @(!Model.IsActive ? "checked" : "")>
+                        <b>@(isEn ? "Inactive" : "Pasif")</b>
+                        <span>@(isEn ? "Hidden from public" : "Gizli")</span>
+                    </label>
+                    <label class="status-pill @(!Model.IsActive ? "sel" : "")" data-status="false">
+                        <input type="radio" name="IsActive" value="false">
+                        <b>@(isEn ? "Draft" : "Taslak")</b>
+                        <span>@(isEn ? "Unpublished" : "Yayınlanmadı")</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Rozetler -->
+            <div class="col-lg-5">
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.2rem;display:block">@(isEn ? "Badges" : "Rozetler")</label>
+                <div class="switch-row">
+                    <div class="sl">
+                        <b>@(isEn ? "Featured on Home" : "Ana sayfada öne çıkar")</b>
+                        <span>@(isEn ? "Showcase tour on home" : "Öne çıkan tur")</span>
+                    </div>
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input" type="checkbox" id="swFeatured">
+                    </div>
+                </div>
+                <div class="switch-row">
+                    <div class="sl">
+                        <b>@(isEn ? "Best Seller Badge" : "Çok Satan etiketi göster")</b>
+                        <span>@(isEn ? "\"Best Seller\" label" : "\"Çok Satan\" rozeti")</span>
+                    </div>
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input" type="checkbox" asp-for="IsPopular" id="swBest" onchange="oneBadge(this,'swNew')">
+                    </div>
+                </div>
+                <div class="switch-row">
+                    <div class="sl">
+                        <b>@(isEn ? "New Badge" : "Yeni etiketi göster")</b>
+                        <span>@(isEn ? "\"New\" label" : "\"Yeni\" rozeti")</span>
+                    </div>
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input" type="checkbox" id="swNew" onchange="oneBadge(this,'swBest')">
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="d-flex justify-content-end gap-2 mt-4 pt-3" style="border-top: 1px solid var(--line-2);">
-            <a href="/Admin/Tour/Index" class="btn" style="background: #eef3f6; color: var(--navy); border-radius: 10px; font-weight: 600; padding: .65rem 1.3rem;">Vazgeç</a>
-            <button type="submit" class="btn" style="background: var(--teal); color: #fff; border-radius: 10px; font-weight: 600; padding: .65rem 1.6rem; box-shadow: 0 4px 14px rgba(15,163,163,.3);">Güncelle</button>
+    <!-- ACTION BAR -->
+    <div class="action-bar">
+        <div class="saved" id="savedInfo">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+            @(isEn ? "Editing existing tour" : "Mevcut tur düzenleniyor")
+        </div>
+        <div class="btns">
+            <a href="/Admin/Tour/Index" class="btn-ghost">@(isEn ? "Cancel" : "Vazgeç")</a>
+            <button type="button" class="btn-navy" onclick="saveDraft()">@(isEn ? "Save Draft" : "Taslak Kaydet")</button>
+            <button type="submit" class="btn-teal">@(isEn ? "Save Changes" : "Değişiklikleri Kaydet")</button>
         </div>
     </div>
 </form>
+
+<!-- TOAST -->
+<div class="toast-ok" id="toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+    <span id="toastMsg">@(isEn ? "Changes saved." : "Değişiklikler kaydedildi.")</span>
+</div>
+
+@section Scripts {
+    <script>
+        const isEn = @(isEn ? "true" : "false");
+
+        function toast(msg) {
+            const t = document.getElementById("toast");
+            document.getElementById("toastMsg").textContent = msg;
+            t.classList.add("show");
+            setTimeout(() => t.classList.remove("show"), 2600);
+        }
+
+        /* ---------- STATUS PILLS & BADGES ---------- */
+        document.querySelectorAll(".status-pill").forEach(p => {
+            p.addEventListener("click", () => {
+                document.querySelectorAll(".status-pill").forEach(x => x.classList.remove("sel"));
+                p.classList.add("sel");
+                p.querySelector("input").checked = true;
+            });
+        });
+
+        function oneBadge(me, otherId) {
+            if (me.checked) document.getElementById(otherId).checked = false;
+        }
+
+        /* ---------- DİNAMİK TUR TARİHLERİ ---------- */
+        const dateList = document.getElementById("dateList");
+
+        function dateRowHTML(index, id = "", start = "", end = "", cap = 28, status = "Aktif") {
+            return `
+            <div class="drow">
+                <input type="hidden" name="TourDates[${index}].Id" value="${id}">
+                <div class="field">
+                    <label>${isEn ? "Start Date" : "Başlangıç Tarihi"}</label>
+                    <input type="date" class="ctrl d-start" name="TourDates[${index}].StartDate" value="${start}" required>
+                </div>
+                <div class="field">
+                    <label>${isEn ? "End Date" : "Bitiş Tarihi"}</label>
+                    <input type="date" class="ctrl d-end" name="TourDates[${index}].EndDate" value="${end}" required>
+                </div>
+                <div class="field" style="max-width:120px">
+                    <label>${isEn ? "Capacity" : "Kontenjan"}</label>
+                    <input type="number" min="1" class="ctrl d-cap" name="TourDates[${index}].Capacity" value="${cap}" placeholder="28" required>
+                </div>
+                <div class="field" style="max-width:130px">
+                    <label>${isEn ? "Status" : "Durum"}</label>
+                    <select class="ctrl d-status">
+                        <option ${status === 'Aktif' ? 'selected' : ''}>${isEn ? "Active" : "Aktif"}</option>
+                        <option ${status === 'Pasif' ? 'selected' : ''}>${isEn ? "Inactive" : "Pasif"}</option>
+                    </select>
+                </div>
+                <button type="button" class="del-mini" onclick="removeRow(this,'.drow')" aria-label="Sil">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                </button>
+            </div>`;
+        }
+
+        function refreshDateDelState() {
+            const rows = dateList.querySelectorAll(".drow");
+            rows.forEach((r, idx) => {
+                const idInp = r.querySelector('input[type="hidden"]');
+                if (idInp) idInp.name = `TourDates[${idx}].Id`;
+                r.querySelector(".d-start").name = `TourDates[${idx}].StartDate`;
+                r.querySelector(".d-end").name = `TourDates[${idx}].EndDate`;
+                r.querySelector(".d-cap").name = `TourDates[${idx}].Capacity`;
+                r.querySelector(".del-mini").disabled = rows.length <= 1;
+            });
+        }
+
+        function addDate(id = "", start = "", end = "", cap = 28) {
+            const count = dateList.querySelectorAll(".drow").length;
+            dateList.insertAdjacentHTML("beforeend", dateRowHTML(count, id, start, end, cap));
+            refreshDateDelState();
+        }
+
+        // Modeldeki Mevcut Tarihleri Doldur
+        @if (Model.TourDates != null && Model.TourDates.Any())
+        {
+                foreach (var td in Model.TourDates)
+                {
+                        <text>addDate("@td.Id", "@td.StartDate.ToString("yyyy-MM-dd")", "@td.EndDate.ToString("yyyy-MM-dd")", @td.Capacity);</text>
+                }
+        }
+        else
+        {
+                <text>addDate("", "2026-10-12", "2026-10-17", 28);</text>
+        }
+
+        /* ---------- GÜN GÜN PROGRAM (AKORDEON) ---------- */
+        const dayList = document.getElementById("dayList");
+
+        function dayHTML(idx, open = false, title = "", desc = "") {
+            return `
+            <div class="day ${open ? 'open' : ''}">
+                <div class="day-head" onclick="toggleDay(this)">
+                    <span class="day-tag">${idx + 1}. ${isEn ? "DAY" : "GÜN"}</span>
+                    <span class="day-name">${title || (isEn ? "Day " + (idx + 1) : (idx + 1) + ". gün")}</span>
+                    <div class="day-actions">
+                        <button type="button" class="del-mini" onclick="removeDay(event,this)" aria-label="Günü sil">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                        </button>
+                        <span class="day-chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </div>
+                </div>
+                <div class="day-body" style="${open ? 'max-height: 480px;' : 'max-height: 0;'}">
+                    <div class="day-inner">
+                        <input type="hidden" class="d-num" name="Itinerary[${idx}].DayNumber" value="${idx + 1}">
+                        <div class="field">
+                            <label>${isEn ? "Day Title (Turkish)" : "Gün Başlığı"}</label>
+                            <input class="ctrl day-title" name="Itinerary[${idx}].Title.Tr" value="${title}" placeholder="Örn. İstanbul → Roma" oninput="syncDayName(this)">
+                        </div>
+                        <div class="field">
+                            <label>${isEn ? "Program Details (Turkish)" : "Program Açıklaması"}</label>
+                            <textarea class="ctrl day-desc" name="Itinerary[${idx}].Description.Tr" rows="3" placeholder="Günün programını, gezilecek yerleri ve önemli notları yazın...">${desc}</textarea>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-4 field" style="margin-bottom:0">
+                                <label>${isEn ? "Accommodation" : "Konaklama"}</label>
+                                <input class="ctrl" placeholder="Roma">
+                            </div>
+                            <div class="col-md-4 field" style="margin-bottom:0">
+                                <label>${isEn ? "Transportation" : "Ulaşım"}</label>
+                                <input class="ctrl" placeholder="Uçak + Transfer">
+                            </div>
+                            <div class="col-md-4 field" style="margin-bottom:0">
+                                <label>${isEn ? "Meal" : "Öğün"}</label>
+                                <input class="ctrl" placeholder="Kahvaltı">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renumberDays() {
+            const days = dayList.querySelectorAll(".day");
+            days.forEach((d, i) => {
+                d.querySelector(".day-tag").textContent = (i + 1) + ". " + (isEn ? "DAY" : "GÜN");
+                d.querySelector(".d-num").name = `Itinerary[${i}].DayNumber`;
+                d.querySelector(".d-num").value = i + 1;
+                d.querySelector(".day-title").name = `Itinerary[${i}].Title.Tr`;
+                d.querySelector(".day-desc").name = `Itinerary[${i}].Description.Tr`;
+                d.querySelector(".del-mini").disabled = days.length <= 1 || i === 0;
+            });
+        }
+
+        function addDay(title = "", desc = "") {
+            const count = dayList.querySelectorAll(".day").length;
+            dayList.insertAdjacentHTML("beforeend", dayHTML(count, count === 0, title, desc));
+            renumberDays();
+        }
+
+        function toggleDay(head) {
+            const day = head.closest(".day");
+            const body = day.querySelector(".day-body");
+            if (day.classList.contains("open")) {
+                day.classList.remove("open");
+                body.style.maxHeight = "0";
+            } else {
+                day.classList.add("open");
+                body.style.maxHeight = body.scrollHeight + 80 + "px";
+            }
+        }
+
+        function removeDay(e, btn) {
+            e.stopPropagation();
+            btn.closest(".day").remove();
+            renumberDays();
+        }
+
+        function syncDayName(inp) {
+            const day = inp.closest(".day");
+            const idx = [...dayList.children].indexOf(day) + 1;
+            day.querySelector(".day-name").textContent = inp.value.trim() ? inp.value : (idx + (isEn ? ". Day" : ". gün"));
+        }
+
+        // Modeldeki Mevcut Programı Doldur
+        @if (Model.Itinerary != null && Model.Itinerary.Any())
+        {
+                foreach (var it in Model.Itinerary.OrderBy(x => x.DayNumber))
+                {
+                        var itTitle = it.Title?.Tr ?? "";
+                        var itDesc = it.Description?.Tr ?? "";
+                        <text>addDay("@Html.Raw(itTitle.Replace("\"", "\\\""))", "@Html.Raw(itDesc.Replace("\"", "\\\""))");</text>
+                }
+        }
+        else
+        {
+                <text>addDay("1. Gün", "İstanbul Havalimanı'nda buluşma ve otele transfer.");</text>
+        }
+
+        /* ---------- DİNAMİK LİSTELER (INCLUDES / EXCLUDES / HIGHLIGHTS) ---------- */
+        function itemHTML(ph, val = "", inputName = "") {
+            const nameAttr = inputName ? `name="${inputName}"` : "";
+            return `
+            <div class="litem">
+                <input class="ctrl" ${nameAttr} placeholder="${ph}" value="${val}">
+                <button type="button" class="del-mini" onclick="removeRow(this,'.litem')" aria-label="Sil">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                </button>
+            </div>`;
+        }
+
+        function addItem(listId, ph, val = "") {
+            const nameAttr = (listId === "hlList") ? "Features" : "";
+            document.getElementById(listId).insertAdjacentHTML("beforeend", itemHTML(ph, val, nameAttr));
+        }
+
+        function removeRow(btn, sel) {
+            btn.closest(sel).remove();
+            if (sel === '.drow') refreshDateDelState();
+        }
+
+        // Seed listeler
+        [["incList", "Gidiş-dönüş uçak bileti"], ["incList", "Otel konaklaması"], ["incList", "Kahvaltılar"]].forEach(([l, v]) => addItem(l, "Yeni hizmet", v));
+        [["excList", "Müze giriş ücretleri"], ["excList", "Öğle ve akşam yemekleri"], ["excList", "Kişisel harcamalar"]].forEach(([l, v]) => addItem(l, "Yeni madde", v));
+
+        @if (Model.Features != null && Model.Features.Any())
+        {
+                foreach (var feat in Model.Features)
+                {
+                        <text>addItem("hlList", "Öne çıkan özellik", "@Html.Raw(feat.Replace("\"", "\\\""))");</text>
+                }
+        }
+        else
+        {
+                <text>addItem("hlList", "Öne çıkan özellik", "Rehberlik hizmeti ve özel transferler");</text>
+        }
+
+        /* ---------- UPLOAD & PREVIEWS ---------- */
+        function previewCover(inp) {
+            if (!inp.files || !inp.files[0]) return;
+            const url = URL.createObjectURL(inp.files[0]);
+            document.getElementById("coverImg").src = url;
+            document.getElementById("coverPreview").style.display = "block";
+        }
+
+        function previewCoverUrl(url) {
+            if (!url || !url.trim()) return;
+            document.getElementById("coverImg").src = url.trim();
+            document.getElementById("coverPreview").style.display = "block";
+        }
+
+        function previewGallery(inp) {
+            const wrap = document.getElementById("galleryPreviews");
+            wrap.innerHTML = "";
+            [...inp.files].slice(0, 8).forEach(f => {
+                const img = document.createElement("img");
+                img.className = "thumb";
+                img.src = URL.createObjectURL(f);
+                wrap.appendChild(img);
+            });
+        }
+
+        /* ---------- DRAFT / FORM SUBMIT ---------- */
+        function markErr(el, on) { el.classList.toggle("err", on); }
+
+        function saveDraft() {
+            document.getElementById("savedInfo").innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ' + (isEn ? "Last saved: Just now (draft)" : "Son kaydedilme: Az önce (taslak)");
+            toast(isEn ? "Tour saved as draft." : "Tur taslak olarak kaydedildi.");
+        }
+
+        document.getElementById("tourForm").addEventListener("submit", function (e) {
+            const banner = document.getElementById("valBanner");
+            const list = document.getElementById("valList");
+            const errs = [];
+
+            const name = document.getElementById("tNameTr");
+            const cat = document.getElementById("tCat");
+            const dest = document.getElementById("tDest");
+            const price = document.getElementById("tPrice");
+            const days = document.getElementById("tDays");
+
+            [name, cat, dest, price, days].forEach(el => markErr(el, false));
+
+            if (!name.value.trim()) { errs.push(isEn ? "Tour Title (Turkish) is required." : "Tur adı (Türkçe) gerekli."); markErr(name, true); }
+            if (!cat.value) { errs.push(isEn ? "Category selection is required." : "Kategori seçilmeli."); markErr(cat, true); }
+            if (!dest.value) { errs.push(isEn ? "Destination selection is required." : "Destinasyon seçilmeli."); markErr(dest, true); }
+            if (!price.value || parseFloat(price.value) <= 0) { errs.push(isEn ? "Price per person is required." : "Kişi başı fiyat girilmeli."); markErr(price, true); }
+            if (!days.value || parseInt(days.value) <= 0) { errs.push(isEn ? "Duration (days) is required." : "Tur süresi (gün) girilmeli."); days.classList.add("err"); }
+            if (dateList.querySelectorAll(".drow").length < 1) { errs.push(isEn ? "At least one departure date is required." : "En az bir tur tarihi eklenmeli."); }
+            if (dayList.querySelectorAll(".day").length < 1) { errs.push(isEn ? "At least one itinerary day is required." : "En az bir günlük program eklenmeli."); }
+
+            if (errs.length > 0) {
+                e.preventDefault();
+                list.innerHTML = errs.map(er => `<li>${er}</li>`).join("");
+                banner.classList.add("show");
+                banner.scrollIntoView({ behavior: "smooth", block: "center" });
+                return;
+            }
+
+            banner.classList.remove("show");
+            document.getElementById("savedInfo").innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ' + (isEn ? "Last saved: Just now (published)" : "Son kaydedilme: Az önce (güncellendi)");
+            toast(isEn ? "Changes saved successfully." : "Değişiklikler başarıyla kaydedildi.");
+        });
+    </script>
+}

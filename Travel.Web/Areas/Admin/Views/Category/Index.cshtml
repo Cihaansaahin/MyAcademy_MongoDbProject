@@ -1,9 +1,11 @@
-﻿@model List<ResultBannerDto>
+﻿@model List<Travel.Web.DTOs.CategoryDtos.ResultCategoryDto>
 @{
     var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
-    ViewData["Title"] = isEn ? "Banner Management" : "Banner Yönetimi";
+    ViewData["Title"] = isEn ? "Category Management" : "Kategori Yönetimi";
 
-    var totalBanners = Model?.Count ?? 0;
+    var totalCategories = Model?.Count ?? 0;
+    var activeCategories = Model?.Count(x => x.IsActive) ?? 0;
+    var inactiveCategories = Model?.Count(x => !x.IsActive) ?? 0;
 }
 
 @section Styles {
@@ -108,9 +110,9 @@
                 flex: none
             }
 
-                .kpi .ic.ok {
-                    background: rgba(16,185,129,.12);
-                    color: #10b981
+                .kpi .ic.gray {
+                    background: rgba(106,124,136,.12);
+                    color: var(--muted)
                 }
 
             .kpi .num {
@@ -167,6 +169,23 @@
                     background: #fff;
                     box-shadow: 0 0 0 3px rgba(15,163,163,.1)
                 }
+
+        .f-select {
+            width: 100%;
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 11px;
+            padding: .62rem 2rem .62rem .9rem;
+            font-size: .88rem;
+            font-weight: 500;
+            color: var(--navy);
+            outline: none;
+            cursor: pointer
+        }
+
+            .f-select:focus {
+                border-color: var(--teal)
+            }
 
         .btn-clear {
             background: #fff;
@@ -242,25 +261,16 @@
                     background: var(--cream)
                 }
 
-        .banner-img {
-            width: 90px;
-            height: 48px;
-            border-radius: 8px;
-            object-fit: cover;
-            border: 1px solid var(--line-2);
-            display: block
-        }
-
-        .no-img {
-            width: 90px;
-            height: 48px;
-            border-radius: 8px;
-            background: var(--cream);
-            border: 1px solid var(--line);
+        .cat-icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: rgba(15,163,163,.1);
             display: grid;
             place-items: center;
-            color: var(--muted);
-            font-size: .72rem
+            color: var(--teal-dark);
+            border: 1px solid var(--line-2);
+            flex: none
         }
 
         .badge-x {
@@ -285,6 +295,11 @@
         .b-ok {
             background: var(--ok-bg);
             color: var(--ok-fg)
+        }
+
+        .b-pasif {
+            background: var(--cancel-bg);
+            color: var(--cancel-fg)
         }
 
         .act-btn {
@@ -382,48 +397,59 @@
 
 <div class="page-intro">
     <div>
-        <div class="eyebrow">@(isEn ? "Content Management" : "İçerik Yönetimi")</div>
-        <h1>@(isEn ? "Banners" : "Banner Alanı")</h1>
-        <p>@(isEn ? "Manage home hero slides, promotional banners, and showcase headers." : "Ana sayfa karşılama alanında ve vitrinde yer alan bannerları yönetin.")</p>
+        <div class="eyebrow">@(isEn ? "Catalog Management" : "Katalog Yönetimi")</div>
+        <h1>@(isEn ? "Categories" : "Kategoriler")</h1>
+        <p>@(isEn ? "List and manage tour categories in the system." : "Sistemdeki tur kategorilerini listeleyin ve yönetin.")</p>
     </div>
-    <a href="/Admin/Banner/Create" class="btn-teal">
+    <a href="/Admin/Category/CreateCategory" class="btn-teal">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-        @(isEn ? "Add New Banner" : "Yeni Banner Ekle")
+        @(isEn ? "Add New Category" : "Yeni Kategori Ekle")
     </a>
 </div>
 
-<!-- KPI KARTLARI -->
+<!-- 4 ADET KPI KARTI -->
 <div class="row g-3 mb-4">
-    <div class="col-6 col-lg-4">
+    <div class="col-6 col-lg-3">
         <div class="kpi">
             <div class="ic">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7" y2="7" /></svg>
             </div>
             <div>
-                <div class="num">@totalBanners</div>
-                <div class="lab">@(isEn ? "Total Banners" : "Toplam Banner")</div>
+                <div class="num">@totalCategories</div>
+                <div class="lab">@(isEn ? "Total Categories" : "Toplam Kategori")</div>
             </div>
         </div>
     </div>
-    <div class="col-6 col-lg-4">
+    <div class="col-6 col-lg-3">
         <div class="kpi">
-            <div class="ic ok">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12" /></svg>
+            <div class="ic">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
             </div>
             <div>
-                <div class="num">@(totalBanners > 0 ? (isEn ? "Active" : "Aktif") : (isEn ? "Empty" : "Boş"))</div>
-                <div class="lab">@(isEn ? "Hero Showcase" : "Vitrin Durumu")</div>
+                <div class="num">@activeCategories</div>
+                <div class="lab">@(isEn ? "Active Categories" : "Aktif Kategori")</div>
             </div>
         </div>
     </div>
-    <div class="col-12 col-lg-4">
+    <div class="col-6 col-lg-3">
         <div class="kpi">
-            <div class="ic">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9" /><path d="M9 21V9h6v12" /></svg>
+            <div class="ic gray">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" /></svg>
             </div>
             <div>
-                <div class="num">Ana Sayfa</div>
-                <div class="lab">@(isEn ? "Location" : "Yayın Konumu")</div>
+                <div class="num">@inactiveCategories</div>
+                <div class="lab">@(isEn ? "Inactive Categories" : "Pasif Kategori")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi">
+            <div class="ic">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /><path d="M2 12h20" /></svg>
+            </div>
+            <div>
+                <div class="num">@(isEn ? "Active" : "Yayında")</div>
+                <div class="lab">@(isEn ? "Catalog Status" : "Katalog Durumu")</div>
             </div>
         </div>
     </div>
@@ -432,19 +458,26 @@
 <!-- FİLTRELEME ÇUBUĞU -->
 <div class="card-x filter-bar mb-3">
     <div class="row g-2 align-items-center">
-        <div class="col-md-10">
+        <div class="col-lg-6 col-md-6">
             <div class="f-search">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-                <input type="text" id="fSearch" placeholder="@(isEn ? "Search banner title or description..." : "Banner başlığı veya açıklama ara...")">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                <input type="text" id="fSearch" placeholder="@(isEn ? "Search category name or ID..." : "Kategori adı veya ID ara...")">
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-lg-4 col-md-4">
+            <select class="f-select" id="fStatus">
+                <option value="">@(isEn ? "All Statuses" : "Tüm Durumlar")</option>
+                <option value="true">@(isEn ? "Active" : "Aktif")</option>
+                <option value="false">@(isEn ? "Inactive" : "Pasif")</option>
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-2">
             <button type="button" class="btn-clear" onclick="clearFilters()">@(isEn ? "Clear" : "Temizle")</button>
         </div>
     </div>
 </div>
 
-<div class="result-line"><b id="resultCount">@totalBanners</b> @(isEn ? "banners listed" : "banner listeleniyor")</div>
+<div class="result-line"><b id="resultCount">@totalCategories</b> @(isEn ? "categories listed" : "kategori listeleniyor")</div>
 
 <!-- TABLO -->
 <div class="card-x mb-4">
@@ -452,41 +485,58 @@
         <table class="tx">
             <thead>
                 <tr>
-                    <th style="width: 50px;">#</th>
-                    <th style="width: 110px;">@(isEn ? "Media" : "Görsel")</th>
-                    <th>@(isEn ? "Title" : "Başlık")</th>
-                    <th>@(isEn ? "Description" : "Açıklama")</th>
+                    <th style="width: 70px;">@(isEn ? "Icon" : "İkon")</th>
+                    <th>@(isEn ? "Category Name" : "Kategori Adı")</th>
+                    <th>@(isEn ? "Status" : "Durum")</th>
                     <th style="text-align: right; width: 60px;">@(isEn ? "Actions" : "İşlemler")</th>
                 </tr>
             </thead>
-            <tbody id="bannerRows">
+            <tbody id="categoryRows">
                 @if (Model != null && Model.Any())
                 {
-                    int count = 0;
                     foreach (var item in Model)
                     {
-                        count++;
-                        var desc = item.Description ?? "";
-                        var shortDesc = desc.Length > 65 ? desc.Substring(0, 65) + "..." : desc;
-                        var searchStr = $"{item.Title} {item.Description}".ToLower();
+                        var primaryName = item.Name?.Value ?? (isEn ? item.Name?.En : item.Name?.Tr) ?? (isEn ? "Untitled" : "İsimsiz");
+                        var searchStr = $"{primaryName} {item.Name?.Tr} {item.Name?.En} {item.Id}".ToLower();
 
-                        <tr class="banner-row" data-search="@searchStr">
-                            <td style="font-weight: 600; color: var(--muted);">@count</td>
+                        <tr class="category-row"
+                            data-search="@searchStr"
+                            data-status="@item.IsActive.ToString().ToLower()">
                             <td>
-                                @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
-                                {
-                                    <img src="@item.ImageUrl" alt="@item.Title" class="banner-img" />
-                                }
-                                else
-                                {
-                                    <div class="no-img">@(isEn ? "No Image" : "Görsel Yok")</div>
-                                }
+                                <div class="cat-icon-box">
+                                    @if (!string.IsNullOrWhiteSpace(item.IconUrl))
+                                    {
+                                        @if (item.IconUrl.StartsWith("http") || item.IconUrl.StartsWith("/"))
+                                        {
+                                            <img src="@item.IconUrl" alt="@primaryName" style="width: 22px; height: 22px; object-fit: contain;" />
+                                        }
+                                        else
+                                        {
+                                            <i class="@item.IconUrl" style="font-size: 1.1rem;"></i>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span style="font-size: 1.1rem;">🏷️</span>
+                                    }
+                                </div>
                             </td>
                             <td>
-                                <b style="color: var(--navy); font-size: .95rem; display: block;">@item.Title</b>
+                                <b style="color: var(--navy); font-size: .95rem; display: block;">@primaryName</b>
+                                @if (isEn && !string.IsNullOrWhiteSpace(item.Name?.Tr))
+                                {
+                                    <span style="color: var(--muted); font-size: .8rem;">🇹🇷 @item.Name.Tr</span>
+                                }
+                                else if (!isEn && !string.IsNullOrWhiteSpace(item.Name?.En))
+                                {
+                                    <span style="color: var(--teal); font-size: .8rem; font-weight: 500;">🇬🇧 @item.Name.En</span>
+                                }
+                                <span style="display: block; color: var(--muted); font-size: .75rem;">ID: @item.Id</span>
                             </td>
-                            <td style="max-width: 400px; color: var(--muted); font-size: .88rem; line-height: 1.45;">
-                                @shortDesc
+                            <td>
+                                <span class="badge-x @(item.IsActive ? "b-ok" : "b-pasif")">
+                                    @(item.IsActive ? (isEn ? "Active" : "Aktif") : (isEn ? "Inactive" : "Pasif"))
+                                </span>
                             </td>
                             <td style="text-align: right; white-space: nowrap;">
                                 <div class="dropdown d-inline-block">
@@ -499,14 +549,14 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li>
-                                            <a class="dropdown-item" href="/Admin/Banner/Update/@item.Id">
+                                            <a class="dropdown-item" href="/Admin/Category/UpdateCategory/@item.Id">
                                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" /></svg>
-                                                @(isEn ? "Edit" : "Güncelle")
+                                                @(isEn ? "Edit" : "Düzenle")
                                             </a>
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <a class="dropdown-item danger" href="/Admin/Banner/Delete/@item.Id" onclick="return confirm('@(isEn ? "Are you sure you want to delete this banner?" : "Bu banner alanını silmek istediğinize emin misiniz?")');">
+                                            <a class="dropdown-item danger" href="/Admin/Category/DeleteCategory/@item.Id" onclick="return confirm('@(isEn ? "Are you sure you want to delete this category?" : "Bu kategoriyi silmek istediğinize emin misiniz?")');">
                                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /></svg>
                                                 @(isEn ? "Delete" : "Sil")
                                             </a>
@@ -522,14 +572,14 @@
     </div>
 
     <!-- BOŞ DURUM -->
-    <div id="emptyState" style="display:@(totalBanners == 0 ? "block" : "none")">
+    <div id="emptyState" style="display:@(totalCategories == 0 ? "block" : "none")">
         <div class="empty">
             <div class="eic">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             </div>
-            <h3>@(isEn ? "No banners found" : "Banner bulunamadı")</h3>
-            <p>@(isEn ? "Try adjusting your search criteria or add a new banner." : "Arama kriterlerinizi değiştirerek tekrar deneyebilir veya yeni banner ekleyebilirsiniz.")</p>
-            <button type="button" class="btn-clear" style="width:auto;margin:0 auto;padding:.5rem 1.2rem" onclick="clearFilters()">@(isEn ? "Clear Filter" : "Filtreyi Temizle")</button>
+            <h3>@(isEn ? "No categories found" : "Kategori bulunamadı")</h3>
+            <p>@(isEn ? "Try adjusting your search or status filter." : "Arama veya filtre kriterlerinizi değiştirerek tekrar deneyebilirsiniz.")</p>
+            <button type="button" class="btn-clear" style="width:auto;margin:0 auto;padding:.5rem 1.2rem" onclick="clearFilters()">@(isEn ? "Clear Filters" : "Filtreleri Temizle")</button>
         </div>
     </div>
 </div>
@@ -538,16 +588,23 @@
     <script>
         function filterTable() {
             const q = document.getElementById("fSearch").value.trim().toLowerCase();
-            const rows = document.querySelectorAll("#bannerRows tr.banner-row");
+            const st = document.getElementById("fStatus").value;
+            const rows = document.querySelectorAll("#categoryRows tr.category-row");
             let count = 0;
 
             rows.forEach(r => {
                 const searchData = r.getAttribute("data-search") || "";
-                if (q && !searchData.includes(q)) {
-                    r.style.display = "none";
-                } else {
+                const statusData = r.getAttribute("data-status") || "";
+
+                let matches = true;
+                if (q && !searchData.includes(q)) matches = false;
+                if (st && statusData !== st) matches = false;
+
+                if (matches) {
                     r.style.display = "";
                     count++;
+                } else {
+                    r.style.display = "none";
                 }
             });
 
@@ -556,9 +613,11 @@
         }
 
         document.getElementById("fSearch").addEventListener("input", filterTable);
+        document.getElementById("fStatus").addEventListener("change", filterTable);
 
         function clearFilters() {
             document.getElementById("fSearch").value = "";
+            document.getElementById("fStatus").value = "";
             filterTable();
         }
     </script>

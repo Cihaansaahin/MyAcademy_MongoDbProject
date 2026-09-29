@@ -8,9 +8,10 @@ namespace Travel.Web.Mappings
     {
         public ReservationMappings()
         {
-            CreateMap<CreateReservationDto, Reservation>();
-            CreateMap<UpdateReservationDto, Reservation>();
+            CreateMap<CreateReservationDto, Reservation>().ReverseMap();
+            CreateMap<UpdateReservationDto, Reservation>().ReverseMap();
             CreateMap<Reservation, ResultReservationDto>().ReverseMap();
+            CreateMap<ResultReservationDto, UpdateReservationDto>().ReverseMap();
         }
     }
 }

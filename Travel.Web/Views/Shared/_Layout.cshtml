@@ -1,50 +1,354 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.AspNetCore.Localization
+
+@{
+    var session = HttpContextAccessor.HttpContext?.Session;
+    var userName = session?.GetString("UserName");
+    var userEmail = session?.GetString("UserEmail");
+    var isLoggedIn = !string.IsNullOrEmpty(userName) || !string.IsNullOrEmpty(userEmail);
+
+    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower();
+    var isEn = currentCulture == "en";
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"{Context.Request.Path.Value}{Context.Request.QueryString}";
+
+    string initials = "TR";
+    if (!string.IsNullOrEmpty(userName))
+    {
+        var parts = userName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1)
+        {
+            initials = parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
+        }
+        else if (parts.Length > 1)
+        {
+            initials = (parts[0][0].ToString() + parts[^1][0].ToString()).ToUpper();
+        }
+    }
+}
+<!DOCTYPE html>
+<html lang="@currentCulture">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Travel.Web</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Travel.Web.styles.css" asp-append-version="true" />
+    <title>@ViewData["Title"] — Travelio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+            :root {
+                --navy: #0e2a3b;
+                --navy-2: #12384c;
+                --teal: #0fa3a3;
+                --teal-dark: #0b7f80;
+                --cream: #f7f5f0;
+                --white: #ffffff;
+                --ink: #0e2a3b;
+                --muted: #5d7180;
+                --line: #e7e2d8;
+                --shadow-sm: 0 4px 18px rgba(14,42,59,.06);
+                --shadow-md: 0 18px 50px rgba(14,42,59,.12);
+                --r: 18px;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family: 'Inter', system-ui, sans-serif;
+                color: var(--ink);
+                background: var(--cream);
+                -webkit-font-smoothing: antialiased;
+            }
+
+            h1, h2, h3, h4, .brand, .display-font {
+                font-family: 'Sora', sans-serif;
+            }
+
+            .eyebrow {
+                font-family: 'Sora', sans-serif;
+                text-transform: uppercase;
+                letter-spacing: .22em;
+                font-size: .72rem;
+                font-weight: 700;
+                color: var(--teal-dark);
+            }
+
+            a {
+                text-decoration: none;
+            }
+
+            .btn-teal {
+                background: var(--teal);
+                color: #fff;
+                border: none;
+                border-radius: 999px;
+                font-weight: 600;
+                padding: .8rem 1.6rem;
+                transition: .25s;
+                display: inline-block;
+            }
+
+                .btn-teal:hover {
+                    background: var(--teal-dark);
+                    color: #fff;
+                    transform: translateY(-2px);
+                    box-shadow: 0 12px 26px rgba(15,163,163,.32);
+                }
+
+            /* NAVBAR */
+            .navbar {
+                background: rgba(247,245,240,.85);
+                backdrop-filter: blur(14px);
+                border-bottom: 1px solid var(--line);
+                padding: .9rem 0;
+            }
+
+            .brand {
+                font-weight: 800;
+                font-size: 1.5rem;
+                color: var(--navy);
+                letter-spacing: -.5px;
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+            }
+
+                .brand .dot {
+                    width: 11px;
+                    height: 11px;
+                    border-radius: 50%;
+                    background: var(--teal);
+                    display: inline-block;
+                    box-shadow: 0 0 0 4px rgba(15,163,163,.18);
+                }
+
+            .navbar .nav-link {
+                color: var(--navy);
+                font-weight: 500;
+                margin: 0 .35rem;
+                position: relative;
+            }
+
+                .navbar .nav-link:hover {
+                    color: var(--teal-dark);
+                }
+
+                .navbar .nav-link.active::after {
+                    content: "";
+                    position: absolute;
+                    left: .7rem;
+                    right: .7rem;
+                    bottom: -2px;
+                    height: 2px;
+                    background: var(--teal);
+                    border-radius: 2px;
+                }
+
+            .profile-pill {
+                display: flex;
+                align-items: center;
+                gap: .55rem;
+                border: 1px solid var(--line);
+                background: #fff;
+                border-radius: 999px;
+                padding: .35rem .35rem .35rem .95rem;
+                font-weight: 600;
+                color: var(--navy);
+                transition: .2s;
+            }
+
+                .profile-pill:hover {
+                    box-shadow: var(--shadow-sm);
+                    color: var(--navy);
+                }
+
+                .profile-pill .avatar {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    background: var(--navy);
+                    color: #fff;
+                    display: grid;
+                    place-items: center;
+                    font-size: .85rem;
+                    font-weight: 700;
+                }
+
+            /* FOOTER */
+            footer {
+                background: var(--navy);
+                color: rgba(255,255,255,.72);
+                padding: 4rem 0 2rem;
+            }
+
+                footer .brand {
+                    color: #fff;
+                }
+
+                footer h6 {
+                    color: #fff;
+                    font-family: 'Sora';
+                    font-weight: 600;
+                    letter-spacing: .02em;
+                    margin-bottom: 1rem;
+                }
+
+                footer a {
+                    color: rgba(255,255,255,.72);
+                    display: block;
+                    margin-bottom: .55rem;
+                    font-size: .92rem;
+                }
+
+                    footer a:hover {
+                        color: #7fe3e3;
+                    }
+
+            .foot-bottom {
+                border-top: 1px solid rgba(255,255,255,.12);
+                margin-top: 2.5rem;
+                padding-top: 1.5rem;
+                font-size: .85rem;
+            }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Travel.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="brand" href="/"><span class="dot"></span>Travelio</a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link active" href="/">@(isEn ? "Home" : "Ana Sayfa")</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Tour/Index">@(isEn ? "Tours" : "Turlar")</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#destinasyonlar">@(isEn ? "Destinations" : "Destinasyonlar")</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#yorumlar">@(isEn ? "Reviews" : "Yorumlar")</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#hakkimizda">@(isEn ? "About Us" : "Hakkımızda")</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#iletisim">@(isEn ? "Contact" : "İletişim")</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- DİL SEÇİCİ DROPDOWN (TR / EN) -->
+                    <div class="dropdown d-inline-block">
+                        <button class="btn btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3 py-1"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                style="background: #fff; border: 1px solid var(--line); font-weight: 600; font-size: .82rem; color: var(--navy);">
+                            @if (isEn)
+                            {
+                                <span>🇬🇧 EN</span>
+                            }
+                            else
+                            {
+                                <span>🇹🇷 TR</span>
+                            }
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius: 12px; border: 1px solid var(--line); font-size: .84rem; padding: .35rem; min-width: 130px;">
+                            <li>
+                                <form asp-controller="Language" asp-action="SetLanguage" method="post" class="m-0 p-0">
+                                    <input type="hidden" name="culture" value="tr-TR" />
+                                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                    <button type="submit" class="dropdown-item d-flex align-items-center gap-2 rounded-2 py-1 px-2 fw-semibold @(!isEn ? "text-primary" : "")">
+                                        🇹🇷 Türkçe
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form asp-controller="Language" asp-action="SetLanguage" method="post" class="m-0 p-0">
+                                    <input type="hidden" name="culture" value="en-US" />
+                                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                    <button type="submit" class="dropdown-item d-flex align-items-center gap-2 rounded-2 py-1 px-2 fw-semibold @(isEn ? "text-primary" : "")">
+                                        🇬🇧 English
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <a href="/Admin/Dashboard/Index" class="btn btn-sm btn-outline-secondary rounded-pill px-3" style="font-size: .82rem; font-weight: 600;">
+                        @(isEn ? "Admin Panel" : "Admin Paneli")
+                    </a>
+
+                    @if (isLoggedIn)
+                    {
+                        <!-- Oturum Açıkken -->
+                        <a href="/Profile/Index" class="profile-pill text-decoration-none">
+                            <span style="font-size: .9rem;">@(userName ?? (isEn ? "My Profile" : "Profilim"))</span>
+                            <span class="avatar">@initials</span>
+                        </a>
+                        <a href="/Account/Logout" class="btn btn-sm btn-outline-danger rounded-pill px-3" style="font-size: .82rem; font-weight: 600;" title="@(isEn ? "Sign Out" : "Oturumu Kapat")">
+                            @(isEn ? "Sign Out" : "Çıkış Yap")
+                        </a>
+                    }
+                    else
+                    {
+                        <!-- Oturum Kapalıyken -->
+                        <a href="/Account/Login" class="btn btn-teal py-2 px-3" style="font-size: .85rem;">
+                            @(isEn ? "Sign In" : "Giriş Yap")
+                        </a>
+                    }
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+        </div>
+    </nav>
 
-    <footer class="border-top footer text-muted">
+    <!-- CONTENT -->
+    <main>
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
         <div class="container">
-            &copy; 2026 - Travel.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <a class="brand mb-3" href="/"><span class="dot"></span>Travelio</a>
+                    <p style="max-width:34ch">
+                        @(isEn ? "Unforgettable journeys across the globe with carefully curated tours." : "Dünyanın dört bir yanına, özenle tasarlanmış turlarla unutulmaz seyahatler.")
+                    </p>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6>@(isEn ? "Explore" : "Keşfet")</h6>
+                    <a href="/Tour/Index">@(isEn ? "Tours" : "Turlar")</a>
+                    <a href="/#destinasyonlar">@(isEn ? "Destinations" : "Destinasyonlar")</a>
+                    <a href="/#yorumlar">@(isEn ? "Reviews" : "Yorumlar")</a>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6>@(isEn ? "Company" : "Kurumsal")</h6>
+                    <a href="/#hakkimizda">@(isEn ? "About Us" : "Hakkımızda")</a>
+                    <a href="/#iletisim">@(isEn ? "Contact" : "İletişim")</a>
+                </div>
+                <div class="col-lg-4">
+                    <h6>@(isEn ? "Newsletter" : "Bültene Katıl")</h6>
+                    <p style="max-width:36ch">
+                        @(isEn ? "Be the first to hear about new itineraries and early bird offers." : "Yeni rotalardan ve erken rezervasyon fırsatlarından ilk sen haberdar ol.")
+                    </p>
+                    <div class="d-flex gap-2 mt-2" style="max-width:360px">
+                        <input class="form-control" style="border-radius:999px" placeholder="@(isEn ? "Your email address" : "E-posta adresin")" />
+                        <button class="btn-teal" style="white-space:nowrap">@(isEn ? "Join" : "Katıl")</button>
+                    </div>
+                </div>
+            </div>
+            <div class="foot-bottom d-flex flex-wrap justify-content-between gap-2">
+                <span>© 2026 Travelio. @(isEn ? "All rights reserved." : "Tüm hakları saklıdır.")</span>
+                <span>@(isEn ? "Privacy · Terms of Service · Cookies" : "Gizlilik · Kullanım Koşulları · Çerezler")</span>
+            </div>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -8,9 +8,10 @@ namespace Travel.Web.Mappings
     {
         public CategoryMappings()
         {
-            CreateMap<CreateCategoryDto, Category>();
-            CreateMap<UpdateCategoryDto, Category>();
+            CreateMap<CreateCategoryDto, Category>().ReverseMap();
+            CreateMap<UpdateCategoryDto, Category>().ReverseMap();
             CreateMap<Category, ResultCategoryDto>().ReverseMap();
+            CreateMap<ResultCategoryDto, UpdateCategoryDto>().ReverseMap();
         }
     }
 }

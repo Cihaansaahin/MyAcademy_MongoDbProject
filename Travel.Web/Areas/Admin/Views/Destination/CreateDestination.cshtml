@@ -1,7 +1,7 @@
-﻿@model CreateBannerDto
+﻿@model Travel.Web.DTOs.DestinationDtos.CreateDestinationDto
 @{
     var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
-    ViewData["Title"] = isEn ? "Add New Banner" : "Yeni Banner Ekle";
+    ViewData["Title"] = isEn ? "Add New Destination" : "Yeni Destinasyon Ekle";
 }
 
 @section Styles {
@@ -197,12 +197,6 @@
                 box-shadow: 0 0 0 3px rgba(15,163,163,.12)
             }
 
-        textarea.ctrl {
-            resize: vertical;
-            min-height: 90px;
-            line-height: 1.6
-        }
-
         /* UPLOAD & PREVIEW */
         .upload {
             border: 1.5px dashed var(--line);
@@ -248,13 +242,57 @@
             margin-top: .9rem;
             border-radius: 12px;
             overflow: hidden;
-            max-width: 320px;
+            max-width: 280px;
             border: 1px solid var(--line)
         }
 
             .cover-preview img {
                 width: 100%;
                 display: block
+            }
+
+        /* STATUS PILLS */
+        .status-pills {
+            display: flex;
+            gap: .6rem;
+            flex-wrap: wrap
+        }
+
+        .status-pill {
+            flex: 1;
+            min-width: 140px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            padding: .7rem .9rem;
+            cursor: pointer;
+            transition: .2s;
+            background: var(--cream)
+        }
+
+            .status-pill:hover {
+                border-color: var(--teal)
+            }
+
+            .status-pill.sel {
+                border-color: var(--teal);
+                background: rgba(15,163,163,.06);
+                box-shadow: 0 0 0 2px rgba(15,163,163,.12)
+            }
+
+            .status-pill b {
+                font-family: 'Sora';
+                font-size: .9rem;
+                color: var(--navy);
+                display: block
+            }
+
+            .status-pill span {
+                font-size: .76rem;
+                color: var(--muted)
+            }
+
+            .status-pill input {
+                display: none
             }
 
         /* ACTION BAR */
@@ -294,56 +332,54 @@
 }
 
 <div class="crumb">
-    <a href="/Admin/Dashboard">Dashboard</a> / <a href="/Admin/Banner/Index">@(isEn ? "Banners" : "Bannerlar")</a> / <span class="cur">@(isEn ? "Add Banner" : "Yeni Banner Ekle")</span>
+    <a href="/Admin/Dashboard">Dashboard</a> / <a href="/Admin/Destination/Index">@(isEn ? "Destinations" : "Destinasyonlar")</a> / <span class="cur">@(isEn ? "Add Destination" : "Yeni Destinasyon Ekle")</span>
 </div>
 <div class="page-intro">
     <div>
-        <div class="eyebrow">@(isEn ? "Content Management" : "İçerik Yönetimi")</div>
-        <h1>@(isEn ? "Add New Banner" : "Yeni Banner Ekle")</h1>
-        <p>@(isEn ? "Configure the homepage hero slide, promotional visuals, and captions." : "Ana sayfa karşılama alanında yer alacak yeni bir banner görseli ve metni oluşturun.")</p>
+        <div class="eyebrow">@(isEn ? "Catalog Management" : "Katalog Yönetimi")</div>
+        <h1>@(isEn ? "Add New Destination" : "Yeni Destinasyon Ekle")</h1>
+        <p>@(isEn ? "Save a new city or country route destination in the platform." : "Sisteme yeni bir şehir veya ülke rotası kaydedin.")</p>
     </div>
-    <a href="/Admin/Banner/Index" class="btn-ghost">
+    <a href="/Admin/Destination/Index" class="btn-ghost">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
-        @(isEn ? "Back to Banners" : "Bannerlara Dön")
+        @(isEn ? "Back to Destinations" : "Destinasyonlara Dön")
     </a>
 </div>
 
-<form asp-area="Admin" asp-controller="Banner" asp-action="Create" method="post" id="bannerForm" enctype="multipart/form-data">
+<form asp-area="Admin" asp-controller="Destination" asp-action="CreateDestination" method="post" id="destForm" enctype="multipart/form-data">
     <div class="sec">
         <div class="sec-head">
             <h2>
                 <span class="sec-ic">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
                 </span>
-                @(isEn ? "Banner Details" : "Banner Bilgileri")
+                @(isEn ? "Destination Details" : "Destinasyon Bilgileri")
             </h2>
-            <p>@(isEn ? "Set banner image and promotional text." : "Banner için görsel belirleyin ve vitrin başlık/açıklama metinlerini girin.")</p>
+            <p>@(isEn ? "Enter location geographic labels and featured media settings." : "Destinasyon konum bilgilerini ve kapak görselini belirleyin.")</p>
         </div>
 
         <div class="row g-3">
-            <div class="col-12 field">
-                <label>@(isEn ? "Banner Title" : "Banner Başlığı") <span class="req">*</span></label>
-                <input class="ctrl" asp-for="Title" placeholder="@(isEn ? "e.g. Discover the Wonders of the World" : "Örn: Dünyanın En Güzel Rotalarını Keşfedin")" required>
-                <span class="text-danger" style="font-size:.78rem" asp-validation-for="Title"></span>
+            <div class="col-md-6 field">
+                <label>@(isEn ? "City" : "Şehir") <span class="req">*</span></label>
+                <input class="ctrl" asp-for="City" placeholder="Örn: Roma" required>
             </div>
 
-            <div class="col-12 field">
-                <label>@(isEn ? "Description" : "Banner Açıklaması") <span class="req">*</span></label>
-                <textarea class="ctrl" asp-for="Description" rows="3" placeholder="@(isEn ? "Short enticing summary to show on homepage..." : "Ana sayfada görünecek ilgi çekici kısa açıklama...")" required></textarea>
-                <span class="text-danger" style="font-size:.78rem" asp-validation-for="Description"></span>
+            <div class="col-md-6 field">
+                <label>@(isEn ? "Country" : "Ülke") <span class="req">*</span></label>
+                <input class="ctrl" asp-for="Country" placeholder="Örn: İtalya" required>
             </div>
 
             <!-- GÖRSEL YÜKLEME VE URL GİRİŞİ -->
             <div class="col-12 field">
-                <label>@(isEn ? "Banner Image" : "Banner Görseli") <span class="req">*</span></label>
-                <label class="upload" for="bannerImgInput">
+                <label>@(isEn ? "Cover Image" : "Destinasyon Görseli") <span class="req">*</span></label>
+                <label class="upload" for="destImgInput">
                     <div class="uic">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
                     </div>
-                    <b>@(isEn ? "Drag banner photo here or browse" : "Banner görselini buraya sürükleyin veya seçin.")</b>
-                    <span>JPG, PNG · Önerilen 1920x1080</span>
+                    <b>@(isEn ? "Drag destination photo here or browse" : "Destinasyon görselini buraya sürükleyin veya seçin.")</b>
+                    <span>JPG, PNG · Önerilen 1200x800</span>
                 </label>
-                <input type="file" id="bannerImgInput" accept="image/*" style="display:none" onchange="previewImg(this)">
+                <input type="file" id="destImgInput" accept="image/*" style="display:none" onchange="previewImg(this)">
 
                 <div class="cover-preview" id="coverPreview" style="display:none">
                     <img id="coverImg" alt="Preview">
@@ -352,7 +388,23 @@
                 <div class="mt-2">
                     <label style="font-size:.76rem;color:var(--muted);font-weight:600">@(isEn ? "Or enter Image URL directly:" : "Veya doğrudan Görsel URL'si girin:")</label>
                     <input class="ctrl" asp-for="ImageUrl" id="tImgUrl" placeholder="https://images.unsplash.com/..." oninput="previewUrl(this.value)">
-                    <span class="text-danger" style="font-size:.78rem" asp-validation-for="ImageUrl"></span>
+                </div>
+            </div>
+
+            <!-- POPÜLERLİK DURUM HAPLARI -->
+            <div class="col-12 field mt-2">
+                <label>@(isEn ? "Popularity Status" : "Popülerlik Durumu")</label>
+                <div class="status-pills">
+                    <label class="status-pill sel" data-popular="true">
+                        <input type="radio" name="IsPopular" value="true" checked>
+                        <b>@(isEn ? "Popular Destination" : "Popüler Destinasyon")</b>
+                        <span>@(isEn ? "Showcase in top destinations" : "Ana sayfada ve aramalarda öne çıkar")</span>
+                    </label>
+                    <label class="status-pill" data-popular="false">
+                        <input type="radio" name="IsPopular" value="false">
+                        <b>@(isEn ? "Standard Route" : "Standart Rota")</b>
+                        <span>@(isEn ? "Standard catalog listing" : "Normal katalog listelemesi")</span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -365,10 +417,10 @@
             @(isEn ? "Ready to save" : "Kaydedilmeye hazır")
         </div>
         <div class="btns">
-            <a href="/Admin/Banner/Index" class="btn-ghost">@(isEn ? "Cancel" : "Vazgeç")</a>
+            <a href="/Admin/Destination/Index" class="btn-ghost">@(isEn ? "Cancel" : "Vazgeç")</a>
             <button type="submit" class="btn-teal">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                @(isEn ? "Save Banner" : "Bannerı Kaydet")
+                @(isEn ? "Save Destination" : "Destinasyonu Kaydet")
             </button>
         </div>
     </div>
@@ -376,6 +428,16 @@
 
 @section Scripts {
     <script>
+        /* ---------- STATUS PILLS ---------- */
+        document.querySelectorAll(".status-pill").forEach(p => {
+            p.addEventListener("click", () => {
+                document.querySelectorAll(".status-pill").forEach(x => x.classList.remove("sel"));
+                p.classList.add("sel");
+                p.querySelector("input").checked = true;
+            });
+        });
+
+        /* ---------- GÖRSEL ÖNİZLEME ---------- */
         function previewImg(inp) {
             if (!inp.files || !inp.files[0]) return;
             const url = URL.createObjectURL(inp.files[0]);

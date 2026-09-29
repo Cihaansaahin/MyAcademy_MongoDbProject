@@ -11,5 +11,6 @@ namespace Travel.Web.Services.ReservationServices
         Task<bool> ApproveReservationAsync(string reservationId);
         Task<List<ResultReservationDto>> GetReservationsByTourIdAsync(string tourId, string? tourDateId = null);
         Task<List<ResultReservationDto>> GetReservationsByUserIdAsync(string userId);
+        Task CreateAsync(CreateReservationDto dto);
     }
 }

@@ -8,8 +8,9 @@ namespace Travel.Web.Mappings
     {
         public QuestionMappings()
         {
-            CreateMap<CreateQuestionDto, Question>();
+            CreateMap<CreateQuestionDto, Question>().ReverseMap();
             CreateMap<Question, ResultQuestionDto>().ReverseMap();
+            CreateMap<AnswerQuestionDto, Question>().ReverseMap();
         }
     }
 }

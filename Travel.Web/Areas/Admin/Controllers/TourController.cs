@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Travel.Web.DTOs.TourDtos;
 using Travel.Web.Services.CategoryServices;
+using Travel.Web.Services.DestinationServices;
 using Travel.Web.Services.TourServices;
 
 namespace Travel.Web.Areas.Admin.Controllers
@@ -11,16 +12,72 @@ namespace Travel.Web.Areas.Admin.Controllers
     {
         private readonly ITourService _tourService;
         private readonly ICategoryService _categoryService;
+        private readonly IDestinationService _destinationService;
 
-        public TourController(ITourService tourService, ICategoryService categoryService)
+        public TourController(
+            ITourService tourService,
+            ICategoryService categoryService,
+            IDestinationService destinationService)
         {
             _tourService = tourService;
             _categoryService = categoryService;
+            _destinationService = destinationService;
         }
-        public async Task<IActionResult> Index()
+
+        [HttpGet]
+        public async Task<IActionResult> Index([FromQuery] TourFilterDto filter)
         {
-            var values = await _tourService.GetAllAsync();
-            return View(values);
+            // Dropdown filtreleri için verileri çekiyoruz
+            var categories = await _categoryService.GetAllAsync();
+            var destinations = await _destinationService.GetAllAsync();
+
+            ViewBag.Categories = categories.Select(x => new SelectListItem
+            {
+                Text = x.Name?.Tr ?? x.Name?.Value ?? "Kategori",
+                Value = x.Id,
+                Selected = x.Id == filter.CategoryId
+            }).ToList();
+
+            ViewBag.Destinations = destinations.Select(x => new SelectListItem
+            {
+                Text = $"{x.City}, {x.Country}",
+                Value = x.Id,
+                Selected = x.Id == filter.DestinationId
+            }).ToList();
+
+            ViewBag.CurrentFilter = filter;
+
+            var tours = await _tourService.GetAllAsync();
+
+            // Case Madde 17: Arama & Filtreleme Mantığı
+            if (!string.IsNullOrWhiteSpace(filter.SearchText))
+            {
+                var text = filter.SearchText.Trim().ToLower();
+                tours = tours.Where(t =>
+                    (t.Title?.Tr != null && t.Title.Tr.ToLower().Contains(text)) ||
+                    (t.Title?.En != null && t.Title.En.ToLower().Contains(text)) ||
+                    (t.Title?.Value != null && t.Title.Value.ToLower().Contains(text)) ||
+                    (t.City != null && t.City.ToLower().Contains(text)) ||
+                    (t.Country != null && t.Country.ToLower().Contains(text))
+                ).ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.CategoryId))
+            {
+                tours = tours.Where(t => t.CategoryId == filter.CategoryId).ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.DestinationId))
+            {
+                tours = tours.Where(t => t.DestinationId == filter.DestinationId).ToList();
+            }
+
+            if (filter.IsActive.HasValue)
+            {
+                tours = tours.Where(t => t.IsActive == filter.IsActive.Value).ToList();
+            }
+
+            return View(tours);
         }
 
         [HttpGet]
@@ -29,33 +86,38 @@ namespace Travel.Web.Areas.Admin.Controllers
             var categories = await _categoryService.GetAllAsync();
             ViewBag.Categories = categories.Select(x => new SelectListItem
             {
-                Text = x.Name?.ToString() ?? "İsimsiz Kategori",
+                Text = x.Name?.Tr ?? x.Name?.Value ?? "İsimsiz Kategori",
                 Value = x.Id
             }).ToList();
+
+            var destinations = await _destinationService.GetAllAsync();
+            ViewBag.Destinations = destinations.Select(x => new SelectListItem
+            {
+                Text = $"{x.City}, {x.Country}",
+                Value = x.Id
+            }).ToList();
+
             return View(new CreateTourDto());
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateTour(CreateTourDto createTourDto)
         {
-            // Formdan gelen Title.Value ve Description.Value değerlerini Türkçe (Tr) alanına da eşitleyelim
             if (createTourDto.Title != null)
             {
-                createTourDto.Title.Tr = createTourDto.Title.Value ?? "";
+                createTourDto.Title.Tr = createTourDto.Title.Value ?? createTourDto.Title.Tr ?? "";
             }
 
             if (createTourDto.Description != null)
             {
-                createTourDto.Description.Tr = createTourDto.Description.Value ?? "";
+                createTourDto.Description.Tr = createTourDto.Description.Value ?? createTourDto.Description.Tr ?? "";
             }
 
-            // Listelerin null gitmesini engelleyelim (MongoDB boş array bekler)
             createTourDto.GalleryImageUrls ??= new();
             createTourDto.Features ??= new();
             createTourDto.TourDates ??= new();
             createTourDto.Itinerary ??= new();
 
-            // Veritabanına kaydı tetikle
             await _tourService.CreateAsync(createTourDto);
 
             return RedirectToAction(nameof(Index));
@@ -74,10 +136,18 @@ namespace Travel.Web.Areas.Admin.Controllers
             ViewBag.Categories = categories.Select(x => new SelectListItem
             {
                 Text = x.Name?.Tr ?? x.Name?.Value ?? "Kategori",
-                Value = x.Id
+                Value = x.Id,
+                Selected = x.Id == tour.CategoryId
             }).ToList();
 
-            // Mevcut tur verilerini düzenleme modeline aktarıyoruz
+            var destinations = await _destinationService.GetAllAsync();
+            ViewBag.Destinations = destinations.Select(x => new SelectListItem
+            {
+                Text = $"{x.City}, {x.Country}",
+                Value = x.Id,
+                Selected = x.Id == tour.DestinationId
+            }).ToList();
+
             var model = new UpdateTourDto
             {
                 Id = tour.Id,

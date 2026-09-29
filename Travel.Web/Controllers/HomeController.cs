@@ -1,25 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using Travel.Web.Models;
+using Travel.Web.Services.TourServices;
+using Travel.Web.Services.DestinationServices;
 
 namespace Travel.Web.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly ITourService _tourService;
+        private readonly IDestinationService _destinationService;
+
+        public HomeController(ITourService tourService, IDestinationService destinationService)
         {
-            return View();
+            _tourService = tourService;
+            _destinationService = destinationService;
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
+            var tours = await _tourService.GetAllAsync();
+            var destinations = await _destinationService.GetAllAsync();
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            ViewBag.Destinations = destinations;
+            return View(tours);
         }
     }
 }

@@ -1,87 +1,1025 @@
 ﻿@model List<Travel.Web.DTOs.TourDtos.ResultTourDto>
 @{
-    ViewData["Title"] = "Tur Yönetimi";
+    var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
+    ViewData["Title"] = isEn ? "Tour Management" : "Tur Yönetimi";
+    var filter = ViewBag.CurrentFilter as Travel.Web.DTOs.TourDtos.TourFilterDto ?? new Travel.Web.DTOs.TourDtos.TourFilterDto();
+    var categories = ViewBag.Categories as List<Travel.Web.DTOs.CategoryDtos.ResultCategoryDto>;
+    var destinations = ViewBag.Destinations as List<Travel.Web.DTOs.DestinationDtos.ResultDestinationDto>;
+
+    var totalCount = Model?.Count ?? 0;
+    var activeCount = Model?.Count(t => t.IsActive) ?? 0;
+    var passiveCount = Model?.Count(t => !t.IsActive) ?? 0;
+    var totalCapacity = Model?.Sum(t => t.TourDates?.Sum(d => d.Capacity) ?? 0) ?? 0;
 }
 
-<div class="page-intro d-flex align-items-center justify-content-between mb-4">
+@section Styles {
+    <style>
+        :root {
+            --navy: #0e2a3b;
+            --navy-2: #12384c;
+            --navy-3: #1b455c;
+            --teal: #0fa3a3;
+            --teal-dark: #0b7f80;
+            --cream: #f7f5f0;
+            --bg: #f4f5f4;
+            --white: #fff;
+            --ink: #0e2a3b;
+            --muted: #6a7c88;
+            --line: #e7e2d8;
+            --line-2: #eef0ef;
+            --shadow-sm: 0 4px 18px rgba(14,42,59,.06);
+            --shadow-md: 0 18px 50px rgba(14,42,59,.12);
+            --r: 16px;
+            --ok-bg: #e3f4f0;
+            --ok-fg: #0b7f80;
+            --wait-bg: #fbf1dc;
+            --wait-fg: #a9741a;
+            --cancel-bg: #f6e4e2;
+            --cancel-fg: #b45a4f;
+        }
+
+        .crumb {
+            font-size: .8rem;
+            color: var(--muted);
+            margin-bottom: .4rem
+        }
+
+            .crumb a {
+                color: var(--muted);
+                text-decoration: none
+            }
+
+                .crumb a:hover {
+                    color: var(--teal-dark)
+                }
+
+            .crumb .cur {
+                color: var(--navy);
+                font-weight: 600
+            }
+
+        .page-intro {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem
+        }
+
+            .page-intro h1 {
+                font-weight: 700;
+                font-size: 1.7rem;
+                color: var(--navy);
+                margin: .15rem 0 .3rem
+            }
+
+            .page-intro p {
+                color: var(--muted);
+                margin: 0;
+                font-size: .94rem;
+                max-width: 60ch
+            }
+
+        .btn-teal {
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-weight: 600;
+            padding: .7rem 1.3rem;
+            font-size: .9rem;
+            transition: .25s;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            white-space: nowrap;
+            text-decoration: none
+        }
+
+            .btn-teal:hover {
+                background: var(--teal-dark);
+                color: #fff;
+                box-shadow: 0 12px 26px rgba(15,163,163,.3)
+            }
+
+        /* KPI mini */
+        .kpi {
+            background: #fff;
+            border: 1px solid var(--line-2);
+            border-radius: var(--r);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 1.1rem;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: .85rem
+        }
+
+            .kpi .ic {
+                width: 42px;
+                height: 42px;
+                border-radius: 11px;
+                display: grid;
+                place-items: center;
+                background: rgba(15,163,163,.1);
+                color: var(--teal-dark);
+                flex: none
+            }
+
+                .kpi .ic.gray {
+                    background: rgba(106,124,136,.12);
+                    color: var(--muted)
+                }
+
+            .kpi .num {
+                font-family: 'Sora';
+                font-weight: 800;
+                font-size: 1.4rem;
+                color: var(--navy);
+                line-height: 1
+            }
+
+            .kpi .lab {
+                font-size: .82rem;
+                color: var(--muted);
+                margin-top: .15rem
+            }
+
+        /* CARD */
+        .card-x {
+            background: #fff;
+            border: 1px solid var(--line-2);
+            border-radius: var(--r);
+            box-shadow: var(--shadow-sm)
+        }
+
+        /* FILTER BAR */
+        .filter-bar {
+            padding: 1rem 1.1rem
+        }
+
+        .f-search {
+            position: relative
+        }
+
+            .f-search svg {
+                position: absolute;
+                left: .85rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--muted)
+            }
+
+            .f-search input {
+                width: 100%;
+                border: 1px solid var(--line);
+                background: var(--cream);
+                border-radius: 11px;
+                padding: .62rem .9rem .62rem 2.3rem;
+                font-size: .9rem;
+                outline: none;
+                color: var(--navy)
+            }
+
+                .f-search input:focus {
+                    border-color: var(--teal);
+                    background: #fff;
+                    box-shadow: 0 0 0 3px rgba(15,163,163,.1)
+                }
+
+        .f-select {
+            width: 100%;
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 11px;
+            padding: .62rem 2rem .62rem .9rem;
+            font-size: .88rem;
+            font-weight: 500;
+            color: var(--navy);
+            outline: none;
+            cursor: pointer
+        }
+
+            .f-select:focus {
+                border-color: var(--teal)
+            }
+
+        .btn-clear {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            padding: .62rem 1rem;
+            font-size: .86rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: .2s;
+            white-space: nowrap;
+            width: 100%;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center
+        }
+
+            .btn-clear:hover {
+                border-color: var(--cancel-fg);
+                color: var(--cancel-fg)
+            }
+
+        .result-line {
+            font-size: .86rem;
+            color: var(--muted);
+            margin: .2rem 0 1rem;
+            padding: 0 .2rem
+        }
+
+            .result-line b {
+                color: var(--navy);
+                font-weight: 600
+            }
+
+        /* BULK BAR */
+        .bulk-bar {
+            display: none;
+            align-items: center;
+            gap: .8rem;
+            background: var(--navy);
+            color: #fff;
+            border-radius: 12px;
+            padding: .6rem 1rem;
+            margin-bottom: 1rem
+        }
+
+            .bulk-bar.show {
+                display: flex
+            }
+
+            .bulk-bar b {
+                font-family: 'Sora';
+                font-size: .9rem
+            }
+
+            .bulk-bar .bulk-btn {
+                margin-left: auto;
+                background: rgba(255,255,255,.12);
+                border: none;
+                color: #fff;
+                border-radius: 999px;
+                padding: .35rem .9rem;
+                font-size: .82rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: .2s
+            }
+
+                .bulk-bar .bulk-btn + .bulk-btn {
+                    margin-left: .5rem
+                }
+
+                .bulk-bar .bulk-btn:hover {
+                    background: rgba(255,255,255,.22)
+                }
+
+                .bulk-bar .bulk-btn.danger:hover {
+                    background: var(--cancel-fg)
+                }
+
+        /* TABLE */
+        .tbl-wrap {
+            overflow-x: auto
+        }
+
+        table.tx {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 1020px
+        }
+
+            table.tx th {
+                font-size: .74rem;
+                text-transform: uppercase;
+                letter-spacing: .05em;
+                color: var(--muted);
+                font-weight: 600;
+                text-align: left;
+                padding: .75rem 1rem;
+                border-bottom: 1px solid var(--line);
+                white-space: nowrap
+            }
+
+                table.tx th.sortable {
+                    cursor: pointer;
+                    user-select: none
+                }
+
+                    table.tx th.sortable:hover {
+                        color: var(--teal-dark)
+                    }
+
+                table.tx th .sar {
+                    opacity: .4;
+                    margin-left: .2rem
+                }
+
+                table.tx th.sorted .sar {
+                    opacity: 1;
+                    color: var(--teal-dark)
+                }
+
+            table.tx td {
+                padding: .8rem 1rem;
+                border-bottom: 1px solid var(--line-2);
+                font-size: .88rem;
+                color: var(--navy);
+                vertical-align: middle
+            }
+
+            table.tx tbody tr {
+                transition: .15s
+            }
+
+                table.tx tbody tr:hover {
+                    background: var(--cream)
+                }
+
+        .chk {
+            width: 17px;
+            height: 17px;
+            accent-color: var(--teal-dark);
+            cursor: pointer
+        }
+
+        .tour-cell {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            min-width: 220px
+        }
+
+            .tour-cell img {
+                width: 52px;
+                height: 52px;
+                border-radius: 11px;
+                object-fit: cover;
+                flex: none
+            }
+
+            .tour-cell b {
+                font-family: 'Sora';
+                font-weight: 600;
+                font-size: .9rem;
+                color: var(--navy);
+                display: block;
+                line-height: 1.25
+            }
+
+            .tour-cell span {
+                font-size: .78rem;
+                color: var(--teal-dark);
+                font-weight: 500
+            }
+
+        .cat-pill {
+            font-size: .76rem;
+            color: var(--navy);
+            background: var(--cream);
+            border: 1px solid var(--line);
+            padding: .22rem .6rem;
+            border-radius: 999px;
+            white-space: nowrap
+        }
+
+        .amount {
+            font-family: 'Sora';
+            font-weight: 600;
+            white-space: nowrap
+        }
+
+        .muted-cell {
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .cap {
+            min-width: 96px
+        }
+
+            .cap .cap-top {
+                font-size: .84rem;
+                font-weight: 600;
+                color: var(--navy);
+                margin-bottom: .28rem
+            }
+
+                .cap .cap-top .full {
+                    color: var(--cancel-fg)
+                }
+
+        .cap-track {
+            height: 5px;
+            background: var(--line-2);
+            border-radius: 999px;
+            overflow: hidden
+        }
+
+        .cap-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: var(--teal)
+        }
+
+            .cap-fill.high {
+                background: #e0a83d
+            }
+
+            .cap-fill.full {
+                background: var(--cancel-fg)
+            }
+
+        .badge-x {
+            font-size: .74rem;
+            font-weight: 600;
+            padding: .28rem .7rem;
+            border-radius: 999px;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem
+        }
+
+            .badge-x::before {
+                content: "";
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: currentColor
+            }
+
+        .b-ok {
+            background: var(--ok-bg);
+            color: var(--ok-fg)
+        }
+
+        .b-pasif {
+            background: var(--cancel-bg);
+            color: var(--cancel-fg)
+        }
+
+        .b-taslak {
+            background: var(--wait-bg);
+            color: var(--wait-fg)
+        }
+
+        /* actions dropdown */
+        .act-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid var(--line);
+            display: grid;
+            place-items: center;
+            color: var(--muted);
+            cursor: pointer;
+            transition: .2s
+        }
+
+            .act-btn:hover {
+                border-color: var(--teal);
+                color: var(--teal-dark)
+            }
+
+        .dropdown-menu {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: .4rem;
+            font-size: .88rem;
+            min-width: 190px
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            padding: .5rem .7rem;
+            font-weight: 500;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: .6rem
+        }
+
+            .dropdown-item:hover {
+                background: var(--cream);
+                color: var(--teal-dark)
+            }
+
+            .dropdown-item svg {
+                color: var(--muted)
+            }
+
+            .dropdown-item:hover svg {
+                color: var(--teal-dark)
+            }
+
+            .dropdown-item.danger {
+                color: var(--cancel-fg)
+            }
+
+                .dropdown-item.danger svg {
+                    color: var(--cancel-fg)
+                }
+
+                .dropdown-item.danger:hover {
+                    background: var(--cancel-bg)
+                }
+
+        /* pagination */
+        .pager-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1rem 1.1rem
+        }
+
+        .pager {
+            display: flex;
+            gap: .35rem
+        }
+
+            .pager a {
+                min-width: 38px;
+                height: 38px;
+                display: grid;
+                place-items: center;
+                border-radius: 10px;
+                background: #fff;
+                border: 1px solid var(--line);
+                color: var(--navy);
+                font-weight: 600;
+                font-size: .88rem;
+                transition: .2s;
+                padding: 0 .3rem;
+                text-decoration: none
+            }
+
+                .pager a:hover {
+                    border-color: var(--teal);
+                    color: var(--teal-dark)
+                }
+
+                .pager a.active {
+                    background: var(--navy);
+                    color: #fff;
+                    border-color: var(--navy)
+                }
+
+        .per-page {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .85rem;
+            color: var(--muted)
+        }
+
+            .per-page select {
+                border: 1px solid var(--line);
+                border-radius: 9px;
+                padding: .35rem 1.6rem .35rem .6rem;
+                font-size: .85rem;
+                font-weight: 600;
+                color: var(--navy);
+                outline: none;
+                cursor: pointer
+            }
+
+        /* empty */
+        .empty {
+            text-align: center;
+            padding: 3.5rem 1rem
+        }
+
+            .empty .eic {
+                width: 60px;
+                height: 60px;
+                border-radius: 16px;
+                background: rgba(15,163,163,.1);
+                color: var(--teal-dark);
+                display: grid;
+                place-items: center;
+                margin: 0 auto 1rem
+            }
+
+            .empty h3 {
+                font-family: 'Sora';
+                font-weight: 700;
+                color: var(--navy);
+                font-size: 1.2rem
+            }
+
+            .empty p {
+                color: var(--muted);
+                margin: .3rem 0 1.2rem
+            }
+    </style>
+}
+
+<!-- INTRO -->
+<div class="crumb">
+    <a href="/Admin/Dashboard">Dashboard</a> / <span class="cur">@(isEn ? "Tours" : "Turlar")</span>
+</div>
+<div class="page-intro">
     <div>
-        <div class="eyebrow">Katalog Yönetimi</div>
-        <h1 style="font-size: 1.8rem; font-weight: 700; color: var(--navy); margin-bottom: .25rem;">Turlar</h1>
-        <p style="color: var(--muted); margin: 0;">Sistemde yayında olan ve taslak durumundaki tüm turları buradan yönetebilirsiniz.</p>
+        <h1>@(isEn ? "Tour Management" : "Tur Yönetimi")</h1>
+        <p>@(isEn ? "View, filter, and manage all active, draft, and completed tours across Travelio." : "Travelio'daki tüm turları görüntüleyebilir, filtreleyebilir ve yönetebilirsiniz.")</p>
     </div>
-    <a href="/Admin/Tour/CreateTour" class="btn" style="background: var(--teal); color: #fff; font-weight: 600; border-radius: 12px; padding: .65rem 1.3rem; display: inline-flex; align-items: center; gap: .5rem; box-shadow: 0 4px 14px rgba(15,163,163,.3);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-        Yeni Tur Ekle
+    <a href="/Admin/Tour/CreateTour" class="btn-teal">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+        @(isEn ? "Add New Tour" : "Yeni Tur Ekle")
     </a>
 </div>
 
-<div class="card-x" style="background: #fff; border: 1px solid var(--line-2); border-radius: var(--r); box-shadow: var(--shadow-sm); overflow: hidden;">
-    <div class="table-responsive">
-        <table class="table align-middle mb-0" style="border-collapse: collapse;">
-            <thead style="background: #fafbfa; border-bottom: 1px solid var(--line-2);">
+<!-- KPI MINI -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="kpi">
+            <div class="ic">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+            </div>
+            <div>
+                <div class="num">@totalCount</div>
+                <div class="lab">@(isEn ? "Total Tours" : "Toplam Tur")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi">
+            <div class="ic">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+            </div>
+            <div>
+                <div class="num">@activeCount</div>
+                <div class="lab">@(isEn ? "Active Tours" : "Aktif Tur")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi">
+            <div class="ic gray">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" /></svg>
+            </div>
+            <div>
+                <div class="num">@passiveCount</div>
+                <div class="lab">@(isEn ? "Inactive Tours" : "Pasif Tur")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi">
+            <div class="ic">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /></svg>
+            </div>
+            <div>
+                <div class="num">@totalCapacity.ToString("N0")</div>
+                <div class="lab">@(isEn ? "Total Capacity" : "Toplam Kontenjan")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="card-x filter-bar mb-3">
+    <div class="row g-2 align-items-center">
+        <div class="col-lg-4 col-md-6">
+            <div class="f-search">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                <input type="text" id="fSearch" placeholder="@(isEn ? "Search tour title or destination..." : "Tur adı veya destinasyon ara...")">
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <select class="f-select" id="fDest">
+                <option value="">@(isEn ? "All Destinations" : "Tüm Destinasyonlar")</option>
+                @if (destinations != null)
+                {
+                    foreach (var d in destinations)
+                    {
+                        <option value="@d.City">@d.City, @d.Country</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-4">
+            <select class="f-select" id="fCat">
+                <option value="">@(isEn ? "All Categories" : "Tüm Kategoriler")</option>
+                @if (categories != null)
+                {
+                    foreach (var c in categories)
+                    {
+                        var cName = c.Name?.Value ?? (isEn ? c.Name?.En : c.Name?.Tr) ?? c.Name?.ToString();
+                        <option value="@c.Id">@cName</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-4">
+            <select class="f-select" id="fStatus">
+                <option value="">@(isEn ? "All Statuses" : "Tüm Durumlar")</option>
+                <option value="Aktif">@(isEn ? "Active" : "Aktif")</option>
+                <option value="Pasif">@(isEn ? "Inactive" : "Pasif")</option>
+            </select>
+        </div>
+        <div class="col-lg-1 col-md-4">
+            <button type="button" class="btn-clear" onclick="clearFilters()">@(isEn ? "Clear" : "Temizle")</button>
+        </div>
+    </div>
+</div>
+
+<div class="result-line"><b id="resultCount">@totalCount</b> @(isEn ? "tours listed" : "tur listeleniyor")</div>
+
+<!-- BULK BAR -->
+<div class="bulk-bar" id="bulkBar">
+    <b id="bulkCount">0 @(isEn ? "tours selected" : "tur seçildi")</b>
+    <button type="button" class="bulk-btn" onclick="bulkStatus(true)">@(isEn ? "Set Active" : "Aktif Yap")</button>
+    <button type="button" class="bulk-btn" onclick="bulkStatus(false)">@(isEn ? "Set Inactive" : "Pasif Yap")</button>
+</div>
+
+<!-- TABLE -->
+<div class="card-x mb-3">
+    <div class="tbl-wrap">
+        <table class="tx">
+            <thead>
                 <tr>
-                    <th style="padding: 1rem 1.25rem; font-size: .8rem; text-transform: uppercase; color: var(--muted); font-weight: 600;">Tur</th>
-                    <th style="padding: 1rem 1.25rem; font-size: .8rem; text-transform: uppercase; color: var(--muted); font-weight: 600;">Lokasyon</th>
-                    <th style="padding: 1rem 1.25rem; font-size: .8rem; text-transform: uppercase; color: var(--muted); font-weight: 600;">Fiyat</th>
-                    <th style="padding: 1rem 1.25rem; font-size: .8rem; text-transform: uppercase; color: var(--muted); font-weight: 600;">Süre</th>
-                    <th style="padding: 1rem 1.25rem; font-size: .8rem; text-transform: uppercase; color: var(--muted); font-weight: 600;">Durum</th>
-                    <th style="padding: 1rem 1.25rem; font-size: .8rem; text-transform: uppercase; color: var(--muted); font-weight: 600; text-align: right;">İşlemler</th>
+                    <th style="width:36px"><input type="checkbox" class="chk" id="checkAll" onchange="toggleAll(this)"></th>
+                    <th class="sortable" onclick="sortBy('title')">@(isEn ? "Tour" : "Tur") <span class="sar">↕</span></th>
+                    <th>@(isEn ? "Category" : "Kategori")</th>
+                    <th>@(isEn ? "Duration" : "Süre")</th>
+                    <th class="sortable" onclick="sortBy('price')">@(isEn ? "Price" : "Fiyat") <span class="sar">↕</span></th>
+                    <th class="sortable" onclick="sortBy('date')">@(isEn ? "Upcoming Date" : "Yaklaşan Tarih") <span class="sar">↕</span></th>
+                    <th>@(isEn ? "Capacity" : "Kontenjan")</th>
+                    <th class="sortable" onclick="sortBy('res')">@(isEn ? "Bookings" : "Rezervasyon") <span class="sar">↕</span></th>
+                    <th>@(isEn ? "Status" : "Durum")</th>
+                    <th style="width:56px">@(isEn ? "Actions" : "İşlemler")</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tourRows">
                 @if (Model != null && Model.Any())
                 {
                     foreach (var item in Model)
                     {
-                        <tr style="border-bottom: 1px solid var(--line-2);">
-                            <td style="padding: 1rem 1.25rem;">
-                                <div class="d-flex align-items-center gap-3">
-                                    <img src="@(string.IsNullOrEmpty(item.CoverImageUrl) ? "https://placehold.co/100x70?text=No+Image" : item.CoverImageUrl)"
-                                         alt="Tour Image"
-                                         style="width: 54px; height: 42px; border-radius: 8px; object-fit: cover; border: 1px solid var(--line-2);" />
+                        var title = item.Title?.Value ?? (isEn ? item.Title?.En : item.Title?.Tr) ?? item.Title?.ToString();
+                        var catObj = categories?.FirstOrDefault(c => c.Id == item.CategoryId);
+                        var catName = catObj?.Name?.Value ?? (isEn ? catObj?.Name?.En : catObj?.Name?.Tr) ?? (isEn ? "Tour" : "Tur");
+
+                        var firstDate = item.TourDates?.Where(d => d.StartDate >= DateTime.UtcNow).OrderBy(d => d.StartDate).FirstOrDefault()
+                                                                ?? item.TourDates?.OrderByDescending(d => d.StartDate).FirstOrDefault();
+
+                        var cap = firstDate?.Capacity ?? 25;
+                        var remaining = firstDate?.RemainingCapacity ?? 25;
+                        var resCount = Math.Max(0, cap - remaining);
+                        var pct = cap > 0 ? (int)Math.Round((double)resCount / cap * 100) : 0;
+                        var isFull = resCount >= cap && cap > 0;
+                        var isHigh = pct >= 85 && !isFull;
+
+                        <tr class="tour-row"
+                            data-id="@item.Id"
+                            data-title="@title.ToLower()"
+                            data-dest="@item.City?.ToLower() @item.Country?.ToLower()"
+                            data-cat="@item.CategoryId"
+                            data-status="@(item.IsActive ? "Aktif" : "Pasif")"
+                            data-price="@item.Price"
+                            data-res="@resCount"
+                            data-date="@(firstDate?.StartDate.ToString("yyyy-MM-dd") ?? "9999-12-31")">
+                            <td><input type="checkbox" class="chk row-chk" value="@item.Id" onchange="updateBulk()"></td>
+                            <td>
+                                <div class="tour-cell">
+                                    <img src="@(string.IsNullOrEmpty(item.CoverImageUrl) ? "https://placehold.co/100x70?text=No+Image" : item.CoverImageUrl)" alt="@title">
                                     <div>
-                                        <b style="color: var(--navy); font-size: .92rem; display: block;">@(item.Title?.Value ?? item.Title?.Tr ?? "İsimsiz Tur")</b>
-                                        <span style="color: var(--muted); font-size: .78rem;">ID: @item.Id</span>
+                                        <b>@title</b>
+                                        <span>@item.City, @item.Country</span>
                                     </div>
                                 </div>
                             </td>
-                            <td style="padding: 1rem 1.25rem; color: var(--ink); font-size: .88rem;">
-                                @item.City, @item.Country
+                            <td><span class="cat-pill">@catName</span></td>
+                            <td class="muted-cell">@item.DurationDays @(isEn ? "Days" : "Gün")</td>
+                            <td><span class="amount">@item.Price.ToString("N0") TL</span></td>
+                            <td class="muted-cell">
+                                @(firstDate != null ? firstDate.StartDate.ToString("dd.MM.yyyy") : (isEn ? "No Date" : "Tarih Yok"))
                             </td>
-                            <td style="padding: 1rem 1.25rem; font-weight: 700; color: var(--teal-dark);">
-                                @item.Price.ToString("N0") ₺
-                            </td>
-                            <td style="padding: 1rem 1.25rem; color: var(--ink); font-size: .88rem;">
-                                @item.DurationDays Gün
-                            </td>
-                            <td style="padding: 1rem 1.25rem;">
-                                @if (item.IsActive)
-                                {
-                                    <span style="background: var(--ok-bg); color: var(--ok-fg); padding: .25rem .65rem; border-radius: 999px; font-size: .78rem; font-weight: 600;">Aktif</span>
-                                }
-                                else
-                                {
-                                    <span style="background: var(--cancel-bg); color: var(--cancel-fg); padding: .25rem .65rem; border-radius: 999px; font-size: .78rem; font-weight: 600;">Pasif</span>
-                                }
-                            </td>
-                            <td style="padding: 1rem 1.25rem; text-align: right;">
-                                <div class="d-inline-flex gap-2">
-                                    <a href="/Admin/Tour/UpdateTour/@item.Id" class="btn btn-sm" style="background: #eef3f6; color: var(--navy); border-radius: 8px; font-weight: 600; padding: .35rem .75rem;">Düzenle</a>
-                                    <a href="/Admin/Tour/DeleteTour/@item.Id" onclick="return confirm('Bu turu silmek istediğinize emin misiniz?');" class="btn btn-sm" style="background: var(--cancel-bg); color: var(--cancel-fg); border-radius: 8px; font-weight: 600; padding: .35rem .75rem;">Sil</a>
+                            <td>
+                                <div class="cap">
+                                    <div class="cap-top">
+                                        @resCount / @cap @if(isFull){
+                                        <span class="full">· @(isEn ? "Full" : "Dolu")</span>
+                                    }
                                 </div>
-                            </td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="6" class="text-center py-5" style="color: var(--muted);">
-                            Kayıtlı herhangi bir tur bulunamadı. Yeni bir tur ekleyerek başlayabilirsiniz.
+                                <div class="cap-track">
+                                    <div class="cap-fill @(isFull ? "full" : (isHigh ? "high" : ""))" style="width:@pct%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-weight:600">@resCount</td>
+                        <td>
+                            <span class="badge-x @(item.IsActive ? "b-ok" : "b-pasif")">
+                                @(item.IsActive ? (isEn ? "Active" : "Aktif") : (isEn ? "Inactive" : "Pasif"))
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="act-btn" data-bs-toggle="dropdown" aria-label="İşlemler">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="12" cy="19" r="1.7" /></svg>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="/Tour/Detail/@item.Id" target="_blank">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" /></svg>
+                                            @(isEn ? "View" : "Görüntüle")
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="/Admin/Tour/UpdateTour/@item.Id">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" /></svg>
+                                            @(isEn ? "Edit" : "Düzenle")
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="/Admin/Reservation/ExportTourParticipantsToExcel?tourId=@item.Id">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="16" y2="17" /></svg>
+                                            @(isEn ? "Excel (.xlsx)" : "Excel İndir (.xlsx)")
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="/Admin/Reservation/ExportTourParticipantsToPdf?tourId=@item.Id" target="_blank">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="M9 15h6" /><path d="M12 12v6" /></svg>
+                                            @(isEn ? "PDF (.pdf)" : "PDF İndir (.pdf)")
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item danger" href="/Admin/Tour/DeleteTour/@item.Id" onclick="return confirm('@(isEn ? "Are you sure you want to delete this tour?" : "Bu turu silmek istediğinize emin misiniz?")');">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /></svg>
+                                            @(isEn ? "Delete Tour" : "Turu Sil")
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 }
-            </tbody>
-        </table>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- EMPTY STATE -->
+<div id="emptyState" style="display:@(totalCount == 0 ? "block" : "none")">
+    <div class="empty">
+        <div class="eic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg></div>
+        <h3>@(isEn ? "No tours found" : "Tur bulunamadı")</h3>
+        <p>@(isEn ? "Try changing your search or filter criteria." : "Arama veya filtre kriterlerinizi değiştirerek tekrar deneyebilirsiniz.")</p>
+        <button type="button" class="btn-teal" style="margin:0 auto" onclick="clearFilters()">@(isEn ? "Clear Filters" : "Filtreleri Temizle")</button>
     </div>
 </div>
+
+<!-- PAGER -->
+<div class="pager-row" id="pagerRow" style="display:@(totalCount > 0 ? "flex" : "none")">
+    <div class="per-page">
+        @(isEn ? "Per page" : "Sayfa başına")
+        <select id="perPage"><option>10</option><option>25</option><option>50</option></select>
+    </div>
+    <div class="pager">
+        <a href="#" class="active">1</a>
+        <a href="#">2</a>
+        <a href="#">3</a>
+    </div>
+</div>
+</div>
+
+@section Scripts {
+    <script>
+        let sortKey = null, sortDir = 1;
+
+        function renderTable() {
+            const q = document.getElementById("fSearch").value.trim().toLowerCase();
+            const dest = document.getElementById("fDest").value.trim().toLowerCase();
+            const cat = document.getElementById("fCat").value.trim();
+            const st = document.getElementById("fStatus").value.trim();
+
+            const rows = Array.from(document.querySelectorAll("#tourRows tr.tour-row"));
+            let visibleCount = 0;
+
+            rows.forEach(tr => {
+                const title = tr.getAttribute("data-title") || "";
+                const dVal = tr.getAttribute("data-dest") || "";
+                const cVal = tr.getAttribute("data-cat") || "";
+                const sVal = tr.getAttribute("data-status") || "";
+
+                let ok = true;
+                if (q && !(title.includes(q) || dVal.includes(q))) ok = false;
+                if (dest && !dVal.includes(dest)) ok = false;
+                if (cat && cVal !== cat) ok = false;
+                if (st && sVal !== st) ok = false;
+
+                if (ok) {
+                    tr.style.display = "";
+                    visibleCount++;
+                } else {
+                    tr.style.display = "none";
+                }
+            });
+
+            // Sıralama
+            if (sortKey) {
+                const tbody = document.getElementById("tourRows");
+                const visibleRows = rows.filter(r => r.style.display !== "none");
+                visibleRows.sort((a, b) => {
+                    let av, bv;
+                    if (sortKey === "title") {
+                        av = a.getAttribute("data-title");
+                        bv = b.getAttribute("data-title");
+                        return av.localeCompare(bv, "@(isEn ? "en" : "tr")") * sortDir;
+                    }
+                    if (sortKey === "price") {
+                        av = parseFloat(a.getAttribute("data-price"));
+                        bv = parseFloat(b.getAttribute("data-price"));
+                    }
+                    if (sortKey === "res") {
+                        av = parseInt(a.getAttribute("data-res"));
+                        bv = parseInt(b.getAttribute("data-res"));
+                    }
+                    if (sortKey === "date") {
+                        av = a.getAttribute("data-date");
+                        bv = b.getAttribute("data-date");
+                        return av.localeCompare(bv) * sortDir;
+                    }
+                    return (av - bv) * sortDir;
+                });
+                visibleRows.forEach(r => tbody.appendChild(r));
+            }
+
+            document.getElementById("resultCount").textContent = visibleCount;
+            document.getElementById("emptyState").style.display = visibleCount === 0 ? "block" : "none";
+            document.getElementById("pagerRow").style.display = visibleCount > 0 ? "flex" : "none";
+            updateBulk();
+        }
+
+        function sortBy(key) {
+            if (sortKey === key) sortDir *= -1;
+            else { sortKey = key; sortDir = 1; }
+            document.querySelectorAll("th.sortable").forEach(th => th.classList.remove("sorted"));
+            event.currentTarget.classList.add("sorted");
+            renderTable();
+        }
+
+        ["fSearch", "fDest", "fCat", "fStatus"].forEach(id => {
+            document.getElementById(id).addEventListener("input", renderTable);
+            document.getElementById(id).addEventListener("change", renderTable);
+        });
+
+        function clearFilters() {
+            document.getElementById("fSearch").value = "";
+            document.getElementById("fDest").value = "";
+            document.getElementById("fCat").value = "";
+            document.getElementById("fStatus").value = "";
+            sortKey = null; sortDir = 1;
+            document.querySelectorAll("th.sortable").forEach(th => th.classList.remove("sorted"));
+            renderTable();
+        }
+
+        function toggleAll(cb) {
+            document.querySelectorAll(".row-chk").forEach(c => {
+                if (c.closest("tr").style.display !== "none") {
+                    c.checked = cb.checked;
+                }
+            });
+            updateBulk();
+        }
+
+        function updateBulk() {
+            const count = document.querySelectorAll(".row-chk:checked").length;
+            const bar = document.getElementById("bulkBar");
+            bar.classList.toggle("show", count > 0);
+            document.getElementById("bulkCount").textContent = count + " @(isEn ? "tours selected" : "tur seçildi")";
+        }
+
+        function bulkStatus(active) {
+            alert("@(isEn ? "Bulk status update completed in demo mode." : "Toplu durum güncellemesi başarıyla simüle edildi.")");
+            document.querySelectorAll(".row-chk:checked").forEach(c => {
+                const badge = c.closest("tr").querySelector(".badge-x");
+                if (active) {
+                    badge.className = "badge-x b-ok";
+                    badge.textContent = "@(isEn ? "Active" : "Aktif")";
+                } else {
+                    badge.className = "badge-x b-pasif";
+                    badge.textContent = "@(isEn ? "Inactive" : "Pasif")";
+                }
+                c.checked = false;
+            });
+            document.getElementById("checkAll").checked = false;
+            updateBulk();
+        }
+    </script>
+}

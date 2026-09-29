@@ -1,151 +1,857 @@
 ﻿@model Travel.Web.DTOs.DashboardDtos.DashboardStatisticsDto
 @{
-    ViewData["Title"] = "Dashboard";
+    var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
+    ViewData["Title"] = isEn ? "Dashboard" : "Dashboard";
+
+    var recentReservations = ViewBag.RecentReservations as List<Travel.Web.DTOs.ReservationDtos.ResultReservationDto>;
+    var recentComments = ViewBag.RecentComments as List<Travel.Web.DTOs.CommentDtos.ResultCommentDto>;
+    var pendingQuestions = ViewBag.PendingQuestions as List<Travel.Web.DTOs.QuestionDtos.ResultQuestionDto>;
 }
 
-<!-- BAŞLIK & TARİH -->
-<div class="page-intro d-flex align-items-center justify-content-between mb-4">
+@section Styles {
+    <style>
+        :root {
+            --navy: #0e2a3b;
+            --navy-2: #12384c;
+            --navy-3: #1b455c;
+            --teal: #0fa3a3;
+            --teal-dark: #0b7f80;
+            --cream: #f7f5f0;
+            --bg: #f4f5f4;
+            --white: #fff;
+            --ink: #0e2a3b;
+            --muted: #6a7c88;
+            --line: #e7e2d8;
+            --line-2: #eef0ef;
+            --shadow-sm: 0 4px 14px rgba(14,42,59,.05);
+            --shadow-md: 0 14px 36px rgba(14,42,59,.1);
+            --r: 12px;
+            --ok-bg: #e3f4f0;
+            --ok-fg: #0b7f80;
+            --wait-bg: #fbf1dc;
+            --wait-fg: #a9741a;
+            --cancel-bg: #f6e4e2;
+            --cancel-fg: #b45a4f;
+        }
+
+        .eyebrow {
+            font-family: 'Sora',sans-serif;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            font-size: .65rem;
+            font-weight: 700;
+            color: var(--teal-dark);
+        }
+
+        /* PAGE INTRO */
+        .page-intro {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: .8rem;
+            flex-wrap: wrap;
+            margin-bottom: .9rem;
+        }
+
+            .page-intro h1 {
+                font-weight: 700;
+                font-size: 1.35rem;
+                color: var(--navy);
+                margin: .15rem 0 .15rem;
+            }
+
+            .page-intro p {
+                color: var(--muted);
+                margin: 0;
+                font-size: .82rem;
+                max-width: 60ch;
+            }
+
+        .date-pill {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: .35rem .8rem;
+            font-size: .76rem;
+            font-weight: 600;
+            color: var(--navy);
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            white-space: nowrap;
+        }
+
+            .date-pill svg {
+                color: var(--teal-dark);
+            }
+
+        /* CARDS */
+        .card-x {
+            background: #fff;
+            border: 1px solid var(--line-2);
+            border-radius: var(--r);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .75rem .95rem .2rem;
+        }
+
+            .card-head h3 {
+                font-family: 'Sora';
+                font-weight: 700;
+                font-size: .92rem;
+                color: var(--navy);
+                margin: 0;
+            }
+
+        .card-body {
+            padding: .85rem .95rem;
+        }
+
+        /* KPI - MİKRO KOMPAKT */
+        .kpi {
+            background: #fff;
+            border: 1px solid var(--line-2);
+            border-radius: var(--r);
+            box-shadow: var(--shadow-sm);
+            padding: .85rem .95rem;
+            height: 100%;
+        }
+
+            .kpi .top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: .45rem;
+            }
+
+            .kpi .ic {
+                width: 34px;
+                height: 34px;
+                border-radius: 9px;
+                display: grid;
+                place-items: center;
+                background: rgba(15,163,163,.1);
+                color: var(--teal-dark);
+            }
+
+                .kpi .ic.warn {
+                    background: rgba(169,116,26,.12);
+                    color: #a9741a;
+                }
+
+            .kpi .trend {
+                font-size: .68rem;
+                font-weight: 600;
+                padding: .15rem .45rem;
+                border-radius: 999px;
+                background: var(--ok-bg);
+                color: var(--ok-fg);
+            }
+
+            .kpi .num {
+                font-family: 'Sora';
+                font-weight: 800;
+                font-size: 1.35rem;
+                color: var(--navy);
+                line-height: 1;
+            }
+
+            .kpi .lab {
+                font-size: .76rem;
+                color: var(--muted);
+                margin-top: .15rem;
+            }
+
+            .kpi .sub {
+                font-size: .7rem;
+                color: var(--muted);
+                margin-top: .35rem;
+                display: flex;
+                align-items: center;
+                gap: .3rem;
+            }
+
+                .kpi .sub .up {
+                    color: var(--teal-dark);
+                    font-weight: 600;
+                }
+
+                .kpi .sub.warn {
+                    color: #a9741a;
+                    font-weight: 600;
+                }
+
+        /* CHART */
+        .chart-select {
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 999px;
+            padding: .25rem 1.6rem .25rem .75rem;
+            font-size: .74rem;
+            font-weight: 600;
+            color: var(--navy);
+            cursor: pointer;
+            outline: none;
+        }
+
+        .chart-wrap {
+            position: relative;
+            height: 185px; /* 280px'den 185px'e çekildi */
+        }
+
+        /* POPULAR TOURS */
+        .pt-item {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            padding: .45rem 0;
+            border-top: 1px solid var(--line-2);
+        }
+
+            .pt-item:first-child {
+                padding-top: 0;
+                border-top: none;
+            }
+
+            .pt-item img {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                object-fit: cover;
+                flex: none;
+            }
+
+            .pt-item .nm {
+                flex: 1;
+                min-width: 0;
+            }
+
+                .pt-item .nm b {
+                    font-family: 'Sora';
+                    font-weight: 600;
+                    font-size: .8rem;
+                    color: var(--navy);
+                    display: block;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .pt-item .nm span {
+                    font-size: .7rem;
+                    color: var(--muted);
+                }
+
+            .pt-item .rank {
+                font-family: 'Sora';
+                font-weight: 700;
+                color: var(--line);
+                font-size: .95rem;
+                width: 16px;
+                text-align: center;
+                flex: none;
+            }
+
+        /* TABLE - MİKRO KOMPAKT */
+        .tbl-wrap {
+            overflow-x: auto;
+        }
+
+        table.tx {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 680px;
+        }
+
+            table.tx th {
+                font-size: .68rem;
+                text-transform: uppercase;
+                letter-spacing: .05em;
+                color: var(--muted);
+                font-weight: 600;
+                text-align: left;
+                padding: .45rem .75rem;
+                border-bottom: 1px solid var(--line);
+            }
+
+            table.tx td {
+                padding: .5rem .75rem; /* 0.85rem'den 0.5rem'e düşürüldü */
+                border-bottom: 1px solid var(--line-2);
+                font-size: .8rem;
+                color: var(--navy);
+                vertical-align: middle;
+            }
+
+            table.tx tr:last-child td {
+                border-bottom: none;
+            }
+
+            table.tx tbody tr {
+                transition: .15s;
+            }
+
+                table.tx tbody tr:hover {
+                    background: var(--cream);
+                }
+
+        .res-no {
+            font-family: 'Sora';
+            font-weight: 600;
+            color: var(--navy);
+            font-size: .78rem;
+        }
+
+        .guest {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+            .guest .av {
+                width: 26px;
+                height: 26px;
+                border-radius: 7px;
+                background: var(--navy-2);
+                color: #fff;
+                display: grid;
+                place-items: center;
+                font-size: .65rem;
+                font-weight: 700;
+                font-family: 'Sora';
+                flex: none;
+            }
+
+        .amount {
+            font-family: 'Sora';
+            font-weight: 600;
+            font-size: .78rem;
+        }
+
+        .badge-x {
+            font-size: .68rem;
+            font-weight: 600;
+            padding: .18rem .55rem;
+            border-radius: 999px;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+        }
+
+            .badge-x::before {
+                content: "";
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: currentColor;
+            }
+
+        .b-ok {
+            background: var(--ok-bg);
+            color: var(--ok-fg);
+        }
+
+        .b-wait {
+            background: var(--wait-bg);
+            color: var(--wait-fg);
+        }
+
+        .b-cancel {
+            background: var(--cancel-bg);
+            color: var(--cancel-fg);
+        }
+
+        .btn-soft {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: .28rem .7rem;
+            font-size: .74rem;
+            font-weight: 600;
+            color: var(--navy);
+            cursor: pointer;
+            transition: .2s;
+            text-decoration: none;
+        }
+
+            .btn-soft:hover {
+                border-color: var(--teal);
+                color: var(--teal-dark);
+            }
+
+        /* REVIEWS MINI */
+        .rv {
+            padding: .5rem 0;
+            border-top: 1px solid var(--line-2);
+        }
+
+            .rv:first-child {
+                border-top: none;
+                padding-top: 0;
+            }
+
+            .rv .h {
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+                margin-bottom: .2rem;
+            }
+
+            .rv .av {
+                width: 28px;
+                height: 28px;
+                border-radius: 8px;
+                background: var(--navy-2);
+                color: #fff;
+                display: grid;
+                place-items: center;
+                font-size: .65rem;
+                font-weight: 700;
+                font-family: 'Sora';
+                flex: none;
+            }
+
+            .rv .h b {
+                font-family: 'Sora';
+                font-size: .78rem;
+                color: var(--navy);
+                display: block;
+                line-height: 1.2;
+            }
+
+            .rv .h span {
+                font-size: .68rem;
+                color: var(--muted);
+            }
+
+            .rv .stars {
+                margin-left: auto;
+                color: #f4a92c;
+                font-size: .74rem;
+            }
+
+            .rv p {
+                margin: 0;
+                font-size: .76rem;
+                color: var(--muted);
+                line-height: 1.4;
+            }
+
+        /* QUESTIONS MINI */
+        .qz {
+            padding: .5rem 0;
+            border-top: 1px solid var(--line-2);
+            display: flex;
+            gap: .65rem;
+            align-items: flex-start;
+        }
+
+            .qz:first-child {
+                border-top: none;
+                padding-top: 0;
+            }
+
+            .qz .body {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .qz .tour {
+                font-size: .68rem;
+                color: var(--teal-dark);
+                font-weight: 600;
+            }
+
+            .qz .q {
+                font-size: .78rem;
+                color: var(--navy);
+                font-weight: 500;
+                margin: .1rem 0;
+            }
+
+            .qz .time {
+                font-size: .68rem;
+                color: var(--muted);
+            }
+
+            .qz .btn-soft {
+                flex: none;
+                align-self: center;
+            }
+
+        /* QUICK ACTIONS */
+        .qa-link {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            padding: .55rem .75rem;
+            border-radius: 10px;
+            border: 1px solid var(--line-2);
+            color: var(--navy);
+            font-weight: 600;
+            font-size: .8rem;
+            transition: .2s;
+            margin-bottom: .45rem;
+            background: #fff;
+            text-decoration: none;
+        }
+
+            .qa-link:last-child {
+                margin-bottom: 0;
+            }
+
+            .qa-link:hover {
+                border-color: var(--teal);
+                background: var(--cream);
+                color: var(--teal-dark);
+            }
+
+            .qa-link .qa-ic {
+                width: 28px;
+                height: 28px;
+                border-radius: 8px;
+                background: rgba(15,163,163,.1);
+                color: var(--teal-dark);
+                display: grid;
+                place-items: center;
+                flex: none;
+                transition: .2s;
+            }
+
+            .qa-link:hover .qa-ic {
+                background: var(--teal);
+                color: #fff;
+            }
+
+            .qa-link .arr {
+                margin-left: auto;
+                color: var(--muted);
+            }
+    </style>
+}
+
+<!-- INTRO -->
+<div class="page-intro">
     <div>
-        <div class="eyebrow">Genel Bakış</div>
-        <h1 style="font-size: 1.8rem; font-weight: 700; color: var(--navy);">Hoş Geldiniz, Yönetici 👋</h1>
-        <p style="color: var(--muted); margin: 0;">Travelio platformundaki son gelişmeleri ve önemli verileri buradan takip edebilirsiniz.</p>
+        <div class="eyebrow">@(isEn ? "Overview" : "Genel Bakış")</div>
+        <h1>@(isEn ? "Welcome Back, Admin 👋" : "Hoş Geldiniz, Yönetici 👋")</h1>
+        <p>@(isEn ? "Track recent platform updates and key metrics across Travelio." : "Travelio platformundaki son gelişmeleri ve önemli verileri buradan takip edebilirsiniz.")</p>
     </div>
-    <div class="date-pill" style="background:#fff;border:1px solid var(--line);border-radius:999px;padding:.5rem 1rem;font-size:.85rem;font-weight:600;color:var(--navy);display:inline-flex;align-items:center;gap:.5rem;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+    <div class="date-pill">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
         @DateTime.Now.ToString("dd MMMM yyyy")
     </div>
 </div>
 
 <!-- 4 ADET KPI SAYACI -->
-<div class="row g-3 mb-4">
+<div class="row g-2 mb-2">
     <div class="col-6 col-xl-3">
-        <div class="kpi" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.25rem 1.3rem;height:100%">
-            <div class="top d-flex align-items-center justify-content-between mb-3">
-                <div class="ic" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(15,163,163,.1);color:var(--teal-dark)">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18v12H3z" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
-                </div>
+        <div class="kpi">
+            <div class="top">
+                <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18v12H3z" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg></div>
+                <span class="trend">+@Model.ActiveTours</span>
             </div>
-            <div class="num" style="font-family:'Sora';font-weight:800;font-size:1.9rem;color:var(--navy);line-height:1">@Model.TotalTours</div>
-            <div class="lab" style="font-size:.85rem;color:var(--muted);margin-top:.25rem">Toplam Tur</div>
-            <div class="sub" style="font-size:.78rem;color:var(--teal-dark);font-weight:600;margin-top:.55rem">@Model.ActiveTours aktif tur</div>
+            <div class="num">@Model.TotalTours</div>
+            <div class="lab">@(isEn ? "Total Tours" : "Toplam Tur")</div>
+            <div class="sub"><span class="up">@(isEn ? $"{Model.ActiveTours} active tours" : $"{Model.ActiveTours} aktif tur")</span></div>
         </div>
     </div>
     <div class="col-6 col-xl-3">
-        <div class="kpi" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.25rem 1.3rem;height:100%">
-            <div class="top d-flex align-items-center justify-content-between mb-3">
-                <div class="ic" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(15,163,163,.1);color:var(--teal-dark)">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
-                </div>
+        <div class="kpi">
+            <div class="top">
+                <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></div>
+                <span class="trend">+@Model.ThisMonthReservationsCount</span>
             </div>
-            <div class="num" style="font-family:'Sora';font-weight:800;font-size:1.9rem;color:var(--navy);line-height:1">@Model.TotalReservations</div>
-            <div class="lab" style="font-size:.85rem;color:var(--muted);margin-top:.25rem">Toplam Rezervasyon</div>
-            <div class="sub" style="font-size:.78rem;color:var(--teal-dark);font-weight:600;margin-top:.55rem">Bu ay +@Model.ThisMonthReservationsCount rezervasyon</div>
+            <div class="num">@Model.TotalReservations</div>
+            <div class="lab">@(isEn ? "Total Reservations" : "Toplam Rezervasyon")</div>
+            <div class="sub"><span class="up">@(isEn ? $"This month +{Model.ThisMonthReservationsCount}" : $"Bu ay +{Model.ThisMonthReservationsCount}")</span></div>
         </div>
     </div>
     <div class="col-6 col-xl-3">
-        <div class="kpi" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.25rem 1.3rem;height:100%">
-            <div class="top d-flex align-items-center justify-content-between mb-3">
-                <div class="ic" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(15,163,163,.1);color:var(--teal-dark)">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /></svg>
-                </div>
+        <div class="kpi">
+            <div class="top">
+                <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /></svg></div>
+                <span class="trend">+@(Model.ToursByCategory?.Count ?? 0)</span>
             </div>
-            <div class="num" style="font-family:'Sora';font-weight:800;font-size:1.9rem;color:var(--navy);line-height:1">@(Model.ToursByCategory?.Count ?? 0)</div>
-            <div class="lab" style="font-size:.85rem;color:var(--muted);margin-top:.25rem">Kategori Sayısı</div>
-            <div class="sub" style="font-size:.78rem;color:var(--muted);margin-top:.55rem">Katalog aktif</div>
+            <div class="num">@(Model.ToursByCategory?.Count ?? 0)</div>
+            <div class="lab">@(isEn ? "Categories" : "Kategori Sayısı")</div>
+            <div class="sub"><span class="up">@(isEn ? "Catalog active" : "Katalog aktif")</span></div>
         </div>
     </div>
     <div class="col-6 col-xl-3">
-        <div class="kpi" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.25rem 1.3rem;height:100%">
-            <div class="top d-flex align-items-center justify-content-between mb-3">
-                <div class="ic" style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(169,116,26,.12);color:#a9741a">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12" y2="17" /></svg>
-                </div>
+        <div class="kpi">
+            <div class="top">
+                <div class="ic warn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12" y2="17" /></svg></div>
             </div>
-            <div class="num" style="font-family:'Sora';font-weight:800;font-size:1.9rem;color:var(--navy);line-height:1">@Model.PendingQuestionsCount</div>
-            <div class="lab" style="font-size:.85rem;color:var(--muted);margin-top:.25rem">Bekleyen Sorular</div>
-            <div class="sub" style="font-size:.78rem;color:#a9741a;font-weight:600;margin-top:.55rem">Yanıt bekliyor</div>
+            <div class="num">@Model.PendingQuestionsCount</div>
+            <div class="lab">@(isEn ? "Pending Questions" : "Bekleyen Sorular")</div>
+            <div class="sub warn">@(isEn ? "Awaiting reply" : "Yanıt bekliyor")</div>
         </div>
     </div>
 </div>
 
-<!-- GRAFİK VE POPÜLER TURLAR (AGGREGATION) -->
-<div class="row g-3 mb-4">
+<!-- ROW: CHART + POPULAR TOURS -->
+<div class="row g-2 mb-2">
     <div class="col-lg-8">
-        <div class="card-x" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.3rem;height:100%">
-            <h3 style="font-family:'Sora';font-weight:700;font-size:1.05rem;color:var(--navy);margin-bottom:1rem">Son 6 Aylık Rezervasyon Trendi</h3>
-            <div style="position:relative;height:280px">
-                <canvas id="resChart"></canvas>
+        <div class="card-x h-100">
+            <div class="card-head">
+                <h3>@(isEn ? "Reservation Statistics" : "Rezervasyon İstatistikleri")</h3>
+                <select class="chart-select" id="rangeSelect">
+                    <option>@(isEn ? "Last 7 Days" : "Son 7 Gün")</option>
+                    <option>@(isEn ? "Last 30 Days" : "Son 30 Gün")</option>
+                    <option selected>@(isEn ? "Last 6 Months" : "Son 6 Ay")</option>
+                </select>
+            </div>
+            <div class="card-body">
+                <div class="chart-wrap"><canvas id="resChart"></canvas></div>
             </div>
         </div>
     </div>
     <div class="col-lg-4">
-        <div class="card-x" style="background:#fff;border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:1.3rem;height:100%">
-            <h3 style="font-family:'Sora';font-weight:700;font-size:1.05rem;color:var(--navy);margin-bottom:1rem">En Çok Satan Turlar</h3>
-            <div class="d-flex flex-column gap-2">
+        <div class="card-x h-100">
+            <div class="card-head">
+                <h3>@(isEn ? "Most Popular Tours" : "En Popüler Turlar")</h3>
+            </div>
+            <div class="card-body pt-1" id="popularTours">
                 @if (Model.Top5SellingTours != null && Model.Top5SellingTours.Any())
                 {
                     int rank = 1;
-                    foreach (var tour in Model.Top5SellingTours)
+                    foreach (var tour in Model.Top5SellingTours.Take(4))
                     {
-                        <div class="d-flex align-items-center gap-3 py-2 border-bottom">
-                            <span style="font-family:'Sora';font-weight:700;color:var(--teal-dark);font-size:1.1rem;width:20px;text-align:center">@(rank++)</span>
-                            <div class="flex-grow-1" style="min-width:0">
-                                <b style="font-family:'Sora';font-size:.9rem;color:var(--navy);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">@tour.TourTitle</b>
-                                <span style="font-size:.78rem;color:var(--muted)">@tour.TotalBookings kişi · @tour.TotalRevenue.ToString("N0") ₺</span>
+                        <div class="pt-item">
+                            <span class="rank">@(rank++)</span>
+                            <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=200&q=80" alt="@tour.TourTitle">
+                            <div class="nm">
+                                <b>@tour.TourTitle</b>
+                                <span>@(isEn ? $"{tour.TotalBookings} bookings · {tour.TotalRevenue:N0} TL" : $"{tour.TotalBookings} rez · {tour.TotalRevenue:N0} TL")</span>
                             </div>
                         </div>
                     }
                 }
                 else
                 {
-                    <p style="color:var(--muted);font-size:.9rem;margin-top:1rem;">Henüz tamamlanan satış verisi bulunmuyor.</p>
+                    <p class="text-muted mt-2 mb-0" style="font-size:.8rem">@(isEn ? "No popular tour sales recorded yet." : "Henüz tamamlanan satış verisi bulunmuyor.")</p>
                 }
             </div>
         </div>
     </div>
 </div>
 
-<!-- CHART.JS ENTEGRASYONU -->
+<!-- RECENT BOOKINGS TABLE -->
+<div class="card-x mb-2">
+    <div class="card-head">
+        <h3>@(isEn ? "Recent Reservations" : "Son Rezervasyonlar")</h3>
+        <a href="/Admin/Reservation/Index" class="btn-soft">@(isEn ? "View All" : "Tümünü Gör")</a>
+    </div>
+    <div class="card-body pt-1">
+        <div class="tbl-wrap">
+            <table class="tx">
+                <thead>
+                    <tr>
+                        <th>@(isEn ? "Booking No" : "Rezervasyon No")</th>
+                        <th>@(isEn ? "Guest" : "Misafir")</th>
+                        <th>@(isEn ? "Tour" : "Tur")</th>
+                        <th>@(isEn ? "Date" : "Tur Tarihi")</th>
+                        <th>@(isEn ? "Guests" : "Kişi")</th>
+                        <th>@(isEn ? "Amount" : "Tutar")</th>
+                        <th>@(isEn ? "Status" : "Durum")</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingRows">
+                    @if (recentReservations != null && recentReservations.Any())
+                    {
+                        foreach (var b in recentReservations.Take(4))
+                        {
+                            var initials = string.Join("", (b.FullName ?? "M G").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => s[0])).ToUpper();
+                            var isApproved = b.Status.ToString() == "Approved" || b.Status.ToString() == "Onaylandı";
+                            var isCancelled = b.Status.ToString() == "Cancelled" || b.Status.ToString() == "İptal Edildi";
+
+                            <tr>
+                                <td><span class="res-no">#@b.Id.Substring(Math.Max(0, b.Id.Length - 6))</span></td>
+                                <td><div class="guest"><span class="av">@initials</span>@b.FullName</div></td>
+                                <td>@b.TourTitle</td>
+                                <td>@b.SelectedTourDate.ToString("dd.MM.yyyy")</td>
+                                <td>@b.TotalParticipants @(isEn ? "guests" : "kişi")</td>
+                                <td><span class="amount">@b.TotalPrice.ToString("N0") TL</span></td>
+                                <td>
+                                    <span class="badge-x @(isApproved ? "b-ok" : (isCancelled ? "b-cancel" : "b-wait"))">
+                                        @(isEn ? (isApproved ? "Approved" : (isCancelled ? "Cancelled" : "Pending")) : b.Status)
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-3 text-muted" style="font-size:.8rem">
+                                @(isEn ? "No recent reservations found." : "Henüz bir rezervasyon kaydı bulunamadı.")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM 3 COLUMNS -->
+<div class="row g-2">
+    <!-- Son Yorumlar -->
+    <div class="col-lg-4">
+        <div class="card-x h-100">
+            <div class="card-head">
+                <h3>@(isEn ? "Recent Reviews" : "Son Yorumlar")</h3>
+            </div>
+            <div class="card-body pt-1" id="recentReviews">
+                @if (recentComments != null && recentComments.Any())
+                {
+                    foreach (var c in recentComments.Take(2))
+                    {
+                        var init = string.Join("", (c.UserName ?? "U").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => s[0])).ToUpper();
+                        <div class="rv">
+                            <div class="h">
+                                <span class="av">@init</span>
+                                <div><b>@c.UserName</b><span>Travelio Misafiri</span></div>
+                                <span class="stars">@string.Concat(Enumerable.Repeat("★", c.Rating))</span>
+                            </div>
+                            <p>@c.Content</p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mt-1 mb-0" style="font-size:.8rem">@(isEn ? "No recent reviews." : "Henüz iletilen bir yorum yok.")</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Yanıt Bekleyen Sorular -->
+    <div class="col-lg-4">
+        <div class="card-x h-100">
+            <div class="card-head">
+                <h3>@(isEn ? "Pending Questions" : "Yanıt Bekleyen Sorular")</h3>
+            </div>
+            <div class="card-body pt-1" id="pendingQuestions">
+                @if (pendingQuestions != null && pendingQuestions.Any())
+                {
+                    foreach (var q in pendingQuestions.Take(2))
+                    {
+                        <div class="qz">
+                            <div class="body">
+                                <div class="tour">@q.UserName</div>
+                                <div class="q">@q.QuestionText</div>
+                                <div class="time">@q.AskedDate.ToString("dd.MM.yyyy HH:mm")</div>
+                            </div>
+                            <a href="/Admin/Question/AnswerQuestion/@q.Id" class="btn-soft">@(isEn ? "Reply" : "Cevapla")</a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mt-1 mb-0" style="font-size:.8rem">@(isEn ? "No pending questions." : "Yanıt bekleyen soru bulunmuyor.")</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Hızlı İşlemler -->
+    <div class="col-lg-4">
+        <div class="card-x h-100">
+            <div class="card-head">
+                <h3>@(isEn ? "Quick Actions" : "Hızlı İşlemler")</h3>
+            </div>
+            <div class="card-body pt-1" id="quickActions">
+                <a href="/Admin/Tour/CreateTour" class="qa-link">
+                    <span class="qa-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg></span>
+                    @(isEn ? "Add New Tour" : "Yeni Tur Ekle")
+                    <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg></span>
+                </a>
+                <a href="/Admin/Reservation/Index" class="qa-link">
+                    <span class="qa-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></span>
+                    @(isEn ? "View Reservations" : "Rezervasyonları Gör")
+                    <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg></span>
+                </a>
+                <a href="/Admin/Question/Index" class="qa-link">
+                    <span class="qa-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg></span>
+                    @(isEn ? "Answer Questions" : "Soruları Yanıtla")
+                    <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg></span>
+                </a>
+                <a href="/Admin/Destination/Index" class="qa-link">
+                    <span class="qa-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg></span>
+                    @(isEn ? "Add New Destination" : "Yeni Destinasyon Ekle")
+                    <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CHART.JS -->
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
         const ctx = document.getElementById("resChart");
         if (ctx) {
-        const grad = ctx.getContext("2d").createLinearGradient(0, 0, 0, 280);
+        const grad = ctx.getContext("2d").createLinearGradient(0, 0, 0, 185);
         grad.addColorStop(0, "rgba(15,163,163,.28)");
         grad.addColorStop(1, "rgba(15,163,163,0)");
 
         const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyChartLabels ?? new List<string>()));
         const data = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyChartData ?? new List<int>()));
+        const chartLabel = "@(isEn ? "Reservations" : "Rezervasyon")";
 
-        new Chart(ctx, {
+        const chart = new Chart(ctx, {
         type: "line",
         data: {
-        labels: labels,
+        labels: labels.length ? labels : ["Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos"],
         datasets: [{
-        label: "Rezervasyon",
-        data: data,
+        label: chartLabel,
+        data: data.length ? data : [0, 0, 0, 0, 0, 0],
         borderColor: "#0fa3a3",
         backgroundColor: grad,
-        borderWidth: 3,
+        borderWidth: 2.5,
         fill: true,
-        tension: .38,
+        tension: .35,
         pointBackgroundColor: "#fff",
         pointBorderColor: "#0fa3a3",
-        pointBorderWidth: 2.5,
-        pointRadius: 4
+        pointBorderWidth: 2,
+        pointRadius: 3.5,
+        pointHoverRadius: 5
         }]
         },
         options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+        legend: { display: false },
+        tooltip: {
+        backgroundColor: "#0e2a3b",
+        padding: 8,
+        cornerRadius: 8,
+        titleFont: { family: "Sora", size: 11 },
+        bodyFont: { size: 11 },
+        displayColors: false,
+        callbacks: {
+        label: c => c.parsed.y + " " + "@(isEn ? "bookings" : "rezervasyon")"
+        }
+        }
+        },
         scales: {
-        y: { beginAtZero: true, grid: { color: "#eef0ef" } },
-        x: { grid: { display: false } }
+        y: { beginAtZero: true, grid: { color: "#eef0ef" }, border: { display: false }, ticks: { color: "#6a7c88", font: { size: 10 } } },
+        x: { grid: { display: false }, border: { display: false }, ticks: { color: "#6a7c88", font: { size: 11 } } }
         }
         }
         });
+
+        document.getElementById("rangeSelect").addEventListener("change", () => chart.update());
         }
     </script>
 }

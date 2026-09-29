@@ -1,8 +1,785 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<Travel.Web.DTOs.TourDtos.ResultTourDto>
+@{
+    var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
+    ViewData["Title"] = isEn ? "Home" : "Ana Sayfa";
+    var destinations = ViewBag.Destinations as List<Travel.Web.DTOs.DestinationDtos.ResultDestinationDto>;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@section Styles {
+    <style>
+        /* HERO - KOMPAKT & TEK EKRANA SIĞAN YAPI */
+        .hero {
+            position: relative;
+            min-height: 480px;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(14,42,59,.55) 0%, rgba(14,42,59,.35) 40%, rgba(14,42,59,.72) 100%), url('https://wallpaperaccess.com/full/1408405.jpg') center/cover;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            padding: 3rem 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-weight: 800;
+            font-size: clamp(1.9rem, 3.4vw, 2.9rem);
+            line-height: 1.1;
+            letter-spacing: -0.5px;
+            max-width: 16ch;
+            margin-bottom: .4rem;
+        }
+
+        .hero p.lead {
+            font-size: clamp(0.9rem, 1.1vw, 1.05rem);
+            max-width: 58ch;
+            color: rgba(255,255,255,.9);
+            margin-top: .4rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .hero .eyebrow {
+            color: #7fe3e3;
+            font-size: .75rem;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* BANNER SAĞ / SOL OKLARI */
+        .banner-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(14, 42, 59, 0.7);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.25);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            z-index: 5;
+            transition: .25s;
+        }
+
+            .banner-nav-btn:hover {
+                background: var(--teal);
+                border-color: var(--teal);
+            }
+
+        .banner-nav-prev {
+            left: 1.5rem;
+        }
+
+        .banner-nav-next {
+            right: 1.5rem;
+        }
+
+        /* SEARCH BOX */
+        .search-box {
+            background: rgba(255,255,255,.98);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+            padding: .55rem .9rem;
+            margin-top: 1.2rem;
+            max-width: 880px;
+        }
+
+        .search-field {
+            padding: .35rem .85rem;
+            border-right: 1px solid var(--line);
+        }
+
+            .search-field:last-of-type {
+                border-right: none;
+            }
+
+            .search-field label {
+                display: block;
+                font-size: .65rem;
+                text-transform: uppercase;
+                letter-spacing: .12em;
+                font-weight: 700;
+                color: var(--muted);
+                margin-bottom: .1rem;
+            }
+
+            .search-field .control {
+                border: none;
+                outline: none;
+                font-weight: 600;
+                color: var(--navy);
+                font-size: .88rem;
+                width: 100%;
+                background: transparent;
+            }
+
+        .search-box .btn-teal {
+            width: 100%;
+            padding: .7rem;
+            text-align: center;
+            border-radius: 12px;
+            font-size: .9rem;
+        }
+
+        .stats-row {
+            margin-top: 1.1rem;
+            display: flex;
+            gap: 1.8rem;
+            flex-wrap: wrap;
+        }
+
+        .stat b {
+            font-family: 'Sora';
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: block;
+            line-height: 1;
+        }
+
+        .stat span {
+            font-size: .75rem;
+            color: rgba(255,255,255,.8);
+        }
+
+        /* POPÜLER TURLAR BÖLÜMÜ - HEMEN BANNER'IN ALTINA ÇEKİLDİ */
+        #turlar {
+            padding: 1.8rem 0 3.5rem;
+            background: #fafaf9;
+        }
+
+        .section-head h2 {
+            font-weight: 700;
+            font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+            letter-spacing: -.5px;
+            margin-top: .2rem;
+            color: var(--navy);
+        }
+
+        .section-head p {
+            color: var(--muted);
+            margin-top: .2rem;
+            font-size: .88rem;
+        }
+
+        /* 4'LÜ TUR KARTLARI */
+        .tour-card {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(14,42,59,.06);
+            transition: .3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(231,226,216,.7);
+        }
+
+            .tour-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 28px rgba(14,42,59,.12);
+            }
+
+        .tour-media {
+            position: relative;
+            height: 160px;
+            overflow: hidden;
+        }
+
+            .tour-media img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: .5s;
+            }
+
+        .tour-card:hover .tour-media img {
+            transform: scale(1.06);
+        }
+
+        .tour-badge {
+            position: absolute;
+            top: .6rem;
+            left: .6rem;
+            background: rgba(255,255,255,.94);
+            color: var(--navy);
+            font-weight: 600;
+            font-size: .7rem;
+            padding: .25rem .6rem;
+            border-radius: 999px;
+        }
+
+        .fav {
+            position: absolute;
+            top: .55rem;
+            right: .6rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.92);
+            display: grid;
+            place-items: center;
+            color: var(--navy);
+            cursor: pointer;
+            border: none;
+            transition: .2s;
+        }
+
+            .fav:hover {
+                color: var(--teal-dark);
+                transform: scale(1.08);
+            }
+
+        .tour-body {
+            padding: .9rem 1rem 1rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .tour-country {
+            font-size: .74rem;
+            color: var(--teal-dark);
+            font-weight: 600;
+            letter-spacing: .02em;
+        }
+
+        .tour-title {
+            font-family: 'Sora';
+            font-weight: 700;
+            font-size: 1rem;
+            margin: .15rem 0 .4rem;
+            color: var(--navy);
+            line-height: 1.25;
+        }
+
+        .tour-meta {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            font-size: .78rem;
+            color: var(--muted);
+            margin-bottom: .6rem;
+        }
+
+        .rating {
+            color: #0e2a3b;
+            font-weight: 600;
+        }
+
+            .rating .star {
+                color: #f4a92c;
+            }
+
+        .tour-foot {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: .4rem;
+            border-top: 1px solid var(--line);
+        }
+
+        .price small {
+            color: var(--muted);
+            font-size: .68rem;
+            display: block;
+        }
+
+        .price b {
+            font-family: 'Sora';
+            font-size: 1.15rem;
+            color: var(--navy);
+        }
+
+            .price b span {
+                font-size: .75rem;
+                font-weight: 600;
+                color: var(--muted);
+            }
+
+        .btn-incele {
+            background: var(--navy);
+            color: #fff;
+            border-radius: 999px;
+            font-size: .76rem;
+            font-weight: 600;
+            padding: .4rem .9rem;
+            border: none;
+            transition: .25s;
+            text-decoration: none;
+        }
+
+            .btn-incele:hover {
+                background: var(--teal-dark);
+                color: #fff;
+            }
+
+        /* DİĞER BÖLÜMLER İÇİN BOŞLUK */
+        section {
+            padding: 4.5rem 0;
+        }
+
+        .dest-section {
+            background: var(--navy);
+            color: #fff;
+        }
+
+        .dest-card {
+            position: relative;
+            border-radius: var(--r);
+            overflow: hidden;
+            height: 340px;
+            display: block;
+            box-shadow: var(--shadow-md);
+        }
+
+            .dest-card img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: .6s;
+            }
+
+            .dest-card:hover img {
+                transform: scale(1.08);
+            }
+
+            .dest-card::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(180deg, rgba(14,42,59,0) 35%, rgba(14,42,59,.85) 100%);
+            }
+
+            .dest-card.tall {
+                height: calc(680px + 1.5rem);
+            }
+
+        .dest-cap {
+            position: absolute;
+            left: 1.3rem;
+            bottom: 1.2rem;
+            z-index: 2;
+            color: #fff;
+        }
+
+            .dest-cap h3 {
+                font-weight: 700;
+                font-size: 1.4rem;
+                margin: 0;
+            }
+
+            .dest-cap span {
+                font-size: .85rem;
+                opacity: .85;
+            }
+
+        .why-card {
+            background: #fff;
+            border-radius: var(--r);
+            padding: 2rem 1.8rem;
+            height: 100%;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(231,226,216,.7);
+            transition: .25s;
+        }
+
+            .why-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-md);
+            }
+
+        .why-ico {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(15,163,163,.12);
+            color: var(--teal-dark);
+            display: grid;
+            place-items: center;
+            margin-bottom: 1.1rem;
+        }
+
+        .why-card h4 {
+            font-weight: 700;
+            font-size: 1.12rem;
+            color: var(--navy);
+        }
+
+        .why-card p {
+            color: var(--muted);
+            font-size: .94rem;
+            margin: 0;
+        }
+
+        .review-card {
+            background: #fff;
+            border-radius: var(--r);
+            padding: 1.9rem;
+            height: 100%;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(231,226,216,.7);
+        }
+
+        .review-stars {
+            color: #f4a92c;
+            font-size: .95rem;
+            margin-bottom: .8rem;
+        }
+
+        .review-card p {
+            color: var(--navy);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .review-user {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+            margin-top: 1.3rem;
+        }
+
+            .review-user img {
+                width: 46px;
+                height: 46px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .review-user b {
+                display: block;
+                color: var(--navy);
+                font-size: .95rem;
+            }
+
+            .review-user span {
+                color: var(--muted);
+                font-size: .82rem;
+            }
+
+        .cta-wrap {
+            border-radius: 28px;
+            overflow: hidden;
+            position: relative;
+            color: #fff;
+            background: linear-gradient(120deg, rgba(11,127,128,.92), rgba(14,42,59,.9)), url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=2000&q=80') center/cover;
+            padding: 4.5rem 2rem;
+        }
+
+            .cta-wrap h2 {
+                font-weight: 800;
+                font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+                letter-spacing: -.5px;
+            }
+
+            .cta-wrap p {
+                color: rgba(255,255,255,.88);
+                max-width: 52ch;
+                margin: 1rem auto 0;
+            }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1.5px solid rgba(255,255,255,.5);
+            color: #fff;
+            border-radius: 999px;
+            font-weight: 600;
+            padding: .7rem 1.4rem;
+            transition: .25s;
+            text-decoration: none;
+        }
+
+            .btn-ghost:hover {
+                background: #fff;
+                color: var(--navy);
+            }
+
+        @@media (max-width: 767px) {
+            .search-field {
+                border-right: none;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .dest-card.tall {
+                height: 340px;
+            }
+
+            .hero-content {
+                padding: 4rem 0 3rem;
+            }
+
+            .banner-nav-btn {
+                display: none;
+            }
+        }
+    </style>
+}
+
+<!-- HERO BANNER ALANI -->
+<header class="hero">
+    <!-- Sağ ve Sol Kaydırma Okları -->
+    <button class="banner-nav-btn banner-nav-prev" type="button" aria-label="Önceki">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6" /></svg>
+    </button>
+    <button class="banner-nav-btn banner-nav-next" type="button" aria-label="Sonraki">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+    </button>
+
+    <div class="container hero-content">
+        <div class="eyebrow mb-2">@(isEn ? "EXPLORE WITH TRAVELIO" : "TRAVELIO İLE KEŞFET")</div>
+        <h1>@(isEn ? "Ready to Explore the World?" : "Dünyayı Keşfetmeye Hazır Mısın?")</h1>
+        <p class="lead">
+            @(isEn ? "From iconic European capitals to unique routes, unforgettable travel experiences await you." : "Avrupa'nın ikonik şehirlerinden benzersiz rotalara kadar unutulmaz seyahat deneyimleri seni bekliyor.")
+        </p>
+
+        <!-- SEARCH FORM -->
+        <form action="/Tour/Index" method="get" class="search-box">
+            <div class="row g-0 align-items-center">
+                <div class="col-md-3 search-field">
+                    <label>@(isEn ? "Destination" : "Destinasyon")</label>
+                    <input class="control" name="search" placeholder="@(isEn ? "Where to go?" : "Nereye gidelim?")" />
+                </div>
+                <div class="col-md-3 search-field">
+                    <label>@(isEn ? "Date" : "Tarih")</label>
+                    <input class="control" type="date" name="date" />
+                </div>
+                <div class="col-md-3 search-field">
+                    <label>@(isEn ? "Guests" : "Kişi Sayısı")</label>
+                    <select class="control" name="guests">
+                        <option value="1">@(isEn ? "1 Guest" : "1 kişi")</option>
+                        <option value="2" selected>@(isEn ? "2 Guests" : "2 kişi")</option>
+                        <option value="3">@(isEn ? "3 Guests" : "3 kişi")</option>
+                        <option value="4">@(isEn ? "4 Guests" : "4 kişi")</option>
+                        <option value="5">@(isEn ? "5+ Guests" : "5+ kişi")</option>
+                    </select>
+                </div>
+                <div class="col-md-3 p-1">
+                    <button type="submit" class="btn-teal">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-1"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                        @(isEn ? "Search Tours" : "Turları Ara")
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="stats-row">
+            <div class="stat"><b>@(destinations?.Count ?? 0)+</b><span>@(isEn ? "Destinations" : "Destinasyon")</span></div>
+            <div class="stat"><b>@(Model?.Count ?? 0)+</b><span>@(isEn ? "Active Tours" : "Aktif Tur")</span></div>
+            <div class="stat"><b>92.000</b><span>@(isEn ? "Happy Travelers" : "Mutlu Gezgin")</span></div>
+        </div>
+    </div>
+</header>
+
+<!-- EN ÇOK TERCİH EDİLEN TURLAR (BANNER'IN HEMEN ALTINDA 4'LÜ GRID) -->
+<section id="turlar">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
+            <div class="section-head">
+                <div class="eyebrow" style="color: var(--teal-dark); font-size: .72rem; font-weight: 700; text-transform: uppercase;">
+                    @(isEn ? "Popular Routes" : "Popüler Rotalar")
+                </div>
+                <h2>@(isEn ? "Most Popular Tours" : "En Çok Tercih Edilen Turlar")</h2>
+            </div>
+            <a href="/Tour/Index" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 fw-semibold mb-2" style="font-size: .82rem;">
+                @(isEn ? "View All Tours →" : "Tüm Turları Gör →")
+            </a>
+        </div>
+
+        <div class="row g-3">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model.Take(4))
+                {
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <article class="tour-card">
+                            <div class="tour-media">
+                                <img src="@(string.IsNullOrEmpty(item.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : item.CoverImageUrl)" alt="@(item.Title?.Value ?? "Tour")" loading="lazy" />
+                                <span class="tour-badge">@(isEn ? "Popular" : "Popüler")</span>
+                                <button class="fav" aria-label="Favorilere ekle" onclick="this.classList.toggle('active')">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg>
+                                </button>
+                            </div>
+                            <div class="tour-body">
+                                <div class="tour-country">@item.Country · @item.City</div>
+                                <h3 class="tour-title">@(item.Title?.Value ?? (isEn ? item.Title?.En : item.Title?.Tr) ?? (isEn ? "Untitled Tour" : "İsimsiz Tur"))</h3>
+                                <div class="tour-meta">
+                                    <span>🗓️ @item.DurationDays @(isEn ? "Days" : "Gün")</span>
+                                    <span class="rating"><span class="star">★</span> 4.9</span>
+                                </div>
+                                <div class="tour-foot">
+                                    <div class="price"><small>@(isEn ? "From" : "Kişi başı")</small><b>@item.Price.ToString("N0") <span>TL</span></b></div>
+                                    <a href="/Tour/Detail/@item.Id" class="btn-incele">@(isEn ? "Explore" : "Turu İncele")</a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-4">
+                    <p class="text-muted">@(isEn ? "No active tours available to display yet." : "Henüz listelenecek aktif tur bulunmuyor.")</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- POPÜLER DESTİNASYONLAR -->
+<section id="destinasyonlar" class="dest-section">
+    <div class="container">
+        <div class="section-head mb-5">
+            <div class="eyebrow" style="color: #7fe3e3;">@(isEn ? "Inspiring Cities" : "İlham veren şehirler")</div>
+            <h2 style="color: #fff;">@(isEn ? "Popular Destinations" : "Popüler Destinasyonlar")</h2>
+            <p style="color: rgba(255,255,255,.72);">@(isEn ? "Dream destinations that millions of travelers long to return to." : "Milyonlarca gezginin tekrar tekrar dönmek istediği rüya şehirler.")</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <a class="dest-card tall" href="/Tour/Index">
+                    <img src="https://images.unsplash.com/photo-1522093007474-d86e9bf7ba6f?auto=format&fit=crop&w=1200&q=80" alt="Paris" />
+                    <div class="dest-cap"><h3>Paris</h3><span>@(isEn ? "France · City of Lights" : "Fransa · Işıklar Şehri")</span></div>
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <a class="dest-card" href="/Tour/Index">
+                            <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1200&q=80" alt="Roma" />
+                            <div class="dest-cap"><h3>Roma</h3><span>@(isEn ? "Italy · Ancient Capital" : "İtalya · Antik Başkent")</span></div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a class="dest-card" href="/Tour/Index">
+                            <img src="https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=900&q=80" alt="Amsterdam" />
+                            <div class="dest-cap"><h3>Amsterdam</h3><span>@(isEn ? "Netherlands · Canals" : "Hollanda · Kanallar")</span></div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a class="dest-card" href="/Tour/Index">
+                            <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=900&q=80" alt="Tokyo" />
+                            <div class="dest-cap"><h3>Tokyo</h3><span>@(isEn ? "Japan · Far East" : "Japonya · Uzak Doğu")</span></div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- NEDEN BİZ -->
+<section id="hakkimizda">
+    <div class="container">
+        <div class="section-head mb-5">
+            <div class="eyebrow">@(isEn ? "Why Choose Us" : "Neden biz")</div>
+            <h2>@(isEn ? "Why Travelio?" : "Neden Travelio?")</h2>
+            <p>@(isEn ? "More than just a tour—a thoughtfully crafted journey from start to finish." : "Sadece bir tur değil, baştan sona düşünülmüş bir seyahat deneyimi.")</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="why-card">
+                    <div class="why-ico">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                    </div>
+                    <h4>@(isEn ? "Handpicked Itineraries" : "Özenle Seçilmiş Rotalar")</h4>
+                    <p>@(isEn ? "Every route is tested by local experts to offer authentic adventures, not standard tourist traps." : "Her tur, yerel uzmanlarımız tarafından test edilmiş gerçek deneyimlerden oluşur; klişe turistik duraklar değil.")</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="why-card">
+                    <div class="why-ico">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                    </div>
+                    <h4>@(isEn ? "No Hidden Fees" : "Gizli Ücret Yok")</h4>
+                    <p>@(isEn ? "What you see is what you pay. Accommodation, transport, and guides are presented transparently." : "Gördüğün fiyat ödediğin fiyattır. Konaklama, ulaşım ve rehberlik tek pakette şeffaf şekilde sunulur.")</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="why-card">
+                    <div class="why-ico">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1" /><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" /><line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" /></svg>
+                    </div>
+                    <h4>@(isEn ? "24/7 Support" : "7/24 Yanındayız")</h4>
+                    <p>@(isEn ? "Our dedicated support team is just a text away throughout your trip, ready for any unexpected needs." : "Seyahatin boyunca Türkçe destek ekibimiz tek mesaj uzağında. Herhangi bir aksilikte anında yanındayız.")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- GEZGİN YORUMLARI -->
+<section id="yorumlar" style="background:#fff">
+    <div class="container">
+        <div class="section-head mb-5">
+            <div class="eyebrow">@(isEn ? "Traveler Reviews" : "Gezgin yorumları")</div>
+            <h2>@(isEn ? "What Travelers Say" : "Gezginler Ne Diyor?")</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p>
+                        @(isEn
+                            ? "The Paris & Disneyland trip exceeded all my expectations. Our guide truly lived the city and took us to hidden spots regular tours miss."
+                            : "Paris & Disneyland turu beklentimin çok üzerindeydi. Rehberimiz gerçekten şehri yaşayan biriydi, sıradan turlarda göremeyeceğin köşelere götürdü.")
+                    </p>
+                    <div class="review-user">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80" alt="" />
+                        <div><b>Elif Yıldız</b><span>Paris & Disneyland</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p>
+                        @(isEn
+                            ? "Everything was organized down to the minute on the Rome & Tuscany route, but never felt rushed. The vineyard tour was unforgettable."
+                            : "Roma & Toskana rotasında her şey dakikası dakikasına planlanmıştı ama hiç sıkışık hissettirmedi. Toskana'daki bağ turu tatilin en güzel anıydı.")
+                    </p>
+                    <div class="review-user">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" alt="" />
+                        <div><b>Mert Kaya</b><span>Rome & Tuscany</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p>
+                        @(isEn
+                            ? "It was my first time traveling abroad, and I felt completely safe in the Swiss Alps tour. The support team responded immediately even at midnight."
+                            : "İlk kez yurt dışına çıkıyordum ve İsviçre Alpleri turunda kendimi hep güvende hissettim. Destek ekibi bir sorunumda gece yarısı bile anında yanıt verdi.")
+                    </p>
+                    <div class="review-user">
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&q=80" alt="" />
+                        <div><b>Zeynep Demir</b><span>Swiss Alps</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section id="iletisim">
+    <div class="container">
+        <div class="cta-wrap text-center">
+            <div class="eyebrow" style="color:#7fe3e3">@(isEn ? "You Are The Next Destination" : "Sıradaki durak sensin")</div>
+            <h2 class="mt-2">@(isEn ? "Your Next Adventure Is Just a Click Away" : "Bir Sonraki Maceran Bir Tık Uzağında")</h2>
+            <p>
+                @(isEn ? "Pick your dream destination, leave the rest to Travelio. Don't miss early booking perks for limited seats." : "Hayalindeki rotayı seç, gerisini Travelio'ya bırak. Sınırlı kontenjanlı turlar için erken rezervasyon avantajlarını kaçırma.")
+            </p>
+            <div class="mt-4 d-flex gap-3 justify-content-center flex-wrap">
+                <a href="#turlar" class="btn btn-teal">@(isEn ? "Explore Tours" : "Turları Keşfet")</a>
+                <a href="#" class="btn-ghost">@(isEn ? "Contact Us" : "Bize Ulaş")</a>
+            </div>
+        </div>
+    </div>
+</section>

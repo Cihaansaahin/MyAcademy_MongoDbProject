@@ -1,0 +1,440 @@
+﻿@model Travel.Web.DTOs.IdentityDtos.LoginDto
+@{
+    Layout = null;
+    var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
+}
+
+<!DOCTYPE html>
+<html lang="@(isEn ? "en" : "tr")">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(isEn ? "Sign In" : "Giriş Yap") — Travelio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+            :root {
+                --navy: #0e2a3b;
+                --navy-2: #12384c;
+                --teal: #0fa3a3;
+                --teal-dark: #0b7f80;
+                --cream: #f7f5f0;
+                --white: #ffffff;
+                --ink: #0e2a3b;
+                --muted: #5d7180;
+                --line: #e7e2d8;
+                --shadow-sm: 0 4px 18px rgba(14,42,59,.06);
+                --shadow-md: 0 18px 50px rgba(14,42,59,.12);
+                --r: 18px;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Inter', system-ui, sans-serif;
+                color: var(--ink);
+                background: var(--cream);
+                -webkit-font-smoothing: antialiased;
+                margin: 0;
+            }
+
+            h1, h2, h3, h4, .brand {
+                font-family: 'Sora', sans-serif;
+            }
+
+            .eyebrow {
+                font-family: 'Sora', sans-serif;
+                text-transform: uppercase;
+                letter-spacing: .22em;
+                font-size: .72rem;
+                font-weight: 700;
+                color: var(--teal-dark);
+            }
+
+            a {
+                text-decoration: none;
+            }
+
+            .brand {
+                font-weight: 800;
+                font-size: 1.5rem;
+                color: var(--navy);
+                letter-spacing: -.5px;
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+            }
+
+                .brand .dot {
+                    width: 11px;
+                    height: 11px;
+                    border-radius: 50%;
+                    background: var(--teal);
+                    display: inline-block;
+                    box-shadow: 0 0 0 4px rgba(15,163,163,.18);
+                }
+
+            .btn-teal {
+                background: var(--teal);
+                color: #fff;
+                border: none;
+                border-radius: 999px;
+                font-weight: 600;
+                padding: .85rem 1.6rem;
+                transition: .25s;
+                cursor: pointer;
+            }
+
+                .btn-teal:hover {
+                    background: var(--teal-dark);
+                    color: #fff;
+                    box-shadow: 0 12px 26px rgba(15,163,163,.32);
+                }
+
+            .auth {
+                min-height: 100vh;
+                display: flex;
+            }
+
+            .auth-row {
+                flex: 1;
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .auth-visual {
+                flex: 1 1 50%;
+                position: relative;
+                overflow: hidden;
+                color: #fff;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                min-height: 100vh;
+                padding: 2.4rem 2.8rem;
+                background: linear-gradient(160deg, rgba(14,42,59,.75) 0%, rgba(14,42,59,.45) 45%, rgba(11,127,128,.65) 100%), url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1400&q=80') center/cover;
+            }
+
+                .auth-visual .brand {
+                    color: #fff;
+                }
+
+                    .auth-visual .brand .dot {
+                        box-shadow: 0 0 0 4px rgba(255,255,255,.18);
+                    }
+
+            .visual-body {
+                max-width: 30rem;
+            }
+
+                .visual-body .eyebrow {
+                    color: #7fe3e3;
+                }
+
+                .visual-body h1 {
+                    font-weight: 800;
+                    font-size: clamp(1.9rem, 3vw, 2.7rem);
+                    line-height: 1.12;
+                    letter-spacing: -.5px;
+                    margin: .6rem 0 .8rem;
+                }
+
+                .visual-body p {
+                    color: rgba(255,255,255,.88);
+                    font-size: 1.02rem;
+                    line-height: 1.6;
+                    margin: 0 0 1.6rem;
+                }
+
+            .perks {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+                .perks li {
+                    display: flex;
+                    align-items: center;
+                    gap: .7rem;
+                    margin-bottom: .7rem;
+                    font-size: .96rem;
+                    color: rgba(255,255,255,.95);
+                }
+
+                .perks .pc {
+                    flex: none;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 9px;
+                    background: rgba(255,255,255,.16);
+                    border: 1px solid rgba(255,255,255,.25);
+                    display: grid;
+                    place-items: center;
+                    color: #7fe3e3;
+                }
+
+            .visual-foot {
+                font-size: .82rem;
+                color: rgba(255,255,255,.6);
+            }
+
+            .auth-form {
+                flex: 1 1 50%;
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            .form-top {
+                display: flex;
+                justify-content: flex-end;
+                padding: 1.6rem 2rem 0;
+            }
+
+            .back-link {
+                display: inline-flex;
+                align-items: center;
+                gap: .4rem;
+                color: var(--muted);
+                font-weight: 600;
+                font-size: .88rem;
+                transition: .2s;
+            }
+
+                .back-link:hover {
+                    color: var(--teal-dark);
+                }
+
+            .form-wrap {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+            }
+
+            .form-inner {
+                width: 100%;
+                max-width: 420px;
+            }
+
+                .form-inner h2 {
+                    font-weight: 800;
+                    font-size: 2rem;
+                    letter-spacing: -.5px;
+                    color: var(--navy);
+                    margin: 0 0 .4rem;
+                }
+
+                .form-inner .lead {
+                    color: var(--muted);
+                    font-size: .95rem;
+                    margin: 0 0 1.8rem;
+                }
+
+            .field {
+                margin-bottom: 1.2rem;
+            }
+
+                .field label {
+                    display: block;
+                    font-size: .82rem;
+                    font-weight: 600;
+                    color: var(--navy);
+                    margin-bottom: .35rem;
+                }
+
+            .input-wrap {
+                position: relative;
+            }
+
+            .field input {
+                width: 100%;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: .8rem 1rem;
+                font-size: .94rem;
+                color: var(--navy);
+                background: #fff;
+                outline: none;
+                transition: .2s;
+                font-family: inherit;
+            }
+
+                .field input:focus {
+                    border-color: var(--teal);
+                    box-shadow: 0 0 0 3px rgba(15,163,163,.12);
+                }
+
+            .toggle-eye {
+                position: absolute;
+                right: .7rem;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: var(--muted);
+                cursor: pointer;
+                padding: .3rem;
+                display: grid;
+                place-items: center;
+            }
+
+            .form-options {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin: .5rem 0 1.4rem;
+            }
+
+            .remember-me {
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+                font-size: .85rem;
+                color: var(--muted);
+                cursor: pointer;
+            }
+
+                .remember-me input {
+                    width: 17px;
+                    height: 17px;
+                    accent-color: var(--teal-dark);
+                    cursor: pointer;
+                }
+
+            .forgot-link {
+                font-size: .85rem;
+                color: var(--teal-dark);
+                font-weight: 600;
+            }
+
+            .btn-submit {
+                width: 100%;
+                justify-content: center;
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+            }
+
+            .register-line {
+                text-align: center;
+                margin-top: 1.5rem;
+                font-size: .9rem;
+                color: var(--muted);
+            }
+
+                .register-line a {
+                    color: var(--teal-dark);
+                    font-weight: 600;
+                }
+
+            @@media (max-width: 991px) {
+                .auth-visual {
+                    display: none;
+                }
+
+                .auth-form {
+                    flex: 1 1 100%;
+                }
+            }
+    </style>
+</head>
+<body>
+    <div class="auth">
+        <div class="auth-row">
+
+            <!-- SOL GÖRSEL ALAN -->
+            <div class="auth-visual">
+                <a class="brand" href="/"><span class="dot"></span>Travelio</a>
+                <div class="visual-body">
+                    <div class="eyebrow">@(isEn ? "Welcome Back" : "Tekrar Hoş Geldin")</div>
+                    <h1>@(isEn ? "Continue Exploring Where You Left Off" : "Kaldığın Yerden Keşfetmeye Devam Et")</h1>
+                    <p>
+                        @(isEn
+                            ? "Sign in to view saved tours, manage your bookings, and plan unforgettable journeys."
+                            : "Giriş yaparak kayıtlı turlarını görüntüle, rezervasyonlarını yönet ve yeni seyahat rotaları planla.")
+                    </p>
+                    <ul class="perks">
+                        <li><span class="pc">✓</span>@(isEn ? "Review your active bookings" : "Kayıtlı rezervasyonlarını incele")</li>
+                        <li><span class="pc">✓</span>@(isEn ? "See responses to your questions" : "Sorduğun soruların cevaplarını gör")</li>
+                        <li><span class="pc">✓</span>@(isEn ? "Get personalized itinerary recommendations" : "Kişiselleştirilmiş rota önerileri al")</li>
+                    </ul>
+                </div>
+                <div class="visual-foot">© 2026 Travelio · @(isEn ? "Get ready to explore the world." : "Dünyayı keşfetmeye hazır ol.")</div>
+            </div>
+
+            <!-- SAĞ FORM ALANI -->
+            <div class="auth-form">
+                <div class="form-top">
+                    <a class="back-link" href="/">
+                        ← @(isEn ? "Back to Home" : "Ana Sayfaya Dön")
+                    </a>
+                </div>
+
+                <div class="form-wrap">
+                    <div class="form-inner">
+                        <div class="eyebrow">@(isEn ? "Access Your Account" : "Hesabına Eriş")</div>
+                        <h2>@(isEn ? "Sign In" : "Giriş Yap")</h2>
+                        <p class="lead">
+                            @(isEn
+                                ? "Sign in with your email and password to manage your trips."
+                                : "E-posta ve şifrenle giriş yaparak seyahatini yönet.")
+                        </p>
+
+                        <form method="post" asp-action="Login" asp-controller="Account">
+                            <div class="field">
+                                <label for="email">@(isEn ? "Email Address" : "E-posta")</label>
+                                <div class="input-wrap">
+                                    <input type="email" asp-for="Email" id="email" placeholder="@(isEn ? "name@example.com" : "ornek@email.com")" required />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger" style="font-size: .78rem;"></span>
+                            </div>
+
+                            <div class="field">
+                                <label for="password">@(isEn ? "Password" : "Şifre")</label>
+                                <div class="input-wrap">
+                                    <input type="password" asp-for="Password" id="password" placeholder="@(isEn ? "Enter your password" : "Şifrenizi girin")" required />
+                                    <button type="button" class="toggle-eye" onclick="togglePass('password')">👁️</button>
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger" style="font-size: .78rem;"></span>
+                            </div>
+
+                            <div class="form-options">
+                                <label class="remember-me">
+                                    <input type="checkbox" asp-for="RememberMe" />
+                                    <span>@(isEn ? "Remember Me" : "Beni Hatırla")</span>
+                                </label>
+                                <a href="#" class="forgot-link" onclick="alert('@(isEn ? "Password reset link sent to your email address." : "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.")')">
+                                    @(isEn ? "Forgot Password?" : "Şifremi Unuttum")
+                                </a>
+                            </div>
+
+                            <button type="submit" class="btn-teal btn-submit">
+                                @(isEn ? "Sign In" : "Giriş Yap")
+                            </button>
+
+                            <div class="register-line">
+                                @(isEn ? "Don't have an account yet?" : "Henüz hesabın yok mu?")
+                                <a href="/Account/Register">@(isEn ? "Sign Up Now" : "Hemen Kayıt Ol")</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+            function togglePass(id) {
+                const inp = document.getElementById(id);
+                inp.type = inp.type === "password" ? "text" : "password";
+            }
+    </script>
+</body>
+</html>

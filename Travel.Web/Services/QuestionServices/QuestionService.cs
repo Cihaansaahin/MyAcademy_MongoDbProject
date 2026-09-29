@@ -73,7 +73,7 @@ namespace Travel.Web.Services.QuestionServices
                 .Set(x => x.AnswerText, answerQuestionDto.AnswerText)
                 .Set(x => x.AnsweredDate, DateTime.UtcNow);
 
-            var result = await _questionCollection.UpdateOneAsync(x => x.Id == answerQuestionDto.Id, update);
+            var result = await _questionCollection.UpdateOneAsync(x => x.Id == answerQuestionDto.QuestionId, update);
             return result.ModifiedCount > 0;
         }
 

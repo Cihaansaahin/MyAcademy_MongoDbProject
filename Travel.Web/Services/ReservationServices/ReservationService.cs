@@ -63,8 +63,14 @@ namespace Travel.Web.Services.ReservationServices
             var update = Builders<Reservation>.Update.Set(x => x.Status, ReservationStatus.Cancelled);
             await _reservationCollection.UpdateOneAsync(x => x.Id == reservationId, update);
 
-            // Kontenjanı iade et
-            await _tourService.IncreaseCapacityAsync(reservation.TourId, reservation.TourDateId, reservation.TotalParticipants);
+            // TourId ve TourDateId geçerli ve 24 karakterlik bir ObjectId mi kontrol et
+            if (!string.IsNullOrWhiteSpace(reservation.TourId) &&
+                !string.IsNullOrWhiteSpace(reservation.TourDateId) &&
+                MongoDB.Bson.ObjectId.TryParse(reservation.TourDateId, out _))
+            {
+                await _tourService.IncreaseCapacityAsync(reservation.TourId, reservation.TourDateId, reservation.TotalParticipants);
+            }
+
             return true;
         }
 
@@ -94,6 +100,18 @@ namespace Travel.Web.Services.ReservationServices
             var filter = Builders<Reservation>.Filter.Eq(x => x.UserId, userId);
             var list = await _reservationCollection.Find(filter).ToListAsync();
             return _mapper.Map<List<ResultReservationDto>>(list);
+        }
+
+        public async Task CreateAsync(CreateReservationDto dto)
+        {
+            // AutoMapper kullanıyorsan:
+            var reservation = _mapper.Map<Reservation>(dto);
+
+            // Eğer entity alanlarında eksik varsa tamamlayalım
+            reservation.ReservationDate = DateTime.UtcNow;
+            reservation.Status = ReservationStatus.Pending; // veya ReservationStatus.Approved
+
+            await _reservationCollection.InsertOneAsync(reservation);
         }
     }
 }

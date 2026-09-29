@@ -1,0 +1,1598 @@
+﻿@model Travel.Web.DTOs.TourDtos.ResultTourDto
+@{
+    var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
+    var tourTitle = Model.Title?.Value ?? (isEn ? Model.Title?.En : Model.Title?.Tr) ?? (isEn ? "Untitled Tour" : "İsimsiz Tur");
+    ViewData["Title"] = tourTitle;
+    var comments = ViewBag.Comments as List<Travel.Web.DTOs.CommentDtos.ResultCommentDto>;
+    var questions = ViewBag.Questions as List<Travel.Web.DTOs.QuestionDtos.ResultQuestionDto>;
+    var similarTours = ViewBag.SimilarTours as List<Travel.Web.DTOs.TourDtos.ResultTourDto>;
+
+    // Galeri görselleri ayrıştırma
+    var mainImage = !string.IsNullOrEmpty(Model.CoverImageUrl)
+        ? Model.CoverImageUrl
+        : "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1000&q=80";
+    var galleryList = Model.GalleryImageUrls ?? new List<string>();
+}
+
+@section Styles {
+    <style>
+        /* BREADCRUMB */
+        .crumb {
+            padding: 1.6rem 0 .2rem;
+            font-size: .85rem;
+            color: var(--muted)
+        }
+
+            .crumb a {
+                color: var(--muted);
+                text-decoration: none
+            }
+
+                .crumb a:hover {
+                    color: var(--teal-dark)
+                }
+
+            .crumb .cur {
+                color: var(--navy);
+                font-weight: 600
+            }
+
+        /* DETAIL HEADER */
+        .detail-head {
+            padding: 1rem 0 1.6rem
+        }
+
+        .cat-line {
+            font-size: .82rem;
+            color: var(--teal-dark);
+            font-weight: 600;
+            letter-spacing: .02em
+        }
+
+        .detail-head h1 {
+            font-weight: 800;
+            font-size: clamp(1.9rem,3.5vw,2.8rem);
+            letter-spacing: -.6px;
+            color: var(--navy);
+            margin: .4rem 0 .7rem
+        }
+
+        .head-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .6rem 1.3rem;
+            color: var(--muted);
+            font-size: .92rem
+        }
+
+            .head-meta .rating {
+                color: var(--navy);
+                font-weight: 600
+            }
+
+            .head-meta .star {
+                color: #f4a92c
+            }
+
+            .head-meta .dot-sep {
+                width: 4px;
+                height: 4px;
+                border-radius: 50%;
+                background: var(--line);
+                display: inline-block
+            }
+
+        .head-actions {
+            display: flex;
+            gap: .6rem
+        }
+
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 999px;
+            padding: .6rem 1.1rem;
+            font-weight: 600;
+            color: var(--navy);
+            font-size: .9rem;
+            transition: .2s;
+            cursor: pointer
+        }
+
+            .icon-btn:hover {
+                box-shadow: var(--shadow-sm);
+                color: var(--teal-dark);
+                border-color: var(--teal)
+            }
+
+            .icon-btn.on {
+                color: #e0575b;
+                border-color: #f0c5c7
+            }
+
+                .icon-btn.on svg {
+                    fill: currentColor
+                }
+
+        /* GALLERY */
+        .gallery {
+            padding-bottom: 2.4rem
+        }
+
+            .gallery .row {
+                --bs-gutter-x: .9rem;
+                --bs-gutter-y: .9rem
+            }
+
+        .g-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
+            display: block;
+            cursor: pointer;
+            transition: .35s
+        }
+
+        .g-main {
+            height: 434px
+        }
+
+        .g-small {
+            height: 209px
+        }
+
+        .g-img:hover {
+            filter: brightness(.94)
+        }
+
+        .g-wrap {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            height: 100%
+        }
+
+        .g-more {
+            position: absolute;
+            right: .7rem;
+            bottom: .7rem;
+            background: rgba(14,42,59,.82);
+            color: #fff;
+            font-size: .8rem;
+            font-weight: 600;
+            padding: .4rem .8rem;
+            border-radius: 999px
+        }
+
+        /* LAYOUT */
+        .body-section {
+            padding-bottom: 4rem
+        }
+
+        .content-block {
+            background: #fff;
+            border-radius: var(--r);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(231,226,216,.7);
+            padding: 1.9rem 1.9rem;
+            margin-bottom: 1.5rem
+        }
+
+            .content-block h2 {
+                font-family: 'Sora';
+                font-weight: 700;
+                font-size: 1.35rem;
+                color: var(--navy);
+                margin-bottom: 1rem
+            }
+
+            .content-block p {
+                color: var(--muted);
+                line-height: 1.75;
+                margin-bottom: 1rem
+            }
+
+                .content-block p:last-child {
+                    margin-bottom: 0
+                }
+
+        /* HIGHLIGHTS */
+        .hl-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .9rem
+        }
+
+            .hl-list li {
+                display: flex;
+                align-items: flex-start;
+                gap: .7rem;
+                color: var(--navy);
+                font-size: .95rem;
+                font-weight: 500
+            }
+
+        .hl-ico {
+            flex: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            background: rgba(15,163,163,.12);
+            color: var(--teal-dark);
+            display: grid;
+            place-items: center;
+            margin-top: 1px
+        }
+
+        /* ITINERARY */
+        .itin-item {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            margin-bottom: .8rem;
+            overflow: hidden;
+            background: #fff;
+            transition: .25s
+        }
+
+            .itin-item.open {
+                box-shadow: var(--shadow-sm);
+                border-color: rgba(15,163,163,.4)
+            }
+
+        .itin-head {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.05rem 1.2rem;
+            cursor: pointer;
+            user-select: none
+        }
+
+        .day-tag {
+            flex: none;
+            font-family: 'Sora';
+            font-weight: 700;
+            font-size: .74rem;
+            letter-spacing: .03em;
+            color: var(--teal-dark);
+            background: rgba(15,163,163,.1);
+            padding: .35rem .7rem;
+            border-radius: 999px;
+            white-space: nowrap
+        }
+
+        .itin-title {
+            font-family: 'Sora';
+            font-weight: 600;
+            color: var(--navy);
+            font-size: 1rem;
+            flex: 1
+        }
+
+        .itin-toggle {
+            flex: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--cream);
+            display: grid;
+            place-items: center;
+            color: var(--navy);
+            transition: .3s
+        }
+
+        .itin-item.open .itin-toggle {
+            background: var(--navy);
+            color: #fff;
+            transform: rotate(180deg)
+        }
+
+        .itin-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height .35s ease
+        }
+
+        .itin-inner {
+            padding: 0 1.2rem 1.2rem 1.2rem;
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: .94rem
+        }
+
+        .itin-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-top: .6rem
+        }
+
+            .itin-tags span {
+                display: inline-flex;
+                align-items: center;
+                gap: .35rem;
+                font-size: .78rem;
+                color: var(--navy);
+                background: var(--cream);
+                border: 1px solid var(--line);
+                padding: .28rem .7rem;
+                border-radius: 999px
+            }
+
+        /* INCLUDES */
+        .inc-list {
+            list-style: none;
+            margin: 0;
+            padding: 0
+        }
+
+            .inc-list li {
+                display: flex;
+                align-items: flex-start;
+                gap: .65rem;
+                color: var(--navy);
+                font-size: .94rem;
+                padding: .42rem 0
+            }
+
+        .inc-yes {
+            color: var(--teal-dark);
+            flex: none;
+            margin-top: 1px
+        }
+
+        .inc-no {
+            color: #c26060;
+            flex: none;
+            margin-top: 1px
+        }
+
+        /* INFO GRID */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.2rem
+        }
+
+        .info-cell {
+            padding: .2rem 0
+        }
+
+            .info-cell .k {
+                font-size: .76rem;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                color: var(--muted);
+                font-weight: 600;
+                margin-bottom: .2rem
+            }
+
+            .info-cell .v {
+                font-family: 'Sora';
+                font-weight: 600;
+                color: var(--navy);
+                font-size: .98rem
+            }
+
+        .meet-note {
+            background: var(--cream);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            margin-top: 1.2rem
+        }
+
+            .meet-note b {
+                color: var(--navy);
+                font-family: 'Sora'
+            }
+
+            .meet-note p {
+                margin: .3rem 0 0;
+                font-size: .9rem
+            }
+
+        /* BOOKING CARD */
+        .book-card {
+            background: #fff;
+            border-radius: var(--r);
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(231,226,216,.7);
+            padding: 1.6rem 1.5rem
+        }
+
+        .book-sticky {
+            position: sticky;
+            top: 90px
+        }
+
+        .price-top small {
+            color: var(--muted);
+            font-size: .82rem
+        }
+
+        .price-top .big {
+            font-family: 'Sora';
+            font-weight: 800;
+            font-size: 2rem;
+            color: var(--navy);
+            line-height: 1.1
+        }
+
+            .price-top .big span {
+                font-size: 1rem;
+                color: var(--muted);
+                font-weight: 600
+            }
+
+        .price-note {
+            font-size: .78rem;
+            color: var(--muted);
+            margin-top: .2rem
+        }
+
+        .book-label {
+            font-family: 'Sora';
+            font-weight: 600;
+            font-size: .8rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--navy);
+            margin: 1.3rem 0 .7rem
+        }
+
+        .date-opt {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: .7rem .9rem;
+            margin-bottom: .55rem;
+            cursor: pointer;
+            transition: .2s
+        }
+
+            .date-opt:hover {
+                border-color: var(--teal)
+            }
+
+            .date-opt.sel {
+                border-color: var(--teal);
+                background: rgba(15,163,163,.06);
+                box-shadow: 0 0 0 2px rgba(15,163,163,.12)
+            }
+
+            .date-opt .d {
+                font-weight: 600;
+                color: var(--navy);
+                font-size: .92rem
+            }
+
+            .date-opt .left {
+                font-size: .72rem;
+                color: #c26a45;
+                font-weight: 600
+            }
+
+            .date-opt input {
+                display: none
+            }
+
+        .counter-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .55rem 0
+        }
+
+            .counter-row .cl b {
+                display: block;
+                color: var(--navy);
+                font-size: .94rem;
+                font-family: 'Sora'
+            }
+
+            .counter-row .cl span {
+                font-size: .78rem;
+                color: var(--muted)
+            }
+
+        .counter {
+            display: flex;
+            align-items: center;
+            gap: .8rem
+        }
+
+            .counter button {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                border: 1px solid var(--line);
+                background: #fff;
+                color: var(--navy);
+                font-size: 1.1rem;
+                font-weight: 600;
+                display: grid;
+                place-items: center;
+                cursor: pointer;
+                transition: .2s;
+                line-height: 1
+            }
+
+                .counter button:hover {
+                    border-color: var(--teal);
+                    color: var(--teal-dark)
+                }
+
+                .counter button:disabled {
+                    opacity: .4;
+                    cursor: not-allowed
+                }
+
+            .counter .val {
+                min-width: 20px;
+                text-align: center;
+                font-weight: 700;
+                color: var(--navy)
+            }
+
+        .summary {
+            border-top: 1px solid var(--line);
+            margin-top: 1rem;
+            padding-top: 1rem
+        }
+
+            .summary .row-line {
+                display: flex;
+                justify-content: space-between;
+                font-size: .9rem;
+                color: var(--muted);
+                margin-bottom: .45rem
+            }
+
+                .summary .row-line b {
+                    color: var(--navy);
+                    font-weight: 600
+                }
+
+            .summary .total {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-top: 1px solid var(--line);
+                margin-top: .6rem;
+                padding-top: .8rem
+            }
+
+                .summary .total span {
+                    font-family: 'Sora';
+                    font-weight: 600;
+                    color: var(--navy)
+                }
+
+                .summary .total b {
+                    font-family: 'Sora';
+                    font-weight: 800;
+                    font-size: 1.5rem;
+                    color: var(--navy)
+                }
+
+        .book-card .btn-teal {
+            width: 100%;
+            margin-top: 1.1rem
+        }
+
+        .trust {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-top: .9rem;
+            font-size: .78rem;
+            color: var(--muted)
+        }
+
+            .trust span {
+                display: inline-flex;
+                align-items: center;
+                gap: .35rem
+            }
+
+        /* REVIEWS */
+        .rev-summary {
+            display: flex;
+            gap: 2.4rem;
+            flex-wrap: wrap;
+            align-items: center
+        }
+
+        .rev-score {
+            text-align: center
+        }
+
+            .rev-score .num {
+                font-family: 'Sora';
+                font-weight: 800;
+                font-size: 3rem;
+                color: var(--navy);
+                line-height: 1
+            }
+
+            .rev-score .stars {
+                color: #f4a92c;
+                margin: .3rem 0
+            }
+
+            .rev-score .cnt {
+                font-size: .82rem;
+                color: var(--muted)
+            }
+
+        .rev-bars {
+            flex: 1;
+            min-width: 220px
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            margin-bottom: .5rem
+        }
+
+            .bar-row .lab {
+                font-size: .82rem;
+                color: var(--muted);
+                width: 52px
+            }
+
+        .bar-track {
+            flex: 1;
+            height: 8px;
+            background: var(--cream);
+            border-radius: 999px;
+            overflow: hidden
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--teal);
+            border-radius: 999px
+        }
+
+        .bar-row .pct {
+            font-size: .8rem;
+            color: var(--muted);
+            width: 36px;
+            text-align: right
+        }
+
+        .review-card {
+            border-top: 1px solid var(--line);
+            padding: 1.3rem 0
+        }
+
+            .review-card:first-of-type {
+                border-top: none
+            }
+
+        .rev-user {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+            margin-bottom: .5rem
+        }
+
+            .rev-user b {
+                display: block;
+                color: var(--navy);
+                font-size: .95rem;
+                font-family: 'Sora'
+            }
+
+            .rev-user .sub {
+                color: var(--muted);
+                font-size: .8rem
+            }
+
+        .rev-stars {
+            color: #f4a92c;
+            font-size: .85rem;
+            margin-left: auto
+        }
+
+        .review-card p {
+            color: var(--navy);
+            line-height: 1.65;
+            margin: 0;
+            font-size: .95rem
+        }
+
+        .write-box {
+            background: var(--cream);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 1.4rem 1.5rem;
+            margin-top: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap
+        }
+
+            .write-box b {
+                font-family: 'Sora';
+                color: var(--navy);
+                font-size: 1.05rem
+            }
+
+            .write-box p {
+                margin: .2rem 0 0;
+                color: var(--muted);
+                font-size: .88rem
+            }
+
+        /* Q&A */
+        .qa-item {
+            border-top: 1px solid var(--line);
+            padding: 1.2rem 0
+        }
+
+            .qa-item:first-of-type {
+                border-top: none
+            }
+
+        .qa-q {
+            display: flex;
+            align-items: flex-start;
+            gap: .7rem;
+            margin-bottom: .7rem
+        }
+
+        .qa-avatar {
+            flex: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--navy);
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-size: .82rem;
+            font-weight: 700;
+            font-family: 'Sora'
+        }
+
+        .qa-q .who {
+            font-family: 'Sora';
+            font-weight: 600;
+            color: var(--navy);
+            font-size: .92rem
+        }
+
+        .qa-q .txt {
+            color: var(--navy);
+            font-size: .94rem;
+            margin-top: .1rem
+        }
+
+        .qa-a {
+            display: flex;
+            gap: .7rem;
+            margin-left: 2.1rem;
+            background: rgba(15,163,163,.06);
+            border-radius: 12px;
+            padding: .8rem 1rem
+        }
+
+            .qa-a .brand-mini {
+                flex: none;
+                font-family: 'Sora';
+                font-weight: 700;
+                color: var(--teal-dark);
+                font-size: .82rem;
+                white-space: nowrap
+            }
+
+            .qa-a .txt {
+                color: var(--muted);
+                font-size: .9rem;
+                line-height: 1.6
+            }
+
+        .ask-box {
+            margin-top: 1.4rem
+        }
+
+            .ask-box textarea {
+                width: 100%;
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                padding: .9rem 1rem;
+                font-size: .92rem;
+                color: var(--navy);
+                outline: none;
+                background: var(--cream);
+                resize: vertical;
+                min-height: 90px
+            }
+
+                .ask-box textarea:focus {
+                    border-color: var(--teal);
+                    background: #fff;
+                    box-shadow: 0 0 0 3px rgba(15,163,163,.12)
+                }
+
+        /* SIMILAR TOURS */
+        .tour-card {
+            background: #fff;
+            border-radius: var(--r);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: .3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(231,226,216,.7);
+        }
+
+            .tour-card:hover {
+                transform: translateY(-6px);
+                box-shadow: var(--shadow-md)
+            }
+
+        .tour-media {
+            position: relative;
+            height: 200px;
+            overflow: hidden
+        }
+
+            .tour-media img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: .5s
+            }
+
+        .tour-card:hover .tour-media img {
+            transform: scale(1.07)
+        }
+
+        .tour-badge {
+            position: absolute;
+            top: .85rem;
+            left: .85rem;
+            background: rgba(255,255,255,.94);
+            color: var(--navy);
+            font-weight: 600;
+            font-size: .75rem;
+            padding: .32rem .7rem;
+            border-radius: 999px;
+        }
+
+        .tour-body {
+            padding: 1.15rem 1.25rem 1.3rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1
+        }
+
+        .tour-country {
+            font-size: .78rem;
+            color: var(--teal-dark);
+            font-weight: 600
+        }
+
+        .tour-title {
+            font-family: 'Sora';
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin: .15rem 0 .5rem;
+            color: var(--navy)
+        }
+
+        .tour-meta {
+            display: flex;
+            align-items: center;
+            gap: .9rem;
+            font-size: .84rem;
+            color: var(--muted);
+            margin-bottom: .9rem
+        }
+
+            .tour-meta .star {
+                color: #f4a92c
+            }
+
+        .tour-foot {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: .5rem;
+            border-top: 1px solid var(--line)
+        }
+
+        .price small {
+            color: var(--muted);
+            font-size: .72rem;
+            display: block
+        }
+
+        .price b {
+            font-family: 'Sora';
+            font-size: 1.24rem;
+            color: var(--navy)
+        }
+
+            .price b span {
+                font-size: .85rem;
+                font-weight: 600;
+                color: var(--muted)
+            }
+
+        .btn-incele {
+            background: var(--navy);
+            color: #fff;
+            border-radius: 999px;
+            font-size: .85rem;
+            font-weight: 600;
+            padding: .55rem 1.1rem;
+            border: none;
+            transition: .25s;
+            text-decoration: none
+        }
+
+            .btn-incele:hover {
+                background: var(--teal-dark);
+                color: #fff
+            }
+
+        .modal-content {
+            border-radius: var(--r);
+            border: none
+        }
+
+        .star-pick {
+            font-size: 1.7rem;
+            color: #d8cfc0;
+            cursor: pointer;
+            transition: .15s
+        }
+
+            .star-pick.on {
+                color: #f4a92c
+            }
+
+        @@media(max-width:991px) {
+            .book-sticky {
+                position: static;
+                margin-top: 1.5rem
+            }
+
+            .g-main {
+                height: 280px
+            }
+
+            .g-small {
+                height: 150px
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .hl-list {
+                grid-template-columns: 1fr
+            }
+        }
+
+        @@media(max-width:575px) {
+            .info-grid {
+                grid-template-columns: 1fr
+            }
+
+            .rev-summary {
+                gap: 1.4rem
+            }
+        }
+    </style>
+}
+
+<div class="container">
+    <!-- BREADCRUMB -->
+    <div class="crumb">
+        <a href="/">@(isEn ? "Home" : "Ana Sayfa")</a> / <a href="/Tour/Index">@(isEn ? "Tours" : "Turlar")</a> / <span class="cur">@tourTitle</span>
+    </div>
+
+    <!-- DETAIL HEADER -->
+    <div class="detail-head">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <div class="cat-line">@Model.Country · @Model.City</div>
+                <h1>@tourTitle</h1>
+                <div class="head-meta">
+                    <span class="rating"><span class="star">★</span> 4.8</span>
+                    <span>@(comments?.Count ?? 0) @(isEn ? "reviews" : "değerlendirme")</span>
+                    <span class="dot-sep"></span>
+                    <span>@Model.DurationDays @(isEn ? "Days" : "Gün") / @(Model.DurationDays > 1 ? Model.DurationDays - 1 : 1) @(isEn ? "Nights" : "Gece")</span>
+                    <span class="dot-sep"></span>
+                    <span>@Model.Country · @Model.City</span>
+                </div>
+            </div>
+            <div class="head-actions">
+                <button class="icon-btn" id="favBtn" onclick="this.classList.toggle('on')">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg>
+                    @(isEn ? "Save" : "Kaydet")
+                </button>
+                <button class="icon-btn" onclick="sharePage()">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.6" y1="13.5" x2="15.4" y2="17.5" /><line x1="15.4" y1="6.5" x2="8.6" y2="10.5" /></svg>
+                    @(isEn ? "Share" : "Paylaş")
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="gallery">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="g-wrap">
+                    <img class="g-img g-main" src="@mainImage" alt="@tourTitle" />
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="g-wrap">
+                            <img class="g-img g-small" src="@(galleryList.Count > 0 ? galleryList[0] : "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=600&q=80")" alt="@tourTitle" />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="g-wrap">
+                            <img class="g-img g-small" src="@(galleryList.Count > 1 ? galleryList[1] : "https://images.unsplash.com/photo-1541370976299-4d24ebbc9077?auto=format&fit=crop&w=600&q=80")" alt="@tourTitle" />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="g-wrap">
+                            <img class="g-img g-small" src="@(galleryList.Count > 2 ? galleryList[2] : "https://images.unsplash.com/photo-1522918448933-c7bc4a67dfc1?auto=format&fit=crop&w=600&q=80")" alt="@tourTitle" />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="g-wrap">
+                            <img class="g-img g-small" src="@(galleryList.Count > 3 ? galleryList[3] : "https://images.unsplash.com/photo-1531572753322-ad063cecc140?auto=format&fit=crop&w=600&q=80")" alt="@tourTitle" />
+                            <span class="g-more">+@(galleryList.Count > 4 ? galleryList.Count - 4 : 4) @(isEn ? "photos" : "fotoğraf")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BODY -->
+<div class="container body-section">
+    <div class="row g-4">
+        <!-- LEFT -->
+        <div class="col-lg-8">
+
+            <!-- ABOUT -->
+            <div class="content-block">
+                <h2>@(isEn ? "About the Tour" : "Tur Hakkında")</h2>
+                <p>@(Model.Description?.Value ?? (isEn ? Model.Description?.En : Model.Description?.Tr) ?? Model.Description?.ToString())</p>
+            </div>
+
+            <!-- HIGHLIGHTS -->
+            @if (Model.Features != null && Model.Features.Any())
+            {
+                <div class="content-block">
+                    <h2>@(isEn ? "Tour Highlights" : "Turun Öne Çıkanları")</h2>
+                    <ul class="hl-list">
+                        @foreach (var feat in Model.Features)
+                        {
+                            <li>
+                                <span class="hl-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
+                                @feat
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <!-- ITINERARY -->
+            @if (Model.Itinerary != null && Model.Itinerary.Any())
+            {
+                <div class="content-block">
+                    <h2>@(isEn ? "Day by Day Itinerary" : "Gün Gün Tur Programı")</h2>
+                    <div id="itinerary">
+                        @{
+                            var idx = 0;
+                        }
+                        @foreach (var day in Model.Itinerary.OrderBy(x => x.DayNumber))
+                        {
+                            <div class="itin-item @(idx == 0 ? "open" : "")">
+                                <div class="itin-head" onclick="toggleDay(this)">
+                                    <span class="day-tag">@(isEn ? $"Day {day.DayNumber}" : $"{day.DayNumber}. Gün")</span>
+                                    <span class="itin-title">@(day.Title?.Value ?? (isEn ? day.Title?.En : day.Title?.Tr) ?? day.Title?.ToString())</span>
+                                    <span class="itin-toggle"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg></span>
+                                </div>
+                                <div class="itin-body" style="@(idx == 0 ? "max-height: 600px;" : "")">
+                                    <div class="itin-inner">
+                                        <p style="margin-bottom:.4rem">@(day.Description?.Value ?? (isEn ? day.Description?.En : day.Description?.Tr) ?? day.Description?.ToString())</p>
+                                        <div class="itin-tags">
+                                            <span>🏨 @(isEn ? "Hotel Stay" : "Konaklama")</span>
+                                            <span>🚌 @(isEn ? "Transfer Included" : "Transfer Dahil")</span>
+                                            <span>🍽️ @(isEn ? "Breakfast" : "Kahvaltı")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            idx++;
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- INCLUDES -->
+            <div class="content-block">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h2>@(isEn ? "Included in Price" : "Fiyata Dahil Olanlar")</h2>
+                        <ul class="inc-list">
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? "Round-trip flight tickets" : "Gidiş-dönüş uçak bileti")</li>
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? $"{Model.DurationDays - 1} nights hotel accommodation" : $"{Model.DurationDays - 1} gece otel konaklaması")</li>
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? "Daily breakfasts" : "Kahvaltılar")</li>
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? "Airport transfers" : "Havalimanı transferleri")</li>
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? "Intercity transportation" : "Şehirler arası ulaşım")</li>
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? "Professional guiding service" : "Profesyonel rehberlik hizmeti")</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h2>@(isEn ? "Not Included in Price" : "Fiyata Dahil Olmayanlar")</h2>
+                        <ul class="inc-list">
+                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@(isEn ? "Museum & site entrance tickets" : "Müze ve ören yeri giriş ücretleri")</li>
+                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@(isEn ? "Lunch and dinners" : "Öğle ve akşam yemekleri")</li>
+                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@(isEn ? "Personal expenses" : "Kişisel harcamalar")</li>
+                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@(isEn ? "Travel health insurance" : "Seyahat sağlık sigortası")</li>
+                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@(isEn ? "Optional activities" : "Opsiyonel etkinlikler")</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INFO -->
+            <div class="content-block">
+                <h2>@(isEn ? "Tour Information" : "Tur Bilgileri")</h2>
+                <div class="info-grid">
+                    <div class="info-cell"><div class="k">@(isEn ? "Duration" : "Tur Süresi")</div><div class="v">@Model.DurationDays @(isEn ? "Days" : "Gün") / @(Model.DurationDays - 1) @(isEn ? "Nights" : "Gece")</div></div>
+                    <div class="info-cell"><div class="k">@(isEn ? "Departure City" : "Başlangıç Şehri")</div><div class="v">İstanbul</div></div>
+                    <div class="info-cell"><div class="k">@(isEn ? "Transport" : "Ulaşım")</div><div class="v">@(isEn ? "Flight + Bus" : "Uçak + Otobüs")</div></div>
+                    <div class="info-cell"><div class="k">@(isEn ? "Accommodation" : "Konaklama")</div><div class="v">@(isEn ? "4-Star Hotels" : "4 Yıldızlı Oteller")</div></div>
+                    <div class="info-cell"><div class="k">@(isEn ? "Guide Language" : "Rehber Dili")</div><div class="v">@(isEn ? "English / Turkish" : "Türkçe")</div></div>
+                    <div class="info-cell"><div class="k">@(isEn ? "Group Size" : "Grup Büyüklüğü")</div><div class="v">@(isEn ? "Max. 28 People" : "Maks. 28 Kişi")</div></div>
+                </div>
+                <div class="meet-note">
+                    <b>@(isEn ? "Meeting Point" : "Buluşma Noktası")</b>
+                    <p>@(isEn ? "Istanbul Airport International Terminal. Meeting with our guide 3 hours before departure." : "İstanbul Havalimanı Dış Hatlar Terminali. Tur başlangıcından 3 saat önce rehberimizle buluşma yapılır.")</p>
+                </div>
+            </div>
+
+            <!-- REVIEWS -->
+            <div class="content-block">
+                <h2>@(isEn ? "Guest Reviews" : "Misafir Yorumları")</h2>
+                <div class="rev-summary mb-3">
+                    <div class="rev-score">
+                        <div class="num">4.8</div>
+                        <div class="stars">★★★★★</div>
+                        <div class="cnt">@(comments?.Count ?? 0) @(isEn ? "reviews" : "değerlendirme")</div>
+                    </div>
+                    <div class="rev-bars">
+                        <div class="bar-row"><span class="lab">5 @(isEn ? "star" : "yıldız")</span><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div><span class="pct">%82</span></div>
+                        <div class="bar-row"><span class="lab">4 @(isEn ? "star" : "yıldız")</span><div class="bar-track"><div class="bar-fill" style="width:13%"></div></div><span class="pct">%13</span></div>
+                        <div class="bar-row"><span class="lab">3 @(isEn ? "star" : "yıldız")</span><div class="bar-track"><div class="bar-fill" style="width:4%"></div></div><span class="pct">%4</span></div>
+                        <div class="bar-row"><span class="lab">2 @(isEn ? "star" : "yıldız")</span><div class="bar-track"><div class="bar-fill" style="width:1%"></div></div><span class="pct">%1</span></div>
+                        <div class="bar-row"><span class="lab">1 @(isEn ? "star" : "yıldız")</span><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><span class="pct">%0</span></div>
+                    </div>
+                </div>
+
+                @if (comments != null && comments.Any())
+                {
+                    foreach (var c in comments)
+                    {
+                        <div class="review-card">
+                            <div class="rev-user">
+                                <div>
+                                    <b>@c.UserName</b>
+                                    <span class="sub">@c.CreatedDate.ToString("dd.MM.yyyy")</span>
+                                </div>
+                                <span class="rev-stars">@string.Concat(Enumerable.Repeat("★", c.Rating))</span>
+                            </div>
+                            <p>@c.Content</p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">@(isEn ? "No approved reviews for this tour yet." : "Bu tur için henüz onaylanmış bir yorum bulunmuyor.")</p>
+                }
+
+                <div class="write-box">
+                    <div>
+                        <b>@(isEn ? "Did you take this tour?" : "Bu Tura Katıldın mı?")</b>
+                        <p>@(isEn ? "Share your experience with other travelers." : "Deneyimini diğer gezginlerle paylaş.")</p>
+                    </div>
+                    <button class="btn-teal" type="button" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                        @(isEn ? "Write a Review" : "Yorum Yaz")
+                    </button>
+                </div>
+            </div>
+
+            <!-- Q&A -->
+            <div class="content-block">
+                <h2>@(isEn ? "Tour Questions" : "Tur Hakkında Sorular")</h2>
+                @if (questions != null && questions.Any())
+                {
+                    foreach (var q in questions)
+                    {
+                        <div class="qa-item">
+                            <div class="qa-q">
+                                <span class="qa-avatar">@q.UserName.Substring(0, Math.Min(2, q.UserName.Length)).ToUpper()</span>
+                                <div>
+                                    <div class="who">@q.UserName</div>
+                                    <div class="txt">@q.QuestionText</div>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(q.AnswerText))
+                            {
+                                <div class="qa-a">
+                                    <span class="brand-mini">Travelio</span>
+                                    <span class="txt">@q.AnswerText</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">@(isEn ? "No questions submitted for this tour yet." : "Bu tur hakkında henüz soru iletilmemiş.")</p>
+                }
+
+                <div class="ask-box">
+                    <div class="book-label" style="margin-top:0">@(isEn ? "Have a question about this tour?" : "Bu tur hakkında merak ettiğin bir şey mi var?")</div>
+                    <textarea id="askInput" placeholder="@(isEn ? "Type your question..." : "Sorunu yaz...")"></textarea>
+                    <button class="btn-teal mt-3" type="button" onclick="sendQuestion()">@(isEn ? "Send Question" : "Soru Gönder")</button>
+                    <div id="askOk" style="display:none;color:var(--teal-dark);font-weight:600;font-size:.9rem;margin-top:.8rem">
+                        @(isEn ? "Your question has been received! We'll reply soon." : "Sorun alındı! Ekibimiz en kısa sürede yanıtlayacak.")
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: BOOKING -->
+        <div class="col-lg-4">
+            <div class="book-sticky">
+                <div class="book-card">
+                    <div class="price-top">
+                        <small>@(isEn ? "Per person" : "Kişi başı")</small>
+                        <div class="big" id="unitPrice">@Model.Price.ToString("N0") <span>TL</span></div>
+                        <div class="price-note">@(isEn ? "Taxes and specified services included." : "Vergiler ve belirtilen hizmetler dahildir.")</div>
+                    </div>
+
+                    <div class="book-label">@(isEn ? "Tour Date" : "Tur Tarihi")</div>
+                    <div id="dateOptions">
+                        @if (Model.TourDates != null && Model.TourDates.Any())
+                        {
+                            var first = true;
+                            foreach (var td in Model.TourDates)
+                            {
+                                <label class="date-opt @(first ? "sel" : "")">
+                                    <span class="d">@td.StartDate.ToString("dd.MM.yyyy") - @td.EndDate.ToString("dd.MM.yyyy")</span>
+                                    <input type="radio" name="tourDate" value="@td.StartDate.ToString("yyyy-MM-dd")" data-date-id="@td.Id" @(first ? "checked" : "") />
+                                    <span class="left">@td.RemainingCapacity @(isEn ? "Seats Left" : "Kontenjan")</span>
+                                </label>
+                                first = false;
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted" style="font-size: .85rem;">@(isEn ? "No active tour dates available." : "Yakın zamanda açık tur tarihi bulunmuyor.")</p>
+                        }
+                    </div>
+
+                    <div class="book-label">@(isEn ? "Number of Guests" : "Kişi Sayısı")</div>
+                    <div class="counter-row">
+                        <div class="cl">
+                            <b>@(isEn ? "Adult" : "Yetişkin")</b>
+                            <span>@(isEn ? "Age 12 and above" : "12 yaş ve üzeri")</span>
+                        </div>
+                        <div class="counter">
+                            <button type="button" onclick="changeCount('adult', -1)" id="adultMinus">−</button>
+                            <span class="val" id="adultVal">1</span>
+                            <button type="button" onclick="changeCount('adult', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-row">
+                        <div class="cl">
+                            <b>@(isEn ? "Child" : "Çocuk")</b>
+                            <span>@(isEn ? "Age 2 - 11" : "2 - 11 yaş")</span>
+                        </div>
+                        <div class="counter">
+                            <button type="button" onclick="changeCount('child', -1)" id="childMinus" disabled>−</button>
+                            <span class="val" id="childVal">0</span>
+                            <button type="button" onclick="changeCount('child', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="summary">
+                        <div class="row-line"><span id="adultLine">1 @(isEn ? "Adult" : "Yetişkin")</span><b id="adultSum">@Model.Price.ToString("N0") TL</b></div>
+                        <div class="row-line" id="childRow" style="display:none"><span id="childLine">0 @(isEn ? "Child" : "Çocuk")</span><b id="childSum">0 TL</b></div>
+                        <div class="row-line"><span>@(isEn ? "Subtotal" : "Ara Toplam")</span><b id="subtotal">@Model.Price.ToString("N0") TL</b></div>
+                        <div class="total"><span>@(isEn ? "Total" : "Toplam")</span><b id="grandTotal">@Model.Price.ToString("N0") TL</b></div>
+                    </div>
+
+                    <button class="btn-teal" type="button" id="btnBook" onclick="submitBooking()">
+                        @(isEn ? "Book Now" : "Rezervasyon Yap")
+                    </button>
+                    <div class="trust">
+                        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> @(isEn ? "Secure booking" : "Güvenli rezervasyon")</span>
+                        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg> @(isEn ? "Free pre-booking" : "Ücretsiz ön rezervasyon")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIMILAR TOURS -->
+    @if (similarTours != null && similarTours.Any())
+    {
+        <div class="mt-4">
+            <h2 style="font-family:'Sora';font-weight:700;font-size:1.6rem;color:var(--navy);margin-bottom:1.4rem">
+                @(isEn ? "You May Also Like" : "Bunları da Beğenebilirsin")
+            </h2>
+            <div class="row g-4">
+                @foreach (var sim in similarTours)
+                {
+                    var simTitle = sim.Title?.Value ?? (isEn ? sim.Title?.En : sim.Title?.Tr) ?? sim.Title?.ToString();
+                    <div class="col-md-6 col-lg-4">
+                        <article class="tour-card">
+                            <div class="tour-media">
+                                <img src="@(string.IsNullOrEmpty(sim.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : sim.CoverImageUrl)" alt="@simTitle" loading="lazy" />
+                                @if (sim.IsPopular)
+                                {
+                                    <span class="tour-badge">@(isEn ? "Popular" : "Popüler")</span>
+                                }
+                            </div>
+                            <div class="tour-body">
+                                <div class="tour-country">@sim.Country · @sim.City</div>
+                                <h3 class="tour-title">@simTitle</h3>
+                                <div class="tour-meta">
+                                    <span>🗓️ @sim.DurationDays @(isEn ? "Days" : "Gün")</span>
+                                    <span><span class="star">★</span> 4.8 <span style="color:var(--muted)">(1.2k)</span></span>
+                                </div>
+                                <div class="tour-foot">
+                                    <div class="price"><small>@(isEn ? "Per person" : "Kişi başı")</small><b>@sim.Price.ToString("N0") <span>TL</span></b></div>
+                                    <a href="/Tour/Detail/@sim.Id" class="btn-incele">@(isEn ? "Explore Tour" : "Turu İncele")</a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- REVIEW MODAL -->
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" style="font-family:'Sora';font-weight:700;color:var(--navy)">
+                    @(isEn ? "Share Your Experience" : "Deneyimini Paylaş")
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="book-label" style="margin-top:0">@(isEn ? "Your Rating" : "Puanın")</div>
+                <div id="starPicker" class="mb-3">
+                    <span class="star-pick on" data-v="1">★</span><span class="star-pick on" data-v="2">★</span><span class="star-pick on" data-v="3">★</span><span class="star-pick on" data-v="4">★</span><span class="star-pick on" data-v="5">★</span>
+                </div>
+                <div class="book-label" style="margin-top:0">@(isEn ? "Your Review" : "Yorumun")</div>
+                <textarea id="reviewText" class="form-control" style="border-radius:14px;border-color:var(--line);min-height:110px" placeholder="@(isEn ? "Describe your tour experience..." : "Tur deneyimini birkaç cümleyle anlat...")"></textarea>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn-teal" type="button" id="btnSubmitReview" onclick="submitReview()">
+                    @(isEn ? "Submit Review" : "Yorumu Gönder")
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const isEn = @(isEn ? "true" : "false");
+        const UNIT = @Model.Price;
+        const tourId = "@Model.Id";
+        const tourTitle = "@Html.Raw(tourTitle.Replace("\"", "\\\""))";
+        let adult = 1, child = 0;
+        const childPrice = () => Math.round(UNIT * 0.6); // Çocuk %40 indirimli
+
+        function fmt(n){ return n.toLocaleString(isEn ? "en-US" : "tr-TR") + " TL"; }
+
+        // ITINERARY AKORDEON
+        function toggleDay(head){
+          const item = head.parentElement;
+          const body = item.querySelector(".itin-body");
+          const isOpen = item.classList.contains("open");
+          if(isOpen){ item.classList.remove("open"); body.style.maxHeight = "0"; }
+          else { item.classList.add("open"); body.style.maxHeight = body.scrollHeight + 40 + "px"; }
+        }
+
+        // SAYAC VE HESAPLAMA
+        function changeCount(type, delta){
+          if(type === "adult"){ adult = Math.max(1, adult + delta); }
+          else { child = Math.max(0, child + delta); }
+          updateSummary();
+        }
+
+        function updateSummary(){
+          document.getElementById("adultVal").textContent = adult;
+          document.getElementById("childVal").textContent = child;
+          document.getElementById("adultMinus").disabled = adult <= 1;
+          document.getElementById("childMinus").disabled = child <= 0;
+
+          const adultSum = adult * UNIT;
+          const childSum = child * childPrice();
+          const sub = adultSum + childSum;
+
+          document.getElementById("adultLine").textContent = adult + (isEn ? " Adult" : " Yetişkin") + " (" + fmt(UNIT) + ")";
+          document.getElementById("adultSum").textContent = fmt(adultSum);
+
+          const childRow = document.getElementById("childRow");
+          if(child > 0){
+            childRow.style.display = "flex";
+            document.getElementById("childLine").textContent = child + (isEn ? " Child" : " Çocuk") + " (" + fmt(childPrice()) + ")";
+            document.getElementById("childSum").textContent = fmt(childSum);
+          } else { childRow.style.display = "none"; }
+
+          document.getElementById("subtotal").textContent = fmt(sub);
+          document.getElementById("grandTotal").textContent = fmt(sub);
+        }
+
+        // TARIH SECIMI
+        document.querySelectorAll(".date-opt").forEach(opt=>{
+          opt.addEventListener("click", ()=>{
+            document.querySelectorAll(".date-opt").forEach(o=>o.classList.remove("sel"));
+            opt.classList.add("sel");
+            const radio = opt.querySelector("input");
+            if(radio) radio.checked = true;
+          });
+        });
+
+        // CANLI REZERVASYON POST
+        async function submitBooking() {
+          const selectedDateInput = document.querySelector('input[name="tourDate"]:checked');
+          const selectedDate = selectedDateInput ? selectedDateInput.value : new Date().toISOString();
+          const selectedDateId = selectedDateInput ? selectedDateInput.getAttribute("data-date-id") : null;
+
+          const bookingData = {
+            tourId: tourId,
+            tourTitle: tourTitle,
+            tourDateId: selectedDateId,
+            selectedTourDate: selectedDate,
+            adultCount: adult,
+            childCount: child,
+            unitPrice: UNIT,
+            totalPrice: (adult * UNIT) + (child * childPrice())
+          };
+
+          const btnBook = document.getElementById("btnBook");
+          btnBook.disabled = true;
+          btnBook.innerText = isEn ? "Processing..." : "İşleniyor...";
+
+          try {
+            const response = await fetch('/Tour/BookTour', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(bookingData)
+            });
+            const result = await response.json();
+            if (result.success) {
+              alert(result.message);
+              window.location.href = '/Profile/Index';
+            } else {
+              alert(result.message || (isEn ? "Failed to create reservation." : "Rezervasyon oluşturulamadı."));
+              btnBook.disabled = false;
+              btnBook.innerText = isEn ? "Book Now" : "Rezervasyon Yap";
+            }
+          } catch (err) {
+            console.error(err);
+            alert(isEn ? "A connection error occurred." : "Bir bağlantı hatası oluştu.");
+            btnBook.disabled = false;
+            btnBook.innerText = isEn ? "Book Now" : "Rezervasyon Yap";
+          }
+        }
+
+        // PAYLAS
+        function sharePage(){
+          if(navigator.share){ navigator.share({title: tourTitle + " — Travelio", url: location.href}).catch(()=>{}); }
+          else { alert(isEn ? "Link copied to clipboard!" : "Bağlantı panoya kopyalandı!"); }
+        }
+
+        // YORUM MODAL
+        let pickedStars = 5;
+        document.querySelectorAll(".star-pick").forEach(s=>{
+          s.addEventListener("click", ()=>{
+            pickedStars = +s.dataset.v;
+            document.querySelectorAll(".star-pick").forEach(x=> x.classList.toggle("on", +x.dataset.v <= pickedStars));
+          });
+        });
+
+        async function submitReview(){
+          const txt = document.getElementById("reviewText").value.trim();
+          if(!txt){ alert(isEn ? "Please write your review text." : "Lütfen bir yorum metni yazın."); return; }
+
+          const btn = document.getElementById("btnSubmitReview");
+          btn.disabled = true;
+
+          try {
+            const response = await fetch('/Tour/AddComment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ tourId: tourId, content: txt, rating: pickedStars })
+            });
+            const result = await response.json();
+            if(result.success){
+              alert(result.message);
+              const modalEl = document.getElementById("reviewModal");
+              if(window.bootstrap && bootstrap.Modal){
+                bootstrap.Modal.getInstance(modalEl).hide();
+              }
+              window.location.reload();
+            } else {
+              alert(result.message || (isEn ? "Failed to post review." : "Yorum gönderilemedi."));
+              btn.disabled = false;
+            }
+          } catch(e){
+            console.error(e);
+            alert(isEn ? "An error occurred." : "Bir hata oluştu.");
+            btn.disabled = false;
+          }
+        }
+
+        // SORU GONDER
+        async function sendQuestion(){
+          const v = document.getElementById("askInput").value.trim();
+          if(!v){ alert(isEn ? "Please enter your question." : "Lütfen sorunuzu yazın."); return; }
+
+          try {
+            const response = await fetch('/Tour/AskQuestion', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ tourId: tourId, questionText: v })
+            });
+            const result = await response.json();
+            if(result.success){
+              document.getElementById("askInput").value = "";
+              document.getElementById("askOk").style.display = "block";
+            } else {
+              alert(result.message || (isEn ? "Failed to submit question." : "Soru iletilemedi."));
+            }
+          } catch(e){
+            console.error(e);
+            alert(isEn ? "An error occurred." : "Bir hata oluştu.");
+          }
+        }
+    </script>
+}

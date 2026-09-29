@@ -51,6 +51,16 @@ namespace Travel.Web.Services.TourServices
         // Case Madde 7: Array içindeki ilgili tarihin kontenjanını atomik düşürme
         public async Task<bool> DecreaseCapacityAsync(string tourId, string tourDateId, int count)
         {
+            // TourId veya TourDateId eksik ya da 24 haneli ObjectId formatında değilse (tarih seçimi olmadan genel rezervasyon yapıldıysa)
+            if (string.IsNullOrWhiteSpace(tourId) ||
+                string.IsNullOrWhiteSpace(tourDateId) ||
+                !MongoDB.Bson.ObjectId.TryParse(tourId, out _) ||
+                !MongoDB.Bson.ObjectId.TryParse(tourDateId, out _))
+            {
+                // Kontenjan alt kaydı bulunmadığı varsayılarak rezervasyonun tamamlanmasına izin ver
+                return true;
+            }
+
             var filter = Builders<Tour>.Filter.And(
                 Builders<Tour>.Filter.Eq(x => x.Id, tourId),
                 Builders<Tour>.Filter.ElemMatch(x => x.TourDates, d => d.Id == tourDateId && d.RemainingCapacity >= count)
@@ -64,6 +74,15 @@ namespace Travel.Web.Services.TourServices
         // İptal durumunda kontenjan iadesi
         public async Task<bool> IncreaseCapacityAsync(string tourId, string tourDateId, int count)
         {
+            // TourId veya TourDateId eksik ya da 24 haneli ObjectId formatında değilse işlemi sessizce atla
+            if (string.IsNullOrWhiteSpace(tourId) ||
+                string.IsNullOrWhiteSpace(tourDateId) ||
+                !MongoDB.Bson.ObjectId.TryParse(tourId, out _) ||
+                !MongoDB.Bson.ObjectId.TryParse(tourDateId, out _))
+            {
+                return false;
+            }
+
             var filter = Builders<Tour>.Filter.And(
                 Builders<Tour>.Filter.Eq(x => x.Id, tourId),
                 Builders<Tour>.Filter.ElemMatch(x => x.TourDates, d => d.Id == tourDateId)

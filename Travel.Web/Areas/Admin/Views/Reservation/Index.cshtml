@@ -1,0 +1,599 @@
+﻿@model List<Travel.Web.DTOs.ReservationDtos.ResultReservationDto>
+@using Travel.Web.Entities
+@{
+    var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
+    ViewData["Title"] = isEn ? "Reservation Management" : "Rezervasyon Yönetimi";
+
+    var totalRes = Model?.Count ?? 0;
+    var approvedRes = Model?.Count(x => x.Status == ReservationStatus.Approved) ?? 0;
+    var pendingRes = Model?.Count(x => x.Status == ReservationStatus.Pending) ?? 0;
+    var totalRevenue = Model?.Where(x => x.Status == ReservationStatus.Approved).Sum(x => x.TotalPrice) ?? 0;
+}
+
+@section Styles {
+    <style>
+        :root {
+            --navy: #0e2a3b;
+            --navy-2: #12384c;
+            --navy-3: #1b455c;
+            --teal: #0fa3a3;
+            --teal-dark: #0b7f80;
+            --cream: #f7f5f0;
+            --bg: #f4f5f4;
+            --white: #fff;
+            --ink: #0e2a3b;
+            --muted: #6a7c88;
+            --line: #e7e2d8;
+            --line-2: #eef0ef;
+            --shadow-sm: 0 4px 18px rgba(14,42,59,.06);
+            --shadow-md: 0 18px 50px rgba(14,42,59,.12);
+            --r: 16px;
+            --ok-bg: #e3f4f0;
+            --ok-fg: #0b7f80;
+            --wait-bg: #fbf1dc;
+            --wait-fg: #a9741a;
+            --cancel-bg: #f6e4e2;
+            --cancel-fg: #b45a4f;
+        }
+
+        .eyebrow {
+            font-family: 'Sora',sans-serif;
+            text-transform: uppercase;
+            letter-spacing: .2em;
+            font-size: .7rem;
+            font-weight: 700;
+            color: var(--teal-dark)
+        }
+
+        .page-intro {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem
+        }
+
+            .page-intro h1 {
+                font-weight: 700;
+                font-size: 1.7rem;
+                color: var(--navy);
+                margin: .15rem 0 .3rem
+            }
+
+            .page-intro p {
+                color: var(--muted);
+                margin: 0;
+                font-size: .94rem;
+                max-width: 64ch
+            }
+
+        /* KPI mini */
+        .kpi {
+            background: #fff;
+            border: 1px solid var(--line-2);
+            border-radius: var(--r);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 1.1rem;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: .85rem
+        }
+
+            .kpi .ic {
+                width: 42px;
+                height: 42px;
+                border-radius: 11px;
+                display: grid;
+                place-items: center;
+                background: rgba(15,163,163,.1);
+                color: var(--teal-dark);
+                flex: none
+            }
+
+                .kpi .ic.warn {
+                    background: rgba(169,116,26,.12);
+                    color: #a9741a
+                }
+
+                .kpi .ic.ok {
+                    background: rgba(16,185,129,.12);
+                    color: #10b981
+                }
+
+            .kpi .num {
+                font-family: 'Sora';
+                font-weight: 800;
+                font-size: 1.4rem;
+                color: var(--navy);
+                line-height: 1
+            }
+
+            .kpi .lab {
+                font-size: .82rem;
+                color: var(--muted);
+                margin-top: .15rem
+            }
+
+        /* FILTER BAR */
+        .card-x {
+            background: #fff;
+            border: 1px solid var(--line-2);
+            border-radius: var(--r);
+            box-shadow: var(--shadow-sm)
+        }
+
+        .filter-bar {
+            padding: 1rem 1.1rem
+        }
+
+        .f-search {
+            position: relative
+        }
+
+            .f-search svg {
+                position: absolute;
+                left: .85rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--muted)
+            }
+
+            .f-search input {
+                width: 100%;
+                border: 1px solid var(--line);
+                background: var(--cream);
+                border-radius: 11px;
+                padding: .62rem .9rem .62rem 2.3rem;
+                font-size: .9rem;
+                outline: none;
+                color: var(--navy)
+            }
+
+                .f-search input:focus {
+                    border-color: var(--teal);
+                    background: #fff;
+                    box-shadow: 0 0 0 3px rgba(15,163,163,.1)
+                }
+
+        .f-select {
+            width: 100%;
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 11px;
+            padding: .62rem 2rem .62rem .9rem;
+            font-size: .88rem;
+            font-weight: 500;
+            color: var(--navy);
+            outline: none;
+            cursor: pointer
+        }
+
+            .f-select:focus {
+                border-color: var(--teal)
+            }
+
+        .btn-clear {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            padding: .62rem 1rem;
+            font-size: .86rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: .2s;
+            white-space: nowrap;
+            width: 100%;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center
+        }
+
+            .btn-clear:hover {
+                border-color: var(--cancel-fg);
+                color: var(--cancel-fg)
+            }
+
+        .result-line {
+            font-size: .86rem;
+            color: var(--muted);
+            margin: .2rem 0 1rem;
+            padding: 0 .2rem
+        }
+
+            .result-line b {
+                color: var(--navy);
+                font-weight: 600
+            }
+
+        /* TABLE */
+        .tbl-wrap {
+            overflow-x: auto
+        }
+
+        table.tx {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 960px
+        }
+
+            table.tx th {
+                font-size: .74rem;
+                text-transform: uppercase;
+                letter-spacing: .05em;
+                color: var(--muted);
+                font-weight: 600;
+                text-align: left;
+                padding: .75rem 1rem;
+                border-bottom: 1px solid var(--line);
+                white-space: nowrap
+            }
+
+            table.tx td {
+                padding: .85rem 1rem;
+                border-bottom: 1px solid var(--line-2);
+                font-size: .88rem;
+                color: var(--navy);
+                vertical-align: middle
+            }
+
+            table.tx tbody tr {
+                transition: .15s
+            }
+
+                table.tx tbody tr:hover {
+                    background: var(--cream)
+                }
+
+        .guest {
+            display: flex;
+            align-items: center;
+            gap: .65rem
+        }
+
+            .guest .av {
+                width: 36px;
+                height: 36px;
+                border-radius: 10px;
+                background: var(--navy-2);
+                color: #fff;
+                display: grid;
+                place-items: center;
+                font-size: .76rem;
+                font-weight: 700;
+                font-family: 'Sora';
+                flex: none
+            }
+
+            .guest b {
+                font-family: 'Sora';
+                font-size: .9rem;
+                color: var(--navy);
+                display: block;
+                line-height: 1.2
+            }
+
+            .guest span {
+                font-size: .76rem;
+                color: var(--muted)
+            }
+
+        .badge-x {
+            font-size: .74rem;
+            font-weight: 600;
+            padding: .28rem .7rem;
+            border-radius: 999px;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem
+        }
+
+            .badge-x::before {
+                content: "";
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: currentColor
+            }
+
+        .b-ok {
+            background: var(--ok-bg);
+            color: var(--ok-fg)
+        }
+
+        .b-wait {
+            background: var(--wait-bg);
+            color: var(--wait-fg)
+        }
+
+        .b-cancel {
+            background: var(--cancel-bg);
+            color: var(--cancel-fg)
+        }
+
+        .btn-action-ok {
+            background: rgba(16,185,129,.12);
+            color: #10b981;
+            border-radius: 8px;
+            font-weight: 600;
+            padding: .4rem .8rem;
+            text-decoration: none;
+            font-size: .82rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            transition: .2s
+        }
+
+            .btn-action-ok:hover {
+                background: #10b981;
+                color: #fff
+            }
+
+        .btn-action-cancel {
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 8px;
+            font-weight: 600;
+            padding: .4rem .8rem;
+            text-decoration: none;
+            font-size: .82rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            transition: .2s;
+            margin-left: .3rem
+        }
+
+            .btn-action-cancel:hover {
+                background: #dc2626;
+                color: #fff
+            }
+
+        /* EMPTY */
+        .empty {
+            text-align: center;
+            padding: 3.5rem 1rem
+        }
+
+            .empty .eic {
+                width: 60px;
+                height: 60px;
+                border-radius: 16px;
+                background: rgba(15,163,163,.1);
+                color: var(--teal-dark);
+                display: grid;
+                place-items: center;
+                margin: 0 auto 1rem
+            }
+
+            .empty h3 {
+                font-family: 'Sora';
+                font-weight: 700;
+                color: var(--navy);
+                font-size: 1.2rem
+            }
+
+            .empty p {
+                color: var(--muted);
+                margin: .3rem 0 1.2rem
+            }
+    </style>
+}
+
+<div class="page-intro">
+    <div>
+        <div class="eyebrow">@(isEn ? "MANAGEMENT" : "YÖNETİM")</div>
+        <h1>@(isEn ? "Reservation Management" : "Rezervasyon Yönetimi")</h1>
+        <p>@(isEn ? "Review, approve, or cancel incoming tour booking requests." : "Gelen tur rezervasyon taleplerini inceleyin, onaylayın veya iptal edin.")</p>
+    </div>
+</div>
+
+<!-- 4 ADET KPI KARTI -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="kpi">
+            <div class="ic">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+            </div>
+            <div>
+                <div class="num">@totalRes</div>
+                <div class="lab">@(isEn ? "Total Bookings" : "Toplam Rezervasyon")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi">
+            <div class="ic ok">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12" /></svg>
+            </div>
+            <div>
+                <div class="num">@approvedRes</div>
+                <div class="lab">@(isEn ? "Approved" : "Onaylandı")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi">
+            <div class="ic warn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+            </div>
+            <div>
+                <div class="num">@pendingRes</div>
+                <div class="lab">@(isEn ? "Pending" : "Bekleyen Talep")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi">
+            <div class="ic">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+            </div>
+            <div>
+                <div class="num">@totalRevenue.ToString("N0") ₺</div>
+                <div class="lab">@(isEn ? "Approved Revenue" : "Onaylanan Hasılat")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FİLTRELEME ÇUBUĞU -->
+<div class="card-x filter-bar mb-3">
+    <div class="row g-2 align-items-center">
+        <div class="col-lg-6 col-md-6">
+            <div class="f-search">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                <input type="text" id="fSearch" placeholder="@(isEn ? "Search customer name, email or tour title..." : "Müşteri adı, e-posta veya tur ara...")">
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4">
+            <select class="f-select" id="fStatus">
+                <option value="">@(isEn ? "All Statuses" : "Tüm Durumlar")</option>
+                <option value="Approved">@(isEn ? "Approved" : "Onaylandı")</option>
+                <option value="Pending">@(isEn ? "Pending" : "Beklemede")</option>
+                <option value="Cancelled">@(isEn ? "Cancelled" : "İptal Edildi")</option>
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-2">
+            <button type="button" class="btn-clear" onclick="clearFilters()">@(isEn ? "Clear" : "Temizle")</button>
+        </div>
+    </div>
+</div>
+
+<div class="result-line"><b id="resultCount">@totalRes</b> @(isEn ? "reservations listed" : "rezervasyon listeleniyor")</div>
+
+<!-- TABLO -->
+<div class="card-x mb-4">
+    <div class="tbl-wrap">
+        <table class="tx">
+            <thead>
+                <tr>
+                    <th>@(isEn ? "Customer" : "Müşteri")</th>
+                    <th>@(isEn ? "Tour & Date" : "Tur & Tarih")</th>
+                    <th>@(isEn ? "Guests" : "Katılımcı")</th>
+                    <th>@(isEn ? "Total Amount" : "Toplam Tutar")</th>
+                    <th>@(isEn ? "Status" : "Durum")</th>
+                    <th style="text-align: right;">@(isEn ? "Actions" : "İşlemler")</th>
+                </tr>
+            </thead>
+            <tbody id="resRows">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        var initials = string.Join("", (item.FullName ?? "M G").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => s[0])).ToUpper();
+                        var stClass = item.Status == ReservationStatus.Approved ? "b-ok" : (item.Status == ReservationStatus.Cancelled ? "b-cancel" : "b-wait");
+                        var stText = item.Status == ReservationStatus.Approved ? (isEn ? "Approved" : "Onaylandı")
+                                   : (item.Status == ReservationStatus.Cancelled ? (isEn ? "Cancelled" : "İptal Edildi")
+                                   : (isEn ? "Pending" : "Beklemede"));
+
+                        <tr class="res-row"
+                            data-search="@(item.FullName?.ToLower()) @(item.Email?.ToLower()) @(item.TourTitle?.ToLower())"
+                            data-status="@item.Status">
+                            <td>
+                                <div class="guest">
+                                    <span class="av">@initials</span>
+                                    <div>
+                                        <b>@item.FullName</b>
+                                        <span>@item.Email · @item.Phone</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <b style="color: var(--navy); font-size: .9rem; display: block;">@item.TourTitle</b>
+                                <span style="color: var(--teal); font-size: .8rem; font-weight: 600;">
+                                    📅 @item.SelectedTourDate.ToString("dd.MM.yyyy")
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-weight: 600; color: var(--navy); font-size: .9rem;">
+                                    @item.TotalParticipants @(isEn ? "Guest(s)" : "Kişi")
+                                </span>
+                                <div style="color: var(--muted); font-size: .75rem;">
+                                    (@item.AdultCount @(isEn ? "Adult" : "Yetişkin")@(item.ChildCount > 0 ? $", {item.ChildCount} {(isEn ? "Child" : "Çocuk")}" : ""))
+                                </div>
+                            </td>
+                            <td>
+                                <b style="color: var(--navy); font-family: 'Sora'; font-size: .95rem;">@item.TotalPrice.ToString("N2") ₺</b>
+                            </td>
+                            <td>
+                                <span class="badge-x @stClass">@stText</span>
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                @if (item.Status != ReservationStatus.Approved)
+                                {
+                                    <a href="/Admin/Reservation/Approve/@item.Id" class="btn-action-ok">
+                                        ✓ @(isEn ? "Approve" : "Onayla")
+                                    </a>
+                                }
+                                @if (item.Status != ReservationStatus.Cancelled)
+                                {
+                                    <a href="/Admin/Reservation/Cancel/@item.Id"
+                                       onclick="return confirm('@(isEn ? "Are you sure you want to cancel this reservation?" : "Bu rezervasyonu iptal etmek istediğinize emin misiniz?")');"
+                                       class="btn-action-cancel">
+                                        ✕ @(isEn ? "Cancel" : "İptal Et")
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- BOŞ DURUM -->
+    <div id="emptyState" style="display:@(totalRes == 0 ? "block" : "none")">
+        <div class="empty">
+            <div class="eic">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            </div>
+            <h3>@(isEn ? "No reservations found" : "Rezervasyon bulunamadı")</h3>
+            <p>@(isEn ? "Try adjusting your search or status filter." : "Arama veya filtre kriterlerinizi değiştirerek tekrar deneyebilirsiniz.")</p>
+            <button type="button" class="btn-clear" style="width:auto;margin:0 auto;padding:.5rem 1.2rem" onclick="clearFilters()">@(isEn ? "Clear Filters" : "Filtreleri Temizle")</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filterTable() {
+            const q = document.getElementById("fSearch").value.trim().toLowerCase();
+            const st = document.getElementById("fStatus").value;
+            const rows = document.querySelectorAll("#resRows tr.res-row");
+            let count = 0;
+
+            rows.forEach(r => {
+                const searchData = r.getAttribute("data-search") || "";
+                const statusData = r.getAttribute("data-status") || "";
+
+                let matches = true;
+                if (q && !searchData.includes(q)) matches = false;
+                if (st && statusData !== st) matches = false;
+
+                if (matches) {
+                    r.style.display = "";
+                    count++;
+                } else {
+                    r.style.display = "none";
+                }
+            });
+
+            document.getElementById("resultCount").textContent = count;
+            document.getElementById("emptyState").style.display = count === 0 ? "block" : "none";
+        }
+
+        document.getElementById("fSearch").addEventListener("input", filterTable);
+        document.getElementById("fStatus").addEventListener("change", filterTable);
+
+        function clearFilters() {
+            document.getElementById("fSearch").value = "";
+            document.getElementById("fStatus").value = "";
+            filterTable();
+        }
+    </script>
+}
