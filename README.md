@@ -1,6 +1,6 @@
 ﻿# 🌍 Travelio - Modern Seyahat ve Tur Rezervasyon Platformu
 
-**Travelio**, kullanıcıların dünya genelindeki benzersiz turları keşfetmesini, detaylı tur takvimleri ve dinamik kontenjan yönetimi üzerinden rezervasyon yapmasını, yorum ve sorularla etkileşimde bulunmasını sağlayan; yöneticiler için ise gelişmiş MongoDB Aggregation, PDF/Excel raporlama ve kapsamlı bir **Admin Paneli** sunan uçtan uca bir seyahat danışmanlığı ve tur yönetim platformudur.
+**Travelio**, kullanıcıların dünya genelindeki benzersiz turları keşfetmesini, detaylı tur takvimleri ve dinamik kontenjan yönetimi üzerinden rezervasyon yapmasını, yorum ve sorularla etkileşimde bulunmasını sağlayan; yöneticiler için ise gelişmiş MongoDB Aggregation, PDF/Excel raporlama ve kapsamlı bir **Admin Paneli** sunan uçtan uca bir seyahat ve tur yönetim platformudur.
 
 ---
 
@@ -36,31 +36,31 @@ Proje, modern web standartlarına uygun olarak katmanlı mimari ve servis odakl�
 ### 📊 Admin Dashboard & Yönetim Panelleri
 | Admin Dashboard | Tur Yönetimi |
 | :---: | :---: |
-| ![Admin Dashboard](wwwroot/images/AllPicture/AdminDashboard1.png) | ![Tour Management](wwwroot/images/AllPicture/Tours.png) |
+| ![Admin Dashboard](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/AdminDashboard1.png) | ![Tour Management](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/Tours.png) |
 
 | Rezervasyon Yönetimi | Soru & Yorum Yönetimi |
 | :---: | :---: |
-| ![Reservations](wwwroot/images/AllPicture/Rezervations.png) | ![Questions](wwwroot/images/AllPicture/QuestionManagement.png) |
+| ![Reservations](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/Rezervations.png) | ![Questions](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/QuestionManagement.png) |
 
 | Kategori Yönetimi | Destinasyon Yönetimi |
 | :---: | :---: |
-| ![Categories](wwwroot/images/AllPicture/Categories.png) | ![Destinations](wwwroot/images/AllPicture/Destinations.png) |
+| ![Categories](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/Categories.png) | ![Destinations](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/Destinations.png) |
 
 ### 🌐 Kullanıcı Arayüzü (Public)
 | Ana Sayfa (Home) | Tur Detay & Rezervasyon |
 | :---: | :---: |
-| ![Home](wwwroot/images/AllPicture/Home.png) | ![Tour Detail](wwwroot/images/AllPicture/TourDetay.png) |
+| ![Home](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/Home.png) | ![Tour Detail](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/TourDetay.png) |
 
 | Kullanıcı Profili (`MyProfile`) | Yorum Yönetimi Ekranı |
 | :---: | :---: |
-| ![My Profile](wwwroot/images/AllPicture/MyProfile.png) | ![Review Management](wwwroot/images/AllPicture/ReviewManagement.png) |
+| ![My Profile](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/MyProfile.png) | ![Review Management](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/ReviewManagement.png) |
 
 ---
 
 ## 📄 Gelişmiş Özellikler: PDF & Excel Raporlama Entegrasyonu
 
 Projenin raporlama modülü, yöneticilerin belirli tur veya tur başlangıç tarihlerine göre katılımcı listelerini anlık olarak dışarı aktarabilmesini sağlar:
-* **Excel Raporları:** *ClosedXML* kütüphanesi kullanılarak; müşteri adı, e-posta, telefon, tur adı, seçilen tarih, katılımcı sayısı, toplam tutar ve rezervasyon durumu gibi kritik verileri içeren tablolar üretilir.
+* **Excel Raporları:** *ClosedXML* kütüphanesi kullanılarak; müşteri adı, e-posta, telefon, tur adı, seçilen tarih, katılımcı sayısı, toplam tutar ve rezervasyon durumu gibi kritik veriler tablolaştırılır.
 * **PDF Raporları:** *QuestPDF* altyapısı ile sunucu yorulmadan, diskte dosya bırakmaksızın doğrudan `MemoryStream` üzerinden hızlı ve şık tasarımlı çıktı alım mekanizması kurulmuştur.
 
 ---
