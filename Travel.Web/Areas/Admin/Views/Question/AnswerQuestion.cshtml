@@ -324,7 +324,9 @@
         <!-- CEVAP ALANI -->
         <div class="field">
             <label>@(isEn ? "Your Official Response" : "Cevabınız") <span class="req">*</span></label>
-            <textarea asp-for="AnswerText" class="ctrl" rows="5" placeholder="@(isEn ? "Type the response to be sent to the user..." : "Kullanıcıya iletmek istediğiniz yanıtı buraya yazın...")" required></textarea>
+            <textarea asp-for="AnswerText" class="ctrl" rows="5" placeholder="@(isEn ? "Type the response to be sent to the user..." : "Kullanıcıya iletmek istediğiniz yanıtı buraya yazın...")"></textarea>
+
+            <span asp-validation-for="AnswerText" class="text-danger" style="font-size:.85rem;display:block;margin-top:6px"></span>
         </div>
     </div>
 

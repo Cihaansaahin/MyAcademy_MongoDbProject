@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Travel.Web.DTOs.TourDtos;
 using Travel.Web.Services.CategoryServices;
 using Travel.Web.Services.DestinationServices;
 using Travel.Web.Services.TourServices;
+using Travel.Web.Validations;
 
 namespace Travel.Web.Areas.Admin.Controllers
 {
@@ -15,164 +17,144 @@ namespace Travel.Web.Areas.Admin.Controllers
         private readonly ITourService _tourService;
         private readonly ICategoryService _categoryService;
         private readonly IDestinationService _destinationService;
+        private readonly IValidator<CreateTourDto> _createValidator;
+        private readonly IValidator<UpdateTourDto> _updateValidator;
 
         public TourController(
             ITourService tourService,
             ICategoryService categoryService,
-            IDestinationService destinationService)
+            IDestinationService destinationService,
+            IValidator<CreateTourDto> createValidator,
+            IValidator<UpdateTourDto> updateValidator)
         {
             _tourService = tourService;
             _categoryService = categoryService;
             _destinationService = destinationService;
+            _createValidator = createValidator;
+            _updateValidator = updateValidator;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Index([FromQuery] TourFilterDto filter)
-        {
-            // Dropdown filtreleri için verileri çekiyoruz
-            var categories = await _categoryService.GetAllAsync();
-            var destinations = await _destinationService.GetAllAsync();
+        // ================== YARDIMCI METOTLAR ==================
 
+        // Kategori ve destinasyon dropdown'larını doldurur
+        private async Task LoadDropdownsAsync(string? selectedCategoryId = null, string? selectedDestinationId = null)
+        {
+            var categories = await _categoryService.GetAllAsync();
             ViewBag.Categories = categories.Select(x => new SelectListItem
             {
                 Text = x.Name?.Tr ?? x.Name?.Value ?? "Kategori",
                 Value = x.Id,
-                Selected = x.Id == filter.CategoryId
+                Selected = x.Id == selectedCategoryId
             }).ToList();
 
+            var destinations = await _destinationService.GetAllAsync();
             ViewBag.Destinations = destinations.Select(x => new SelectListItem
             {
                 Text = $"{x.City}, {x.Country}",
                 Value = x.Id,
-                Selected = x.Id == filter.DestinationId
+                Selected = x.Id == selectedDestinationId
             }).ToList();
+        }
 
+        // Yüklenen görseli wwwroot/images/tours altına kaydeder, URL'sini döner
+        private static async Task<string> SaveImageAsync(IFormFile file)
+        {
+            var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/tours");
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(folder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return $"/images/tours/{fileName}";
+        }
+
+        // ================== LİSTE ==================
+
+        [HttpGet]
+        public async Task<IActionResult> Index([FromQuery] TourFilterDto filter)
+        {
+            await LoadDropdownsAsync(filter.CategoryId, filter.DestinationId);
             ViewBag.CurrentFilter = filter;
 
             var tours = await _tourService.GetAllAsync();
 
-            // Case Madde 17: Arama & Filtreleme Mantığı
+            // Case Madde 17: Arama & Filtreleme
             if (!string.IsNullOrWhiteSpace(filter.SearchText))
             {
                 var text = filter.SearchText.Trim().ToLower();
                 tours = tours.Where(t =>
                     (t.Title?.Tr != null && t.Title.Tr.ToLower().Contains(text)) ||
                     (t.Title?.En != null && t.Title.En.ToLower().Contains(text)) ||
-                    (t.Title?.Value != null && t.Title.Value.ToLower().Contains(text)) ||
                     (t.City != null && t.City.ToLower().Contains(text)) ||
                     (t.Country != null && t.Country.ToLower().Contains(text))
                 ).ToList();
             }
 
             if (!string.IsNullOrWhiteSpace(filter.CategoryId))
-            {
                 tours = tours.Where(t => t.CategoryId == filter.CategoryId).ToList();
-            }
 
             if (!string.IsNullOrWhiteSpace(filter.DestinationId))
-            {
                 tours = tours.Where(t => t.DestinationId == filter.DestinationId).ToList();
-            }
 
             if (filter.IsActive.HasValue)
-            {
                 tours = tours.Where(t => t.IsActive == filter.IsActive.Value).ToList();
-            }
 
             return View(tours);
         }
 
+        // ================== EKLEME ==================
+
         [HttpGet]
         public async Task<IActionResult> CreateTour()
         {
-            var categories = await _categoryService.GetAllAsync();
-            ViewBag.Categories = categories.Select(x => new SelectListItem
-            {
-                Text = x.Name?.Tr ?? x.Name?.Value ?? "İsimsiz Kategori",
-                Value = x.Id
-            }).ToList();
-
-            var destinations = await _destinationService.GetAllAsync();
-            ViewBag.Destinations = destinations.Select(x => new SelectListItem
-            {
-                Text = $"{x.City}, {x.Country}",
-                Value = x.Id
-            }).ToList();
-
+            await LoadDropdownsAsync();
             return View(new CreateTourDto());
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateTour(CreateTourDto dto)
         {
-            var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/tours");
-            if (!Directory.Exists(folder))
+            // 1. Validasyon — dosya kaydetmeden ÖNCE
+            var validation = await _createValidator.ValidateAsync(dto);
+            if (!validation.IsValid)
             {
-                Directory.CreateDirectory(folder);
+                validation.AddToModelState(ModelState);
+                await LoadDropdownsAsync(dto.CategoryId, dto.DestinationId);
+                return View(dto);
             }
 
-            // 1. Kapak fotoğrafı dosyadan yüklendiyse kaydet
+            // 2. Kapak görseli
             if (dto.CoverImageFile != null && dto.CoverImageFile.Length > 0)
-            {
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.CoverImageFile.FileName)}";
-                var filePath = Path.Combine(folder, fileName);
+                dto.CoverImageUrl = await SaveImageAsync(dto.CoverImageFile);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await dto.CoverImageFile.CopyToAsync(stream);
-                }
-                dto.CoverImageUrl = $"/images/tours/{fileName}";
-            }
-
-            // 2. Galeri fotoğrafları yüklendiyse tek tek kaydet ve listeye ekle
+            // 3. Galeri görselleri
             if (dto.GalleryFiles != null && dto.GalleryFiles.Any())
             {
                 dto.GalleryImageUrls = new List<string>();
-
-                foreach (var file in dto.GalleryFiles)
-                {
-                    if (file.Length > 0)
-                    {
-                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-                        var filePath = Path.Combine(folder, fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-                        dto.GalleryImageUrls.Add($"/images/tours/{fileName}");
-                    }
-                }
+                foreach (var file in dto.GalleryFiles.Where(f => f.Length > 0))
+                    dto.GalleryImageUrls.Add(await SaveImageAsync(file));
             }
 
             await _tourService.CreateAsync(dto);
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
+
+        // ================== GÜNCELLEME ==================
 
         [HttpGet]
         public async Task<IActionResult> UpdateTour(string id)
         {
             var tour = await _tourService.GetByIdAsync(id);
             if (tour == null)
-            {
                 return NotFound();
-            }
 
-            var categories = await _categoryService.GetAllAsync();
-            ViewBag.Categories = categories.Select(x => new SelectListItem
-            {
-                Text = x.Name?.Tr ?? x.Name?.Value ?? "Kategori",
-                Value = x.Id,
-                Selected = x.Id == tour.CategoryId
-            }).ToList();
-
-            var destinations = await _destinationService.GetAllAsync();
-            ViewBag.Destinations = destinations.Select(x => new SelectListItem
-            {
-                Text = $"{x.City}, {x.Country}",
-                Value = x.Id,
-                Selected = x.Id == tour.DestinationId
-            }).ToList();
+            await LoadDropdownsAsync(tour.CategoryId, tour.DestinationId);
 
             var model = new UpdateTourDto
             {
@@ -200,58 +182,47 @@ namespace Travel.Web.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateTour(UpdateTourDto dto)
         {
-            // 1. Kapak fotoğrafı dosyadan yüklendiyse kaydet
-            if (dto.CoverImageFile != null && dto.CoverImageFile.Length > 0)
+            var existing = await _tourService.GetByIdAsync(dto.Id);
+            if (existing == null)
+                return NotFound();
+
+            // 1. Validasyon — dosya kaydetmeden ÖNCE
+            var validation = await _updateValidator.ValidateAsync(dto);
+            if (!validation.IsValid)
             {
-                var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/tours");
-                if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+                validation.AddToModelState(ModelState);
+                await LoadDropdownsAsync(dto.CategoryId, dto.DestinationId);
 
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.CoverImageFile.FileName)}";
-                var filePath = Path.Combine(folder, fileName);
+                // Form kapak önizlemesini gösterebilsin
+                if (string.IsNullOrWhiteSpace(dto.CoverImageUrl))
+                    dto.CoverImageUrl = existing.CoverImageUrl;
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await dto.CoverImageFile.CopyToAsync(stream);
-                }
-                dto.CoverImageUrl = $"/images/tours/{fileName}";
+                return View(dto);
             }
 
-            // 2. Galeri fotoğrafları yüklendiyse kaydet
+            // 2. Kapak görseli: yeni yüklendiyse kaydet, yüklenmediyse ESKİSİNİ KORU
+            if (dto.CoverImageFile != null && dto.CoverImageFile.Length > 0)
+                dto.CoverImageUrl = await SaveImageAsync(dto.CoverImageFile);
+            else if (string.IsNullOrWhiteSpace(dto.CoverImageUrl))
+                dto.CoverImageUrl = existing.CoverImageUrl;
+
+            // 3. Galeri: yeni yüklendiyse kaydet, yüklenmediyse eskileri koru
             if (dto.GalleryFiles != null && dto.GalleryFiles.Any())
             {
-                var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/tours");
-                if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
-
                 dto.GalleryImageUrls ??= new List<string>();
-
-                foreach (var file in dto.GalleryFiles)
-                {
-                    if (file.Length > 0)
-                    {
-                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-                        var filePath = Path.Combine(folder, fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-                        dto.GalleryImageUrls.Add($"/images/tours/{fileName}");
-                    }
-                }
+                foreach (var file in dto.GalleryFiles.Where(f => f.Length > 0))
+                    dto.GalleryImageUrls.Add(await SaveImageAsync(file));
             }
             else
             {
-                // Yeni galeri yüklenmediyse eski fotoğrafları korumak için:
-                var existing = await _tourService.GetByIdAsync(dto.Id);
-                if (existing?.GalleryImageUrls != null)
-                {
-                    dto.GalleryImageUrls = existing.GalleryImageUrls;
-                }
+                dto.GalleryImageUrls = existing.GalleryImageUrls ?? new List<string>();
             }
 
             await _tourService.UpdateAsync(dto);
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
+
+        // ================== SİLME ==================
 
         public async Task<IActionResult> DeleteTour(string id)
         {

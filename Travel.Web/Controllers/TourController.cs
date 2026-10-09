@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Travel.Web.DTOs.CommentDtos;
 using Travel.Web.DTOs.QuestionDtos;
 using Travel.Web.DTOs.ReservationDtos;
@@ -8,6 +9,9 @@ using Travel.Web.Services.DestinationServices;
 using Travel.Web.Services.QuestionServices;
 using Travel.Web.Services.ReservationServices;
 using Travel.Web.Services.TourServices;
+using Travel.Web.Validations;
+
+
 
 namespace Travel.Web.Controllers
 {
@@ -20,13 +24,21 @@ namespace Travel.Web.Controllers
         private readonly IQuestionService _questionService;
         private readonly IReservationService _reservationService;
 
+        private readonly IValidator<CreateReservationDto> _reservationValidator;
+        private readonly IValidator<CreateCommentDto> _commentValidator;
+        private readonly IValidator<CreateQuestionDto> _questionValidator;
+
         public TourController(
             ITourService tourService,
             IDestinationService destinationService,
             ICategoryService categoryService,
             ICommentService commentService,
             IQuestionService questionService,
-            IReservationService reservationService)
+            IReservationService reservationService,
+
+             IValidator<CreateReservationDto> reservationValidator,   
+            IValidator<CreateCommentDto> commentValidator,           
+            IValidator<CreateQuestionDto> questionValidator)
         {
             _tourService = tourService;
             _destinationService = destinationService;
@@ -34,6 +46,10 @@ namespace Travel.Web.Controllers
             _commentService = commentService;
             _questionService = questionService;
             _reservationService = reservationService;
+
+            _reservationValidator = reservationValidator;   
+            _commentValidator = commentValidator;       
+            _questionValidator = questionValidator;
         }
 
         public async Task<IActionResult> Index(string? search, string? destinationId, string? categoryId, decimal? minPrice, decimal? maxPrice, string? sort)
@@ -112,6 +128,13 @@ namespace Travel.Web.Controllers
                 return Json(new { success = false, message = "Geçersiz rezervasyon bilgisi." });
             }
 
+            // YENİ: FluentValidation kontrolü
+            var validation = await _reservationValidator.ValidateAsync(dto);
+            if (!validation.IsValid)
+            {
+                return Json(new { success = false, message = validation.ToMessage() });
+            }
+
             var sessionEmail = HttpContext.Session.GetString("UserEmail");
             var sessionName = HttpContext.Session.GetString("UserName");
 
@@ -129,7 +152,6 @@ namespace Travel.Web.Controllers
                 dto.Phone = "+90 555 000 00 00";
             }
 
-            // Kontenjan kontrolü yapan ve TourDateId eşleşmesini sağlayan metot
             var result = await _reservationService.CreateReservationAsync(dto);
             if (!result)
             {
@@ -142,9 +164,16 @@ namespace Travel.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AddComment([FromBody] CreateCommentDto dto)
         {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.Content))
+            // YENİ: Eski "Content boş mu" kontrolü yerine null kontrolü + validator
+            if (dto == null)
             {
-                return Json(new { success = false, message = "Lütfen bir yorum metni yazın." });
+                return Json(new { success = false, message = "Geçersiz istek." });
+            }
+
+            var validation = await _commentValidator.ValidateAsync(dto);
+            if (!validation.IsValid)
+            {
+                return Json(new { success = false, message = validation.ToMessage() });
             }
 
             var sessionUser = HttpContext.Session.GetString("UserName");
@@ -165,9 +194,16 @@ namespace Travel.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AskQuestion([FromBody] CreateQuestionDto dto)
         {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.QuestionText))
+            // YENİ
+            if (dto == null)
             {
-                return Json(new { success = false, message = "Lütfen sorunuzu yazın." });
+                return Json(new { success = false, message = "Geçersiz istek." });
+            }
+
+            var validation = await _questionValidator.ValidateAsync(dto);
+            if (!validation.IsValid)
+            {
+                return Json(new { success = false, message = validation.ToMessage() });
             }
 
             var sessionUser = HttpContext.Session.GetString("UserName");

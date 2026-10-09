@@ -914,4 +914,6 @@ table.tx {
     }
 }
 
-
+.validation-summary-valid {
+    display: none;
+}
