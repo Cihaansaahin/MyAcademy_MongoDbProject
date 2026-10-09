@@ -776,13 +776,9 @@
                         var firstDate = item.TourDates?.Where(d => d.StartDate >= DateTime.UtcNow).OrderBy(d => d.StartDate).FirstOrDefault()
                                         ?? item.TourDates?.OrderByDescending(d => d.StartDate).FirstOrDefault();
 
-                        var cap = firstDate?.Capacity ?? 25;
 
-                        // DÜZELTME: Eğer RemainingCapacity tanımlanmamışsa veya kapasiteye eşitse kalan = kapasitedir.
-                        // Henüz rezervasyon yoksa RemainingCapacity kapasite kadar olmalıdır.
-                        var remaining = (firstDate != null && firstDate.RemainingCapacity > 0)
-                                        ? firstDate.RemainingCapacity
-                                        : cap;
+                        var cap = firstDate?.Capacity ?? 0;
+                        var remaining = firstDate?.RemainingCapacity ?? 0;
 
                         // Gerçek rezervasyon sayısı: Kapasite - Kalan Kontenjan
                         var resCount = Math.Max(0, cap - remaining);

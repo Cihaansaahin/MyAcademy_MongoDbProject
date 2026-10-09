@@ -1094,7 +1094,7 @@
         {
             foreach (var td in Model.TourDates)
             {
-                var remCap = td.RemainingCapacity > 0 ? td.RemainingCapacity : td.Capacity;
+                        var remCap = td.RemainingCapacity;
                 <text>addDate("@td.Id", "@td.StartDate.ToString("yyyy-MM-dd")", "@td.EndDate.ToString("yyyy-MM-dd")", @td.Capacity, @remCap);</text>
             }
         }

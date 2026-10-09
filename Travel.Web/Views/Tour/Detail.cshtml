@@ -1296,14 +1296,16 @@
                             foreach (var td in Model.TourDates)
                             {
                                 // KONTENJAN DÜZELTMESİ: RemainingCapacity sıfırsa toplam Capacity baz alınır
-                                var availableSeats = td.RemainingCapacity > 0 ? td.RemainingCapacity : (td.Capacity > 0 ? td.Capacity : 28);
+                                var availableSeats = td.RemainingCapacity;
+                                var isFull = availableSeats <= 0 || !td.IsActive;
 
-                                <label class="date-opt @(first ? "sel" : "")">
+                                <label class="date-opt @(first && !isFull ? "sel" : "")" style="@(isFull ? "opacity:.5;cursor:not-allowed" : "")">
                                     <span class="d">@td.StartDate.ToString("dd.MM.yyyy") - @td.EndDate.ToString("dd.MM.yyyy")</span>
-                                    <input type="radio" name="tourDate" value="@td.StartDate.ToString("yyyy-MM-dd")" data-date-id="@td.Id" @(first ? "checked" : "") />
-                                    <span class="left">@availableSeats @(isEn ? "Seats Left" : "Kontenjan")</span>
+                                    <input type="radio" name="tourDate" value="@td.StartDate.ToString("yyyy-MM-dd")" data-date-id="@td.Id"
+                                    @(first && !isFull ? "checked" : "") @(isFull ? "disabled" : "") />
+                                    <span class="left">@(isFull ? (isEn ? "Full" : "Dolu") : $"{availableSeats} {(isEn ? "Seats Left" : "Kontenjan")}")</span>
                                 </label>
-                                first = false;
+                                if (!isFull) first = false;
                             }
                         }
                         else
@@ -1429,7 +1431,7 @@
         const tourId = "@Model.Id";
         const tourTitle = "@Html.Raw(tourTitle.Replace("\"", "\\\""))";
         let adult = 1, child = 0;
-        const childPrice = () => Math.round(UNIT * 0.6); // Çocuk %40 indirimli
+        const childPrice = () => Math.round(UNIT * 0.5); // Çocuk %50 indirimli
 
         function fmt(n){ return n.toLocaleString(isEn ? "en-US" : "tr-TR") + " TL"; }
 

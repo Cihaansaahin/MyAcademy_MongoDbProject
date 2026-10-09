@@ -133,7 +133,7 @@ namespace Travel.Web.Controllers
             var result = await _reservationService.CreateReservationAsync(dto);
             if (!result)
             {
-                return Json(new { success = false, message = "Seçilen tarihte yeterli kontenjan bulunmamaktadır." });
+                return Json(new { success = false, message = "Seçilen tarih için yeterli kontenjan yok veya tarih geçersiz." });
             }
 
             return Json(new { success = true, message = "Rezervasyonunuz başarıyla oluşturuldu! Profilinize yönlendiriliyorsunuz..." });

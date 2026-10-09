@@ -34,77 +34,38 @@ namespace Travel.Web.Services.ReservationServices
             return _mapper.Map<ResultReservationDto>(reservation);
         }
 
-        //// Case Madde 7 & 8: Kontenjanı kontrol edip düşürme ve rezervasyonu kaydetme
-        //public async Task<bool> CreateReservationAsync(CreateReservationDto dto)
-        //{
-        //    int totalCount = dto.AdultCount + dto.ChildCount;
 
-        //    // 1. Kontenjanı atomik olarak düşürmeyi dene
-        //    var capacityAvailable = await _tourService.DecreaseCapacityAsync(dto.TourId, dto.TourDateId, totalCount);
-        //    if (!capacityAvailable)
-        //        return false; // Kontenjan yetersiz
-
-        //    // 2. Kontenjan düştüyse rezervasyonu kaydet
-        //    var reservation = _mapper.Map<Reservation>(dto);
-        //    reservation.Status = ReservationStatus.Pending;
-        //    reservation.ReservationDate = DateTime.UtcNow;
-
-        //    await _reservationCollection.InsertOneAsync(reservation);
-        //    return true;
-        //}
+        // Case Madde 7 & 8: Tarih seçimi zorunlu, kontenjan kontrolü, ücret sunucuda hesaplanır
         public async Task<bool> CreateReservationAsync(CreateReservationDto dto)
         {
-            int totalCount = dto.AdultCount + dto.ChildCount;
-            if (totalCount <= 0) totalCount = 1;
+            // 1. Temel kontroller
+            if (dto.AdultCount < 1 || dto.ChildCount < 0)
+                return false;
+            if (string.IsNullOrWhiteSpace(dto.TourId) || string.IsNullOrWhiteSpace(dto.TourDateId))
+                return false;
 
-            // 1. İlgili turu getir
             var tour = await _tourService.GetByIdAsync(dto.TourId);
-            if (tour == null) return false;
+            if (tour == null || !tour.IsActive)
+                return false;
 
-            // 2. İlgili tur tarihini bul (TourDateId boşsa yaklaşan ilk tarihi al)
-            var selectedDate = tour.TourDates?.FirstOrDefault(d => d.Id == dto.TourDateId)
-                              ?? tour.TourDates?.Where(d => d.StartDate >= DateTime.UtcNow).OrderBy(d => d.StartDate).FirstOrDefault()
-                              ?? tour.TourDates?.FirstOrDefault();
+            var selectedDate = tour.TourDates?.FirstOrDefault(d => d.Id == dto.TourDateId);
+            if (selectedDate == null || !selectedDate.IsActive || selectedDate.StartDate < DateTime.UtcNow.Date)
+                return false;
 
-            // 3. Kontenjanı düşürmeyi dene
-           
-            if (selectedDate != null)
-            {
-                dto.TourDateId = selectedDate.Id;
-                if (selectedDate.RemainingCapacity <= 0)
-                {
-                    selectedDate.RemainingCapacity = selectedDate.Capacity > 0 ? selectedDate.Capacity : 25;
-                }
+            int totalCount = dto.AdultCount + dto.ChildCount;
 
-                var capacityAvailable = await _tourService.DecreaseCapacityAsync(dto.TourId, selectedDate.Id, totalCount);
-                // ...
-            }
-            // 4. Rezervasyonu hazırla ve kaydet
+            // 2. Kontenjanı düş — yetmiyorsa rezervasyon ALINMAZ
+            var capacityOk = await _tourService.DecreaseCapacityAsync(dto.TourId, dto.TourDateId, totalCount);
+            if (!capacityOk)
+                return false;
+
+            // 3. Rezervasyonu hazırla — fiyat tarayıcıdan değil, veritabanındaki turdan hesaplanır
             var reservation = _mapper.Map<Reservation>(dto);
+            reservation.TourTitle = tour.Title?.Tr ?? "Tur";
+            reservation.SelectedTourDate = selectedDate.StartDate;
+            reservation.TotalPrice = (dto.AdultCount * tour.Price) + (dto.ChildCount * tour.Price * 0.5m);
             reservation.Status = ReservationStatus.Pending;
             reservation.ReservationDate = DateTime.UtcNow;
-            reservation.AdultCount = dto.AdultCount;
-            reservation.ChildCount = dto.ChildCount;
-
-            // ÖNEMLİ: Turun gerçek tarihini mutlaka set et (Tamamlanmışlara düşmesini engeller)
-            if (selectedDate != null)
-            {
-                reservation.SelectedTourDate = selectedDate.StartDate;
-                reservation.TourDateId = selectedDate.Id;
-            }
-            else if (dto.SelectedTourDate != default)
-            {
-                reservation.SelectedTourDate = dto.SelectedTourDate;
-            }
-            else
-            {
-                reservation.SelectedTourDate = DateTime.UtcNow.AddDays(30); // En kötü ihtimalle ileri bir tarih
-            }
-
-            if (string.IsNullOrEmpty(reservation.TourTitle))
-            {
-                reservation.TourTitle = tour.Title?.Value ?? tour.Title?.Tr ?? tour.Title?.En ?? "Tur";
-            }
 
             await _reservationCollection.InsertOneAsync(reservation);
             return true;
