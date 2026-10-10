@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using Travel.Web.DTOs.IdentityDtos;
 
 namespace Travel.Web.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController(IStringLocalizer<SharedResource> _L) : Controller
     {
         [HttpGet]
         public IActionResult Register()
@@ -40,7 +41,7 @@ namespace Travel.Web.Controllers
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-            TempData["SuccessMessage"] = $"Hoş geldin {createRegisterDto.FirstName}!";
+            TempData["SuccessMessage"] = _L["Hoş geldin {0}!", createRegisterDto.FirstName].Value;
             return RedirectToAction("Index", "Profile");
         }
 
@@ -112,7 +113,7 @@ namespace Travel.Web.Controllers
         [HttpGet]
         public IActionResult AccessDenied()
         {
-            TempData["ErrorMessage"] = "Bu alana erişim yetkiniz bulunmamaktadır!";
+            TempData["ErrorMessage"] = _L["Bu alana erişim yetkiniz bulunmamaktadır!"].Value;
             return RedirectToAction("Index", "Home");
         }
     }

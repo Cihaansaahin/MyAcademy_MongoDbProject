@@ -10,8 +10,7 @@ using Travel.Web.Services.QuestionServices;
 using Travel.Web.Services.ReservationServices;
 using Travel.Web.Services.TourServices;
 using Travel.Web.Validations;
-
-
+using Microsoft.Extensions.Localization;
 
 namespace Travel.Web.Controllers
 {
@@ -28,6 +27,8 @@ namespace Travel.Web.Controllers
         private readonly IValidator<CreateCommentDto> _commentValidator;
         private readonly IValidator<CreateQuestionDto> _questionValidator;
 
+        private readonly IStringLocalizer<SharedResource> _L;
+
         public TourController(
             ITourService tourService,
             IDestinationService destinationService,
@@ -36,9 +37,10 @@ namespace Travel.Web.Controllers
             IQuestionService questionService,
             IReservationService reservationService,
 
-             IValidator<CreateReservationDto> reservationValidator,   
-            IValidator<CreateCommentDto> commentValidator,           
-            IValidator<CreateQuestionDto> questionValidator)
+            IValidator<CreateReservationDto> reservationValidator,
+            IValidator<CreateCommentDto> commentValidator,
+            IValidator<CreateQuestionDto> questionValidator,
+            IStringLocalizer<SharedResource> localizer)
         {
             _tourService = tourService;
             _destinationService = destinationService;
@@ -47,9 +49,11 @@ namespace Travel.Web.Controllers
             _questionService = questionService;
             _reservationService = reservationService;
 
-            _reservationValidator = reservationValidator;   
-            _commentValidator = commentValidator;       
+            _reservationValidator = reservationValidator;
+            _commentValidator = commentValidator;
             _questionValidator = questionValidator;
+
+            _L = localizer;
         }
 
         public async Task<IActionResult> Index(string? search, string? destinationId, string? categoryId, decimal? minPrice, decimal? maxPrice, string? sort)
@@ -125,7 +129,7 @@ namespace Travel.Web.Controllers
         {
             if (dto == null)
             {
-                return Json(new { success = false, message = "Geçersiz rezervasyon bilgisi." });
+                return Json(new { success = false, message = _L["Geçersiz rezervasyon bilgisi."].Value });
             }
 
             // YENİ: FluentValidation kontrolü
@@ -140,7 +144,7 @@ namespace Travel.Web.Controllers
 
             if (string.IsNullOrEmpty(sessionEmail))
             {
-                return Json(new { success = false, message = "Rezervasyon yapabilmek için lütfen önce giriş yapın." });
+                return Json(new { success = false, message = _L["Rezervasyon yapabilmek için lütfen önce giriş yapın."].Value });
             }
 
             dto.Email = sessionEmail;
@@ -155,10 +159,10 @@ namespace Travel.Web.Controllers
             var result = await _reservationService.CreateReservationAsync(dto);
             if (!result)
             {
-                return Json(new { success = false, message = "Seçilen tarih için yeterli kontenjan yok veya tarih geçersiz." });
+                return Json(new { success = false, message = _L["Seçilen tarih için yeterli kontenjan yok veya tarih geçersiz."].Value });
             }
 
-            return Json(new { success = true, message = "Rezervasyonunuz başarıyla oluşturuldu! Profilinize yönlendiriliyorsunuz..." });
+            return Json(new { success = true, message = _L["Rezervasyonunuz başarıyla oluşturuldu! Profilinize yönlendiriliyorsunuz..."].Value });
         }
 
         [HttpPost]
@@ -167,7 +171,7 @@ namespace Travel.Web.Controllers
             // YENİ: Eski "Content boş mu" kontrolü yerine null kontrolü + validator
             if (dto == null)
             {
-                return Json(new { success = false, message = "Geçersiz istek." });
+                return Json(new { success = false, message = _L["Geçersiz istek."].Value });
             }
 
             var validation = await _commentValidator.ValidateAsync(dto);
@@ -188,7 +192,7 @@ namespace Travel.Web.Controllers
 
             await _commentService.CreateAsync(dto);
 
-            return Json(new { success = true, message = "Yorumunuz başarıyla paylaşıldı!" });
+            return Json(new { success = true, message = _L["Yorumunuz başarıyla paylaşıldı!"].Value });
         }
 
         [HttpPost]
@@ -197,7 +201,7 @@ namespace Travel.Web.Controllers
             // YENİ
             if (dto == null)
             {
-                return Json(new { success = false, message = "Geçersiz istek." });
+                return Json(new { success = false, message = _L["Geçersiz istek."].Value });
             }
 
             var validation = await _questionValidator.ValidateAsync(dto);
@@ -218,7 +222,7 @@ namespace Travel.Web.Controllers
 
             await _questionService.CreateAsync(dto);
 
-            return Json(new { success = true, message = "Sorunuz rehbere iletildi! Yanıtlandığında bu alanda görüntülenecektir." });
+            return Json(new { success = true, message = _L["Sorunuz rehbere iletildi! Yanıtlandığında bu alanda görüntülenecektir."].Value });
         }
     }
 }

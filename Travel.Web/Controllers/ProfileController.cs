@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Travel.Web.Services.CommentServices;
 using Travel.Web.Services.QuestionServices;
 using Travel.Web.Services.ReservationServices;
@@ -10,15 +11,18 @@ namespace Travel.Web.Controllers
         private readonly IReservationService _reservationService;
         private readonly ICommentService _commentService;
         private readonly IQuestionService _questionService;
+        private readonly IStringLocalizer<SharedResource> _L;
 
         public ProfileController(
             IReservationService reservationService,
             ICommentService commentService,
-            IQuestionService questionService)
+            IQuestionService questionService,
+            IStringLocalizer<SharedResource> localizer)
         {
             _reservationService = reservationService;
             _commentService = commentService;
             _questionService = questionService;
+            _L = localizer;
         }
 
         public async Task<IActionResult> Index()
@@ -61,7 +65,7 @@ namespace Travel.Web.Controllers
 
             return View();
         }
-       
+
 
         [HttpPost]
         public IActionResult UpdateProfile(string fullName, string email, string phone)
@@ -75,7 +79,7 @@ namespace Travel.Web.Controllers
             if (!string.IsNullOrWhiteSpace(phone))
                 HttpContext.Session.SetString("UserPhone", phone.Trim());
 
-            TempData["ProfileUpdateSuccess"] = "Profil bilgileriniz başarıyla güncellendi.";
+            TempData["ProfileUpdateSuccess"] = _L["Profil bilgileriniz başarıyla güncellendi."].Value;
             return RedirectToAction("Index");
         }
     }
