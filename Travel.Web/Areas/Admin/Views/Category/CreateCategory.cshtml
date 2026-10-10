@@ -1,7 +1,7 @@
 ﻿@model Travel.Web.DTOs.CategoryDtos.CreateCategoryDto
 @{
     var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
-    ViewData["Title"] = isEn ? "Add New Category" : "Yeni Kategori Ekle";
+    ViewData["Title"] = L["Yeni Kategori Ekle"].Value;
 }
 
 @section Styles {
@@ -293,17 +293,17 @@
 }
 
 <div class="crumb">
-    <a href="/Admin/Dashboard">Dashboard</a> / <a href="/Admin/Category/Index">@(isEn ? "Categories" : "Kategoriler")</a> / <span class="cur">@(isEn ? "Add New Category" : "Yeni Kategori Ekle")</span>
+    <a href="/Admin/Dashboard">Dashboard</a> / <a href="/Admin/Category/Index">@L["Kategoriler"]</a> / <span class="cur">@L["Yeni Kategori Ekle"]</span>
 </div>
 <div class="page-intro">
     <div>
-        <div class="eyebrow">@(isEn ? "Catalog Management" : "Katalog Yönetimi")</div>
-        <h1>@(isEn ? "Add New Category" : "Yeni Kategori Ekle")</h1>
-        <p>@(isEn ? "Define a new tour catalog category with localized labels and visual icons." : "Sisteme yeni bir tur kategorisi tanımlayın ve yayın durumunu belirleyin.")</p>
+        <div class="eyebrow">@L["Katalog Yönetimi"]</div>
+        <h1>@L["Yeni Kategori Ekle"]</h1>
+        <p>@L["Sisteme yeni bir tur kategorisi tanımlayın ve yayın durumunu belirleyin."]</p>
     </div>
     <a href="/Admin/Category/Index" class="btn-ghost">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
-        @(isEn ? "Back to Categories" : "Kategorilere Dön")
+        @L["Kategorilere Dön"]
     </a>
 </div>
 
@@ -314,50 +314,50 @@
                 <span class="sec-ic">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7" y2="7" /></svg>
                 </span>
-                @(isEn ? "Category Information" : "Kategori Bilgileri")
+                @L["Kategori Bilgileri"]
             </h2>
-            <p>@(isEn ? "Enter category naming, visual icon representation, and display options." : "Kategori adı, görsel ikon ve sitedeki görünüm ayarlarını belirleyin.")</p>
+            <p>@L["Kategori adı, görsel ikon ve sitedeki görünüm ayarlarını belirleyin."]</p>
         </div>
 
         <div class="row g-3">
             <div class="col-md-6 field">
-                <label>@(isEn ? "Category Name (Turkish 🇹🇷)" : "Kategori Adı (TR 🇹🇷)") <span class="req">*</span></label>
+                <label>@L["Kategori Adı (TR 🇹🇷)"] <span class="req">*</span></label>
                 <input class="ctrl" asp-for="Name.Tr" placeholder="Örn: Doğa & Macera" required>
             </div>
 
             <div class="col-md-6 field">
-                <label>@(isEn ? "Category Name (English 🇬🇧)" : "Kategori Adı (EN 🇬🇧)")</label>
+                <label>@L["Kategori Adı (EN 🇬🇧)"]</label>
                 <input class="ctrl" asp-for="Name.En" placeholder="e.g. Nature & Adventure">
             </div>
 
             <div class="col-md-8 field">
-                <label>@(isEn ? "Icon Class, Emoji, or Image URL" : "İkon Sınıfı, Emoji veya Görsel URL'si")</label>
+                <label>@L["İkon Sınıfı, Emoji veya Görsel URL'si"]</label>
                 <input class="ctrl" asp-for="IconUrl" id="iconInput" placeholder="Örn: fa-solid fa-mountain, 🏔️ veya https://..." oninput="updateIconPreview(this.value)">
                 <small style="color:var(--muted);font-size:.76rem;margin-top:.3rem;display:block">
-                    @(isEn ? "Supports FontAwesome classes, direct SVG/image links, or standard emojis." : "FontAwesome sınıfı, doğrudan görsel linki veya emoji girebilirsiniz.")
+                    @L["FontAwesome sınıfı, doğrudan görsel linki veya emoji girebilirsiniz."]
                 </small>
             </div>
 
             <div class="col-md-4 field">
-                <label>@(isEn ? "Icon Preview" : "İkon Önizlemesi")</label>
+                <label>@L["İkon Önizlemesi"]</label>
                 <div class="d-flex align-items-center gap-2">
                     <div class="icon-preview-box" id="iconPreviewBox">🏷️</div>
-                    <span style="font-size:.8rem;color:var(--muted)">@(isEn ? "Live preview" : "Canlı önizleme")</span>
+                    <span style="font-size:.8rem;color:var(--muted)">@L["Canlı önizleme"]</span>
                 </div>
             </div>
 
             <div class="col-12 field mt-2">
-                <label>@(isEn ? "Category Status" : "Kategori Yayın Durumu")</label>
+                <label>@L["Kategori Yayın Durumu"]</label>
                 <div class="status-pills">
                     <label class="status-pill sel" data-status="true">
                         <input type="radio" name="IsActive" value="true" checked>
-                        <b>@(isEn ? "Active" : "Aktif")</b>
-                        <span>@(isEn ? "Visible in catalog filter" : "Filtrelerde ve sitede yayında")</span>
+                        <b>@L["Aktif"]</b>
+                        <span>@L["Filtrelerde ve sitede yayında"]</span>
                     </label>
                     <label class="status-pill" data-status="false">
                         <input type="radio" name="IsActive" value="false">
-                        <b>@(isEn ? "Inactive" : "Pasif")</b>
-                        <span>@(isEn ? "Hidden from public catalog" : "Kullanıcılara gizli")</span>
+                        <b>@L["Pasif"]</b>
+                        <span>@L["Kullanıcılara gizli"]</span>
                     </label>
                 </div>
             </div>
@@ -368,13 +368,13 @@
     <div class="action-bar">
         <div class="saved">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-            @(isEn ? "Ready to save" : "Kaydedilmeye hazır")
+            @L["Kaydedilmeye hazır"]
         </div>
         <div class="btns">
-            <a href="/Admin/Category/Index" class="btn-ghost">@(isEn ? "Cancel" : "Vazgeç")</a>
+            <a href="/Admin/Category/Index" class="btn-ghost">@L["Vazgeç"]</a>
             <button type="submit" class="btn-teal">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                @(isEn ? "Save Category" : "Kategoriyi Kaydet")
+                @L["Kategoriyi Kaydet"]
             </button>
         </div>
     </div>

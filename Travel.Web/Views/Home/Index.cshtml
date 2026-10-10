@@ -533,46 +533,46 @@
     </button>
 
     <div class="container hero-content">
-        <div class="eyebrow mb-2">@(isEn ? "EXPLORE WITH TRAVELIO" : "TRAVELIO İLE KEŞFET")</div>
-        <h1>@(isEn ? "Ready to Explore the World?" : "Dünyayı Keşfetmeye Hazır Mısın?")</h1>
+        <div class="eyebrow mb-2">@L["TRAVELIO İLE KEŞFET"]</div>
+        <h1>@L["Dünyayı Keşfetmeye Hazır Mısın?"]</h1>
         <p class="lead">
-            @(isEn ? "From iconic European capitals to unique routes, unforgettable travel experiences await you." : "Avrupa'nın ikonik şehirlerinden benzersiz rotalara kadar unutulmaz seyahat deneyimleri seni bekliyor.")
+            @L["Avrupa'nın ikonik şehirlerinden benzersiz rotalara kadar unutulmaz seyahat deneyimleri seni bekliyor."]
         </p>
 
         <!-- SEARCH FORM -->
         <form action="/Tour/Index" method="get" class="search-box">
             <div class="row g-0 align-items-center">
                 <div class="col-md-3 search-field">
-                    <label>@(isEn ? "Destination" : "Destinasyon")</label>
-                    <input class="control" name="search" placeholder="@(isEn ? "Where to go?" : "Nereye gidelim?")" />
+                    <label>@L["Destinasyon"]</label>
+                    <input class="control" name="search" placeholder="@L["Nereye gidelim?"]" />
                 </div>
                 <div class="col-md-3 search-field">
-                    <label>@(isEn ? "Date" : "Tarih")</label>
+                    <label>@L["Tarih"]</label>
                     <input class="control" type="date" name="date" />
                 </div>
                 <div class="col-md-3 search-field">
-                    <label>@(isEn ? "Guests" : "Kişi Sayısı")</label>
+                    <label>@L["Kişi Sayısı"]</label>
                     <select class="control" name="guests">
-                        <option value="1">@(isEn ? "1 Guest" : "1 kişi")</option>
-                        <option value="2" selected>@(isEn ? "2 Guests" : "2 kişi")</option>
-                        <option value="3">@(isEn ? "3 Guests" : "3 kişi")</option>
-                        <option value="4">@(isEn ? "4 Guests" : "4 kişi")</option>
-                        <option value="5">@(isEn ? "5+ Guests" : "5+ kişi")</option>
+                        <option value="1">@L["1 kişi"]</option>
+                        <option value="2" selected>@L["2 kişi"]</option>
+                        <option value="3">@L["3 kişi"]</option>
+                        <option value="4">@L["4 kişi"]</option>
+                        <option value="5">@L["5+ kişi"]</option>
                     </select>
                 </div>
                 <div class="col-md-3 p-1">
                     <button type="submit" class="btn-teal">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-1"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-                        @(isEn ? "Search Tours" : "Turları Ara")
+                        @L["Turları Ara"]
                     </button>
                 </div>
             </div>
         </form>
 
         <div class="stats-row">
-            <div class="stat"><b>@(destinations?.Count ?? 0)+</b><span>@(isEn ? "Destinations" : "Destinasyon")</span></div>
-            <div class="stat"><b>@(Model?.Count ?? 0)+</b><span>@(isEn ? "Active Tours" : "Aktif Tur")</span></div>
-            <div class="stat"><b>92.000</b><span>@(isEn ? "Happy Travelers" : "Mutlu Gezgin")</span></div>
+            <div class="stat"><b>@(destinations?.Count ?? 0)+</b><span>@L["Destinasyon"]</span></div>
+            <div class="stat"><b>@(Model?.Count ?? 0)+</b><span>@L["Aktif Tur"]</span></div>
+            <div class="stat"><b>92.000</b><span>@L["Mutlu Gezgin"]</span></div>
         </div>
     </div>
 </header>
@@ -583,12 +583,12 @@
         <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
             <div class="section-head">
                 <div class="eyebrow" style="color: var(--teal-dark); font-size: .72rem; font-weight: 700; text-transform: uppercase;">
-                    @(isEn ? "Popular Routes" : "Popüler Rotalar")
+                    @L["Popüler Rotalar"]
                 </div>
-                <h2>@(isEn ? "Most Popular Tours" : "En Çok Tercih Edilen Turlar")</h2>
+                <h2>@L["En Çok Tercih Edilen Turlar"]</h2>
             </div>
             <a href="/Tour/Index" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 fw-semibold mb-2" style="font-size: .82rem;">
-                @(isEn ? "View All Tours →" : "Tüm Turları Gör →")
+                @L["Tüm Turları Gör →"]
             </a>
         </div>
 
@@ -601,21 +601,21 @@
                         <article class="tour-card">
                             <div class="tour-media">
                                 <img src="@(string.IsNullOrEmpty(item.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : item.CoverImageUrl)" alt="@(item.Title?.Value ?? "Tour")" loading="lazy" />
-                                <span class="tour-badge">@(isEn ? "Popular" : "Popüler")</span>
+                                <span class="tour-badge">@L["Popüler"]</span>
                                 <button class="fav" aria-label="Favorilere ekle" onclick="this.classList.toggle('active')">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg>
                                 </button>
                             </div>
                             <div class="tour-body">
                                 <div class="tour-country">@item.Country · @item.City</div>
-                                <h3 class="tour-title">@(item.Title?.Value ?? (isEn ? item.Title?.En : item.Title?.Tr) ?? (isEn ? "Untitled Tour" : "İsimsiz Tur"))</h3>
+                                <h3 class="tour-title">@(item.Title?.Value ?? L["İsimsiz Tur"].Value)</h3>
                                 <div class="tour-meta">
-                                    <span>🗓️ @item.DurationDays @(isEn ? "Days" : "Gün")</span>
+                                    <span>🗓️ @item.DurationDays @L["Gün"]</span>
                                     <span class="rating"><span class="star">★</span> 4.9</span>
                                 </div>
                                 <div class="tour-foot">
-                                    <div class="price"><small>@(isEn ? "From" : "Kişi başı")</small><b>@item.Price.ToString("N0") <span>TL</span></b></div>
-                                    <a href="/Tour/Detail/@item.Id" class="btn-incele">@(isEn ? "Explore" : "Turu İncele")</a>
+                                    <div class="price"><small>@L["Kişi başı"]</small><b>@item.Price.ToString("N0") <span>TL</span></b></div>
+                                    <a href="/Tour/Detail/@item.Id" class="btn-incele">@L["Turu İncele"]</a>
                                 </div>
                             </div>
                         </article>
@@ -625,7 +625,7 @@
             else
             {
                 <div class="col-12 text-center py-4">
-                    <p class="text-muted">@(isEn ? "No active tours available to display yet." : "Henüz listelenecek aktif tur bulunmuyor.")</p>
+                    <p class="text-muted">@L["Henüz listelenecek aktif tur bulunmuyor."]</p>
                 </div>
             }
         </div>
@@ -636,15 +636,15 @@
 <section id="destinasyonlar" class="dest-section">
     <div class="container">
         <div class="section-head mb-5">
-            <div class="eyebrow" style="color: #7fe3e3;">@(isEn ? "Inspiring Cities" : "İlham veren şehirler")</div>
-            <h2 style="color: #fff;">@(isEn ? "Popular Destinations" : "Popüler Destinasyonlar")</h2>
-            <p style="color: rgba(255,255,255,.72);">@(isEn ? "Dream destinations that millions of travelers long to return to." : "Milyonlarca gezginin tekrar tekrar dönmek istediği rüya şehirler.")</p>
+            <div class="eyebrow" style="color: #7fe3e3;">@L["İlham veren şehirler"]</div>
+            <h2 style="color: #fff;">@L["Popüler Destinasyonlar"]</h2>
+            <p style="color: rgba(255,255,255,.72);">@L["Milyonlarca gezginin tekrar tekrar dönmek istediği rüya şehirler."]</p>
         </div>
         <div class="row g-4">
             <div class="col-lg-6">
                 <a class="dest-card tall" href="/Tour/Index">
                     <img src="https://images.unsplash.com/photo-1522093007474-d86e9bf7ba6f?auto=format&fit=crop&w=1200&q=80" alt="Paris" />
-                    <div class="dest-cap"><h3>Paris</h3><span>@(isEn ? "France · City of Lights" : "Fransa · Işıklar Şehri")</span></div>
+                    <div class="dest-cap"><h3>Paris</h3><span>@L["Fransa · Işıklar Şehri"]</span></div>
                 </a>
             </div>
             <div class="col-lg-6">
@@ -652,19 +652,19 @@
                     <div class="col-12">
                         <a class="dest-card" href="/Tour/Index">
                             <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1200&q=80" alt="Roma" />
-                            <div class="dest-cap"><h3>Roma</h3><span>@(isEn ? "Italy · Ancient Capital" : "İtalya · Antik Başkent")</span></div>
+                            <div class="dest-cap"><h3>Roma</h3><span>@L["İtalya · Antik Başkent"]</span></div>
                         </a>
                     </div>
                     <div class="col-md-6">
                         <a class="dest-card" href="/Tour/Index">
                             <img src="https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=900&q=80" alt="Amsterdam" />
-                            <div class="dest-cap"><h3>Amsterdam</h3><span>@(isEn ? "Netherlands · Canals" : "Hollanda · Kanallar")</span></div>
+                            <div class="dest-cap"><h3>Amsterdam</h3><span>@L["Hollanda · Kanallar"]</span></div>
                         </a>
                     </div>
                     <div class="col-md-6">
                         <a class="dest-card" href="/Tour/Index">
                             <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=900&q=80" alt="Tokyo" />
-                            <div class="dest-cap"><h3>Tokyo</h3><span>@(isEn ? "Japan · Far East" : "Japonya · Uzak Doğu")</span></div>
+                            <div class="dest-cap"><h3>Tokyo</h3><span>@L["Japonya · Uzak Doğu"]</span></div>
                         </a>
                     </div>
                 </div>
@@ -677,9 +677,9 @@
 <section id="hakkimizda">
     <div class="container">
         <div class="section-head mb-5">
-            <div class="eyebrow">@(isEn ? "Why Choose Us" : "Neden biz")</div>
-            <h2>@(isEn ? "Why Travelio?" : "Neden Travelio?")</h2>
-            <p>@(isEn ? "More than just a tour—a thoughtfully crafted journey from start to finish." : "Sadece bir tur değil, baştan sona düşünülmüş bir seyahat deneyimi.")</p>
+            <div class="eyebrow">@L["Neden biz"]</div>
+            <h2>@L["Neden Travelio?"]</h2>
+            <p>@L["Sadece bir tur değil, baştan sona düşünülmüş bir seyahat deneyimi."]</p>
         </div>
         <div class="row g-4">
             <div class="col-md-4">
@@ -687,8 +687,8 @@
                     <div class="why-ico">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
                     </div>
-                    <h4>@(isEn ? "Handpicked Itineraries" : "Özenle Seçilmiş Rotalar")</h4>
-                    <p>@(isEn ? "Every route is tested by local experts to offer authentic adventures, not standard tourist traps." : "Her tur, yerel uzmanlarımız tarafından test edilmiş gerçek deneyimlerden oluşur; klişe turistik duraklar değil.")</p>
+                    <h4>@L["Özenle Seçilmiş Rotalar"]</h4>
+                    <p>@L["Her tur, yerel uzmanlarımız tarafından test edilmiş gerçek deneyimlerden oluşur; klişe turistik duraklar değil."]</p>
                 </div>
             </div>
             <div class="col-md-4">
@@ -696,8 +696,8 @@
                     <div class="why-ico">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
                     </div>
-                    <h4>@(isEn ? "No Hidden Fees" : "Gizli Ücret Yok")</h4>
-                    <p>@(isEn ? "What you see is what you pay. Accommodation, transport, and guides are presented transparently." : "Gördüğün fiyat ödediğin fiyattır. Konaklama, ulaşım ve rehberlik tek pakette şeffaf şekilde sunulur.")</p>
+                    <h4>@L["Gizli Ücret Yok"]</h4>
+                    <p>@L["Gördüğün fiyat ödediğin fiyattır. Konaklama, ulaşım ve rehberlik tek pakette şeffaf şekilde sunulur."]</p>
                 </div>
             </div>
             <div class="col-md-4">
@@ -705,8 +705,8 @@
                     <div class="why-ico">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1" /><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" /><line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" /></svg>
                     </div>
-                    <h4>@(isEn ? "24/7 Support" : "7/24 Yanındayız")</h4>
-                    <p>@(isEn ? "Our dedicated support team is just a text away throughout your trip, ready for any unexpected needs." : "Seyahatin boyunca Türkçe destek ekibimiz tek mesaj uzağında. Herhangi bir aksilikte anında yanındayız.")</p>
+                    <h4>@L["7/24 Yanındayız"]</h4>
+                    <p>@L["Seyahatin boyunca Türkçe destek ekibimiz tek mesaj uzağında. Herhangi bir aksilikte anında yanındayız."]</p>
                 </div>
             </div>
         </div>
@@ -717,8 +717,8 @@
 <section id="yorumlar" style="background:#fff">
     <div class="container">
         <div class="section-head mb-5">
-            <div class="eyebrow">@(isEn ? "Traveler Reviews" : "Gezgin yorumları")</div>
-            <h2>@(isEn ? "What Travelers Say" : "Gezginler Ne Diyor?")</h2>
+            <div class="eyebrow">@L["Gezgin yorumları"]</div>
+            <h2>@L["Gezginler Ne Diyor?"]</h2>
         </div>
         <div class="row g-4">
             <div class="col-md-4">
@@ -771,14 +771,14 @@
 <section id="iletisim">
     <div class="container">
         <div class="cta-wrap text-center">
-            <div class="eyebrow" style="color:#7fe3e3">@(isEn ? "You Are The Next Destination" : "Sıradaki durak sensin")</div>
-            <h2 class="mt-2">@(isEn ? "Your Next Adventure Is Just a Click Away" : "Bir Sonraki Maceran Bir Tık Uzağında")</h2>
+            <div class="eyebrow" style="color:#7fe3e3">@L["Sıradaki durak sensin"]</div>
+            <h2 class="mt-2">@L["Bir Sonraki Maceran Bir Tık Uzağında"]</h2>
             <p>
-                @(isEn ? "Pick your dream destination, leave the rest to Travelio. Don't miss early booking perks for limited seats." : "Hayalindeki rotayı seç, gerisini Travelio'ya bırak. Sınırlı kontenjanlı turlar için erken rezervasyon avantajlarını kaçırma.")
+                @L["Hayalindeki rotayı seç, gerisini Travelio'ya bırak. Sınırlı kontenjanlı turlar için erken rezervasyon avantajlarını kaçırma."]
             </p>
             <div class="mt-4 d-flex gap-3 justify-content-center flex-wrap">
-                <a href="#turlar" class="btn btn-teal">@(isEn ? "Explore Tours" : "Turları Keşfet")</a>
-                <a href="#" class="btn-ghost">@(isEn ? "Contact Us" : "Bize Ulaş")</a>
+                <a href="#turlar" class="btn btn-teal">@L["Turları Keşfet"]</a>
+                <a href="#" class="btn-ghost">@L["Bize Ulaş"]</a>
             </div>
         </div>
     </div>

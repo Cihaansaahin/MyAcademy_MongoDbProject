@@ -1,7 +1,7 @@
 ﻿@model List<Travel.Web.DTOs.TourDtos.ResultTourDto>
 @{
     var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
-    ViewData["Title"] = isEn ? "Tours" : "Turlar";
+    ViewData["Title"] = L["Turlar"].Value;
     var destinations = ViewBag.Destinations as List<Travel.Web.DTOs.DestinationDtos.ResultDestinationDto>;
     var categories = ViewBag.Categories as List<Travel.Web.DTOs.CategoryDtos.ResultCategoryDto>;
 }
@@ -603,14 +603,12 @@
 <header class="page-head">
     <div class="container">
         <div class="breadcrumbz">
-            <a href="/">@(isEn ? "Home" : "Ana Sayfa")</a> · @(isEn ? "Tours" : "Turlar")
+            <a href="/">@L["Ana Sayfa"]</a> · @L["Turlar"]
         </div>
-        <div class="eyebrow">@(isEn ? "Explore the World" : "Dünyayı keşfet")</div>
-        <h1>@(isEn ? "Find Your Dream Tour" : "Hayalindeki Turu Bul")</h1>
+        <div class="eyebrow">@L["Dünyayı keşfet"]</div>
+        <h1>@L["Hayalindeki Turu Bul"]</h1>
         <p>
-            @(isEn
-                ? "From Europe's iconic cities to the enchanting paths of the Far East, discover the perfect journey tailored for you."
-                : "Avrupa'nın ikonik şehirlerinden Uzak Doğu'nun büyüleyici rotalarına kadar sana uygun seyahati keşfet.")
+            @L["Avrupa'nın ikonik şehirlerinden Uzak Doğu'nun büyüleyici rotalarına kadar sana uygun seyahati keşfet."]
         </p>
     </div>
 </header>
@@ -632,21 +630,21 @@
                 <!-- toolbar -->
                 <div class="toolbar">
                     <div>
-                        <h2>@(isEn ? "Tours" : "Turlar")</h2>
-                        <div class="count"><span id="resultCount">@(Model?.Count ?? 0)</span> @(isEn ? "tours found" : "tur bulundu")</div>
+                        <h2>@L["Turlar"]</h2>
+                        <div class="count"><span id="resultCount">@(Model?.Count ?? 0)</span> @L["tur bulundu"]</div>
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <button class="btn-filter-mobile d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas">
-                            @(isEn ? "Filter" : "Filtrele")
+                            @L["Filtrele"]
                         </button>
                         <div class="sort-wrap">
-                            <label for="sortSelect" class="d-none d-sm-block">@(isEn ? "Sort:" : "Sırala:")</label>
+                            <label for="sortSelect" class="d-none d-sm-block">@L["Sırala:"]</label>
                             <select id="sortSelect">
-                                <option value="onerilen">@(isEn ? "Recommended" : "Önerilen")</option>
-                                <option value="puan">@(isEn ? "Highest Rating" : "En Yüksek Puan")</option>
-                                <option value="fiyat-artan">@(isEn ? "Price: Low to High" : "Fiyat: Düşükten Yükseğe")</option>
-                                <option value="fiyat-azalan">@(isEn ? "Price: High to Low" : "Fiyat: Yüksekten Düşüğe")</option>
-                                <option value="yeni">@(isEn ? "Newest Tours" : "En Yeni Turlar")</option>
+                                <option value="onerilen">@L["Önerilen"]</option>
+                                <option value="puan">@L["En Yüksek Puan"]</option>
+                                <option value="fiyat-artan">@L["Fiyat: Düşükten Yükseğe"]</option>
+                                <option value="fiyat-azalan">@L["Fiyat: Yüksekten Düşüğe"]</option>
+                                <option value="yeni">@L["En Yeni Turlar"]</option>
                             </select>
                         </div>
                     </div>
@@ -664,9 +662,9 @@
                         <div class="ico">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                         </div>
-                        <h3>@(isEn ? "No tours found matching your criteria." : "Aradığın kriterlere uygun tur bulunamadı.")</h3>
-                        <p>@(isEn ? "Try loosening your filters or clear them all to start over." : "Filtreleri biraz gevşetmeyi dene ya da tümünü temizleyerek yeniden başla.")</p>
-                        <button class="btn-teal" type="button" onclick="clearFilters()" style="padding:.5rem 1.2rem;font-size:.82rem">@(isEn ? "Clear Filters" : "Filtreleri Temizle")</button>
+                        <h3>@L["Aradığın kriterlere uygun tur bulunamadı."]</h3>
+                        <p>@L["Filtreleri biraz gevşetmeyi dene ya da tümünü temizleyerek yeniden başla."]</p>
+                        <button class="btn-teal" type="button" onclick="clearFilters()" style="padding:.5rem 1.2rem;font-size:.82rem">@L["Filtreleri Temizle"]</button>
                     </div>
                 </div>
 
@@ -681,10 +679,10 @@
 
                 <!-- mini cta -->
                 <div class="mini-cta">
-                    <div class="eyebrow">@(isEn ? "Let Us Help" : "Yardımcı olalım")</div>
-                    <h2>@(isEn ? "Couldn't Find the Route You Were Looking For?" : "Aradığın Rotayı Bulamadın mı?")</h2>
-                    <p>@(isEn ? "Tell us your dream destination, and let's discover the best travel options together." : "Hayalindeki destinasyonu bize söyle, sana uygun seyahat seçeneklerini birlikte bulalım.")</p>
-                    <a href="/#iletisim" class="btn-teal" style="text-decoration:none">@(isEn ? "Contact Us" : "Bize Ulaş")</a>
+                    <div class="eyebrow">@L["Yardımcı olalım"]</div>
+                    <h2>@L["Aradığın Rotayı Bulamadın mı?"]</h2>
+                    <p>@L["Hayalindeki destinasyonu bize söyle, sana uygun seyahat seçeneklerini birlikte bulalım."]</p>
+                    <a href="/#iletisim" class="btn-teal" style="text-decoration:none">@L["Bize Ulaş"]</a>
                 </div>
             </div>
         </div>
@@ -694,7 +692,7 @@
 <!-- OFFCANVAS FILTERS (mobile) -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="filterOffcanvas" style="width:300px">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" style="font-family:'Sora';font-weight:700;color:var(--navy);font-size:1rem">@(isEn ? "Filter" : "Filtrele")</h5>
+        <h5 class="offcanvas-title" style="font-family:'Sora';font-weight:700;color:var(--navy);font-size:1rem">@L["Filtrele"]</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body">
@@ -710,311 +708,311 @@
         const TOURS = [
         @if (Model != null && Model.Any())
         {
-                foreach (var t in Model)
+                    foreach (var t in Model)
+                    {
+                                var title = t.Title?.Value ?? "";
+                                var catObj = categories?.FirstOrDefault(c => c.Id == t.CategoryId);
+                                var catName = catObj?.Name?.Value ?? L["Tur"].Value;
+                                var badgeText = t.IsPopular ? L["Popüler"].Value : "";
+                                <text>{
+                                            id: "@t.Id",
+                                            title: "@Html.Raw(title.Replace("\"", "\\\""))",
+                                            country: "@(t.Country ?? "")",
+                                            city: "@(t.City ?? "")",
+                                            ctry: "@(t.Country?.ToLower() ?? "")",
+                                            dur: @t.DurationDays,
+                                            durLabel: `@t.DurationDays @L["Gün"]`,
+                                            rating: 4.9,
+                                            reviews: 1200,
+                                            price: @t.Price,
+                                            cat: "@(t.CategoryId ?? "")",
+                                            catLabel: "@catName",
+                                            badge: "@badgeText",
+                                            img: "@(string.IsNullOrEmpty(t.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : t.CoverImageUrl)"
+                                        },</text>
+                            }
+                }
+                ];
+
+                /* ---------- FILTER DEFINITIONS ---------- */
+                const DEST_OPTS = [
+                @if (destinations != null && destinations.Any())
                 {
-                        var title = t.Title?.Value ?? (isEn ? t.Title?.En : t.Title?.Tr) ?? t.Title?.ToString() ?? "";
-                        var catObj = categories?.FirstOrDefault(c => c.Id == t.CategoryId);
-                        var catName = catObj?.Name?.Value ?? (isEn ? catObj?.Name?.En : catObj?.Name?.Tr) ?? (isEn ? "Tour" : "Tur");
-                        var badgeText = t.IsPopular ? (isEn ? "Popular" : "Popüler") : "";
-                        <text>{
-                                id: "@t.Id",
-                                title: "@Html.Raw(title.Replace("\"", "\\\""))",
-                                country: "@(t.Country ?? "")",
-                                city: "@(t.City ?? "")",
-                                ctry: "@(t.Country?.ToLower() ?? "")",
-                                dur: @t.DurationDays,
-                                durLabel: `@t.DurationDays @(isEn ? "Days" : "Gün")`,
-                                rating: 4.9,
-                                reviews: 1200,
-                                price: @t.Price,
-                                cat: "@(t.CategoryId ?? "")",
-                                catLabel: "@catName",
-                                badge: "@badgeText",
-                                img: "@(string.IsNullOrEmpty(t.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : t.CoverImageUrl)"
-                            },</text>
-                    }
-            }
-            ];
+                            foreach (var d in destinations)
+                            {
+                                        <text>{ key: "@d.City.ToLower()", label: "@d.City" },</text>
+                            }
+                }
+                ];
 
-            /* ---------- FILTER DEFINITIONS ---------- */
-            const DEST_OPTS = [
-            @if (destinations != null && destinations.Any())
-            {
-                    foreach (var d in destinations)
-                    {
-                            <text>{ key: "@d.City.ToLower()", label: "@d.City" },</text>
-                    }
-            }
-            ];
+                const DUR_OPTS = [
+                    {key:"1-3", label: isEn ? "1 - 3 Days" : "1 - 3 Gün", min:1, max:3},
+                    {key:"4-5", label: isEn ? "4 - 5 Days" : "4 - 5 Gün", min:4, max:5},
+                    {key:"6-7", label: isEn ? "6 - 7 Days" : "6 - 7 Gün", min:6, max:7},
+                    {key:"8+",  label: isEn ? "8+ Days" : "8 Gün ve Üzeri", min:8, max:99}
+                ];
 
-            const DUR_OPTS = [
-                {key:"1-3", label: isEn ? "1 - 3 Days" : "1 - 3 Gün", min:1, max:3},
-                {key:"4-5", label: isEn ? "4 - 5 Days" : "4 - 5 Gün", min:4, max:5},
-                {key:"6-7", label: isEn ? "6 - 7 Days" : "6 - 7 Gün", min:6, max:7},
-                {key:"8+",  label: isEn ? "8+ Days" : "8 Gün ve Üzeri", min:8, max:99}
-            ];
+                const PRICE_OPTS = [
+                    {key:"p1", label:"0 - 25.000 ₺", min:0, max:25000},
+                    {key:"p2", label:"25.000 - 40.000 ₺", min:25000, max:40000},
+                    {key:"p3", label:"40.000 - 60.000 ₺", min:40000, max:60000},
+                    {key:"p4", label: isEn ? "60.000 ₺ and above" : "60.000 ₺ ve üzeri", min:60000, max:9999999}
+                ];
 
-            const PRICE_OPTS = [
-                {key:"p1", label:"0 - 25.000 ₺", min:0, max:25000},
-                {key:"p2", label:"25.000 - 40.000 ₺", min:25000, max:40000},
-                {key:"p3", label:"40.000 - 60.000 ₺", min:40000, max:60000},
-                {key:"p4", label: isEn ? "60.000 ₺ and above" : "60.000 ₺ ve üzeri", min:60000, max:9999999}
-            ];
+                const TYPE_OPTS = [
+                @if (categories != null && categories.Any())
+                {
+                            foreach (var c in categories)
+                            {
+                                        var cName = c.Name?.Value ?? "";
+                                        <text>{ id: "@c.Id", label: "@cName" },</text>
+                            }
+                }
+                ];
 
-            const TYPE_OPTS = [
-            @if (categories != null && categories.Any())
-            {
-                    foreach (var c in categories)
-                    {
-                            var cName = c.Name?.Value ?? (isEn ? c.Name?.En : c.Name?.Tr) ?? c.Name?.ToString() ?? "";
-                            <text>{ id: "@c.Id", label: "@cName" },</text>
-                    }
-            }
-            ];
+                const RATING_OPTS = [
+                    {key:"r45", label: isEn ? "4.5 & up" : "4.5 ve üzeri", val:4.5, stars:5},
+                    {key:"r40", label: isEn ? "4.0 & up" : "4.0 ve üzeri", val:4.0, stars:4},
+                    {key:"r35", label: isEn ? "3.5 & up" : "3.5 ve üzeri", val:3.5, stars:3}
+                ];
 
-            const RATING_OPTS = [
-                {key:"r45", label: isEn ? "4.5 & up" : "4.5 ve üzeri", val:4.5, stars:5},
-                {key:"r40", label: isEn ? "4.0 & up" : "4.0 ve üzeri", val:4.0, stars:4},
-                {key:"r35", label: isEn ? "3.5 & up" : "3.5 ve üzeri", val:3.5, stars:3}
-            ];
+                /* ---------- STATE ---------- */
+                const state = { q:"", dest:[], dur:[], price:[], type:[], rating:null, sort:"onerilen" };
 
-            /* ---------- STATE ---------- */
-            const state = { q:"", dest:[], dur:[], price:[], type:[], rating:null, sort:"onerilen" };
+                function destCount(key){
+                    return TOURS.filter(t => t.city.toLowerCase() === key || t.ctry === key).length;
+                }
 
-            function destCount(key){
-                return TOURS.filter(t => t.city.toLowerCase() === key || t.ctry === key).length;
-            }
+                function starsMarkup(n){
+                    let s="";
+                    for(let i=1;i<=5;i++){ s+= i<=n ? "★" : "<span class='off'>★</span>"; }
+                    return s;
+                }
 
-            function starsMarkup(n){
-                let s="";
-                for(let i=1;i<=5;i++){ s+= i<=n ? "★" : "<span class='off'>★</span>"; }
-                return s;
-            }
+                /* ---------- BUILD SIDEBAR HTML ---------- */
+                function sidebarHTML(){
+                    return `
+                    <h2>${isEn ? "Filter Tours" : "Turları Filtrele"}</h2>
+                    <p class="filter-sub">${isEn ? "Narrow down to find your best match." : "Sana en uygun rotayı bulmak için daralt."}</p>
 
-            /* ---------- BUILD SIDEBAR HTML ---------- */
-            function sidebarHTML(){
-                return `
-                <h2>${isEn ? "Filter Tours" : "Turları Filtrele"}</h2>
-                <p class="filter-sub">${isEn ? "Narrow down to find your best match." : "Sana en uygun rotayı bulmak için daralt."}</p>
-
-                <div class="filter-group">
-                    <h3>${isEn ? "Search Tour" : "Tur Ara"}</h3>
-                    <div class="search-wrap">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <input type="text" class="f-search" placeholder="${isEn ? "Search tour or city" : "Tur veya şehir ara"}" />
+                    <div class="filter-group">
+                        <h3>${isEn ? "Search Tour" : "Tur Ara"}</h3>
+                        <div class="search-wrap">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" class="f-search" placeholder="${isEn ? "Search tour or city" : "Tur veya şehir ara"}" />
+                        </div>
                     </div>
-                </div>
 
-                ${DEST_OPTS.length > 0 ? `
-                <div class="filter-group">
-                    <h3>${isEn ? "Destination" : "Destinasyon"}</h3>
-                    ${DEST_OPTS.map(o=>`
-                        <label class="fcheck">
-                            <span class="lbl"><input type="checkbox" class="f-dest" value="${o.key}"> ${o.label}</span>
-                            <span class="cnt">(${destCount(o.key)})</span>
-                        </label>`).join("")}
-                </div>` : ''}
+                    ${DEST_OPTS.length > 0 ? `
+                    <div class="filter-group">
+                        <h3>${isEn ? "Destination" : "Destinasyon"}</h3>
+                        ${DEST_OPTS.map(o=>`
+                            <label class="fcheck">
+                                <span class="lbl"><input type="checkbox" class="f-dest" value="${o.key}"> ${o.label}</span>
+                                <span class="cnt">(${destCount(o.key)})</span>
+                            </label>`).join("")}
+                    </div>` : ''}
 
-                <div class="filter-group">
-                    <h3>${isEn ? "Duration" : "Tur Süresi"}</h3>
-                    ${DUR_OPTS.map(o=>`
-                        <label class="fcheck">
-                            <span class="lbl"><input type="checkbox" class="f-dur" value="${o.key}"> ${o.label}</span>
-                        </label>`).join("")}
-                </div>
+                    <div class="filter-group">
+                        <h3>${isEn ? "Duration" : "Tur Süresi"}</h3>
+                        ${DUR_OPTS.map(o=>`
+                            <label class="fcheck">
+                                <span class="lbl"><input type="checkbox" class="f-dur" value="${o.key}"> ${o.label}</span>
+                            </label>`).join("")}
+                    </div>
 
-                <div class="filter-group">
-                    <h3>${isEn ? "Price Range" : "Fiyat Aralığı"}</h3>
-                    ${PRICE_OPTS.map(o=>`
-                        <label class="fcheck">
-                            <span class="lbl"><input type="checkbox" class="f-price" value="${o.key}"> ${o.label}</span>
-                        </label>`).join("")}
-                </div>
+                    <div class="filter-group">
+                        <h3>${isEn ? "Price Range" : "Fiyat Aralığı"}</h3>
+                        ${PRICE_OPTS.map(o=>`
+                            <label class="fcheck">
+                                <span class="lbl"><input type="checkbox" class="f-price" value="${o.key}"> ${o.label}</span>
+                            </label>`).join("")}
+                    </div>
 
-                ${TYPE_OPTS.length > 0 ? `
-                <div class="filter-group">
-                    <h3>${isEn ? "Tour Type" : "Tur Tipi"}</h3>
-                    ${TYPE_OPTS.map(o=>`
-                        <label class="fcheck">
-                            <span class="lbl"><input type="checkbox" class="f-type" value="${o.id}"> ${o.label}</span>
-                        </label>`).join("")}
-                </div>` : ''}
+                    ${TYPE_OPTS.length > 0 ? `
+                    <div class="filter-group">
+                        <h3>${isEn ? "Tour Type" : "Tur Tipi"}</h3>
+                        ${TYPE_OPTS.map(o=>`
+                            <label class="fcheck">
+                                <span class="lbl"><input type="checkbox" class="f-type" value="${o.id}"> ${o.label}</span>
+                            </label>`).join("")}
+                    </div>` : ''}
 
-                <div class="filter-group">
-                    <h3>${isEn ? "Rating" : "Değerlendirme"}</h3>
-                    ${RATING_OPTS.map(o=>`
-                        <label class="fcheck">
-                            <span class="lbl"><input type="radio" name="f-rating" class="f-rating" value="${o.key}"> <span class="stars-opt">${starsMarkup(o.stars)}</span></span>
-                            <span class="cnt">${o.label}</span>
-                        </label>`).join("")}
-                </div>
+                    <div class="filter-group">
+                        <h3>${isEn ? "Rating" : "Değerlendirme"}</h3>
+                        ${RATING_OPTS.map(o=>`
+                            <label class="fcheck">
+                                <span class="lbl"><input type="radio" name="f-rating" class="f-rating" value="${o.key}"> <span class="stars-opt">${starsMarkup(o.stars)}</span></span>
+                                <span class="cnt">${o.label}</span>
+                            </label>`).join("")}
+                    </div>
 
-                <div class="filter-actions">
-                    <button class="btn-teal" type="button" onclick="applyFromButton()">${isEn ? "Apply Filters" : "Filtreleri Uygula"}</button>
-                    <button class="clear-link" type="button" onclick="clearFilters()">${isEn ? "Clear Filters" : "Filtreleri Temizle"}</button>
-                </div>`;
-            }
-
-            document.getElementById("filterCardDesktop").innerHTML = sidebarHTML();
-            document.getElementById("filterCardMobile").innerHTML = sidebarHTML();
-
-            /* ---------- READ INPUTS -> STATE ---------- */
-            function syncState(){
-                const q = document.querySelector(".f-search")?.value.trim().toLowerCase() || "";
-                state.q = q;
-                state.dest  = [...document.querySelectorAll(".f-dest:checked")].map(i=>i.value);
-                state.dur   = [...document.querySelectorAll(".f-dur:checked")].map(i=>i.value);
-                state.price = [...document.querySelectorAll(".f-price:checked")].map(i=>i.value);
-                state.type  = [...document.querySelectorAll(".f-type:checked")].map(i=>i.value);
-                const r = document.querySelector(".f-rating:checked");
-                state.rating = r ? r.value : null;
-
-                state.dest  = [...new Set(state.dest)];
-                state.dur   = [...new Set(state.dur)];
-                state.price = [...new Set(state.price)];
-                state.type  = [...new Set(state.type)];
-            }
-
-            /* ---------- FILTER + SORT ---------- */
-            function getFiltered(){
-                let list = TOURS.filter(t=>{
-                    if(state.q){
-                        const hay = (t.title + " " + t.country + " " + t.city).toLowerCase();
-                        if(!hay.includes(state.q)) return false;
-                    }
-                    if(state.dest.length && !state.dest.includes(t.city.toLowerCase()) && !state.dest.includes(t.ctry)) return false;
-                    if(state.dur.length){
-                        const ok = state.dur.some(k=>{ const o=DUR_OPTS.find(d=>d.key===k); return t.dur>=o.min && t.dur<=o.max; });
-                        if(!ok) return false;
-                    }
-                    if(state.price.length){
-                        const ok = state.price.some(k=>{ const o=PRICE_OPTS.find(p=>p.key===k); return t.price>=o.min && t.price<o.max; });
-                        if(!ok) return false;
-                    }
-                    if(state.type.length && !state.type.includes(t.cat)) return false;
-                    if(state.rating){
-                        const o = RATING_OPTS.find(r=>r.key===state.rating);
-                        if(t.rating < o.val) return false;
-                    }
-                    return true;
-                });
-
-                switch(state.sort){
-                    case "puan": list.sort((a,b)=>b.rating-a.rating); break;
-                    case "fiyat-artan": list.sort((a,b)=>a.price-b.price); break;
-                    case "fiyat-azalan": list.sort((a,b)=>b.price-a.price); break;
-                    default: break;
+                    <div class="filter-actions">
+                        <button class="btn-teal" type="button" onclick="applyFromButton()">${isEn ? "Apply Filters" : "Filtreleri Uygula"}</button>
+                        <button class="clear-link" type="button" onclick="clearFilters()">${isEn ? "Clear Filters" : "Filtreleri Temizle"}</button>
+                    </div>`;
                 }
-                return list;
-            }
 
-            /* ---------- RENDER CARDS ---------- */
-            function fmt(n){ return n.toLocaleString(isEn ? "en-US" : "tr-TR"); }
+                document.getElementById("filterCardDesktop").innerHTML = sidebarHTML();
+                document.getElementById("filterCardMobile").innerHTML = sidebarHTML();
 
-            function cardHTML(t){
-                return `
-                <div class="col-md-6">
-                    <article class="tour-card">
-                        <div class="tour-media">
-                            <img src="${t.img}" alt="${t.title}" loading="lazy" />
-                            ${t.badge ? `<span class="tour-badge">${t.badge}</span>` : ''}
-                            <button class="fav" aria-label="Favorilere ekle" onclick="this.classList.toggle('on')">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
-                            </button>
-                        </div>
-                        <div class="tour-body">
-                            <div class="tour-topline">
-                                <span class="tour-country">${t.country} · ${t.city}</span>
-                                <span class="tour-cat">${t.catLabel}</span>
-                            </div>
-                            <h3 class="tour-title" title="${t.title}">${t.title}</h3>
-                            <div class="tour-meta">
-                                <span>🗓️ ${t.durLabel}</span>
-                                <span class="rating"><span class="star">★</span> ${t.rating.toFixed(1)} <span style="color:var(--muted);font-weight:400">(${fmt(t.reviews)})</span></span>
-                            </div>
-                            <div class="tour-foot">
-                                <div class="price"><small>${isEn ? "From" : "Kişi başı"}</small><b>${fmt(t.price)} <span>TL</span></b></div>
-                                <a href="/Tour/Detail/${t.id}" class="btn-incele">${isEn ? "Explore" : "Turu İncele"}</a>
-                            </div>
-                        </div>
-                    </article>
-                </div>`;
-            }
+                /* ---------- READ INPUTS -> STATE ---------- */
+                function syncState(){
+                    const q = document.querySelector(".f-search")?.value.trim().toLowerCase() || "";
+                    state.q = q;
+                    state.dest  = [...document.querySelectorAll(".f-dest:checked")].map(i=>i.value);
+                    state.dur   = [...document.querySelectorAll(".f-dur:checked")].map(i=>i.value);
+                    state.price = [...document.querySelectorAll(".f-price:checked")].map(i=>i.value);
+                    state.type  = [...document.querySelectorAll(".f-type:checked")].map(i=>i.value);
+                    const r = document.querySelector(".f-rating:checked");
+                    state.rating = r ? r.value : null;
 
-            /* ---------- ACTIVE CHIPS ---------- */
-            function chipsHTML(){
-                const chips = [];
-                state.dest.forEach(k=>{ const o=DEST_OPTS.find(d=>d.key===k); if(o) chips.push({t:o.label, kind:"dest", v:k}); });
-                state.dur.forEach(k=>{ const o=DUR_OPTS.find(d=>d.key===k); if(o) chips.push({t:o.label, kind:"dur", v:k}); });
-                state.price.forEach(k=>{ const o=PRICE_OPTS.find(p=>p.key===k); if(o) chips.push({t:o.label, kind:"price", v:k}); });
-                state.type.forEach(v=>{ const o=TYPE_OPTS.find(c=>c.id===v); if(o) chips.push({t:o.label, kind:"type", v}); });
-                if(state.rating){ const o=RATING_OPTS.find(r=>r.key===state.rating); if(o) chips.push({t:o.label+" ★", kind:"rating", v:state.rating}); }
-                if(state.q) chips.push({t:'"'+state.q+'"', kind:"q", v:state.q});
-                return chips.map(c=>`<span class="chip" onclick="removeChip('${c.kind}','${(c.v+'').replace(/'/g,"")}')">${c.t} <span class="x">×</span></span>`).join("");
-            }
-
-            function removeChip(kind, v){
-                const uncheck = (sel,val)=>document.querySelectorAll(sel).forEach(i=>{ if(i.value===val) i.checked=false; });
-                if(kind==="dest") uncheck(".f-dest", v);
-                if(kind==="dur") uncheck(".f-dur", v);
-                if(kind==="price") uncheck(".f-price", v);
-                if(kind==="type") uncheck(".f-type", v);
-                if(kind==="rating") document.querySelectorAll(".f-rating").forEach(i=>i.checked=false);
-                if(kind==="q") document.querySelectorAll(".f-search").forEach(i=>i.value="");
-                syncState(); render();
-            }
-
-            /* ---------- MAIN RENDER ---------- */
-            function render(){
-                const list = getFiltered();
-                const grid = document.getElementById("tourGrid");
-                const empty = document.getElementById("emptyState");
-                const pager = document.getElementById("pager");
-
-                document.getElementById("resultCount").textContent = list.length;
-                document.getElementById("activeChips").innerHTML = chipsHTML();
-
-                if(list.length===0){
-                    grid.innerHTML = "";
-                    empty.style.display = "block";
-                    pager.style.display = "none";
-                } else {
-                    grid.innerHTML = list.map(cardHTML).join("");
-                    empty.style.display = "none";
-                    pager.style.display = list.length > 6 ? "flex" : "none";
+                    state.dest  = [...new Set(state.dest)];
+                    state.dur   = [...new Set(state.dur)];
+                    state.price = [...new Set(state.price)];
+                    state.type  = [...new Set(state.type)];
                 }
-            }
 
-            /* ---------- EVENTS ---------- */
-            document.addEventListener("input", (e)=>{
-                if(e.target.matches(".f-search, .f-dest, .f-dur, .f-price, .f-type, .f-rating")){
+                /* ---------- FILTER + SORT ---------- */
+                function getFiltered(){
+                    let list = TOURS.filter(t=>{
+                        if(state.q){
+                            const hay = (t.title + " " + t.country + " " + t.city).toLowerCase();
+                            if(!hay.includes(state.q)) return false;
+                        }
+                        if(state.dest.length && !state.dest.includes(t.city.toLowerCase()) && !state.dest.includes(t.ctry)) return false;
+                        if(state.dur.length){
+                            const ok = state.dur.some(k=>{ const o=DUR_OPTS.find(d=>d.key===k); return t.dur>=o.min && t.dur<=o.max; });
+                            if(!ok) return false;
+                        }
+                        if(state.price.length){
+                            const ok = state.price.some(k=>{ const o=PRICE_OPTS.find(p=>p.key===k); return t.price>=o.min && t.price<o.max; });
+                            if(!ok) return false;
+                        }
+                        if(state.type.length && !state.type.includes(t.cat)) return false;
+                        if(state.rating){
+                            const o = RATING_OPTS.find(r=>r.key===state.rating);
+                            if(t.rating < o.val) return false;
+                        }
+                        return true;
+                    });
+
+                    switch(state.sort){
+                        case "puan": list.sort((a,b)=>b.rating-a.rating); break;
+                        case "fiyat-artan": list.sort((a,b)=>a.price-b.price); break;
+                        case "fiyat-azalan": list.sort((a,b)=>b.price-a.price); break;
+                        default: break;
+                    }
+                    return list;
+                }
+
+                /* ---------- RENDER CARDS ---------- */
+                function fmt(n){ return n.toLocaleString(isEn ? "en-US" : "tr-TR"); }
+
+                function cardHTML(t){
+                    return `
+                    <div class="col-md-6">
+                        <article class="tour-card">
+                            <div class="tour-media">
+                                <img src="${t.img}" alt="${t.title}" loading="lazy" />
+                                ${t.badge ? `<span class="tour-badge">${t.badge}</span>` : ''}
+                                <button class="fav" aria-label="Favorilere ekle" onclick="this.classList.toggle('on')">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                                </button>
+                            </div>
+                            <div class="tour-body">
+                                <div class="tour-topline">
+                                    <span class="tour-country">${t.country} · ${t.city}</span>
+                                    <span class="tour-cat">${t.catLabel}</span>
+                                </div>
+                                <h3 class="tour-title" title="${t.title}">${t.title}</h3>
+                                <div class="tour-meta">
+                                    <span>🗓️ ${t.durLabel}</span>
+                                    <span class="rating"><span class="star">★</span> ${t.rating.toFixed(1)} <span style="color:var(--muted);font-weight:400">(${fmt(t.reviews)})</span></span>
+                                </div>
+                                <div class="tour-foot">
+                                    <div class="price"><small>${isEn ? "From" : "Kişi başı"}</small><b>${fmt(t.price)} <span>TL</span></b></div>
+                                    <a href="/Tour/Detail/${t.id}" class="btn-incele">${isEn ? "Explore" : "Turu İncele"}</a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>`;
+                }
+
+                /* ---------- ACTIVE CHIPS ---------- */
+                function chipsHTML(){
+                    const chips = [];
+                    state.dest.forEach(k=>{ const o=DEST_OPTS.find(d=>d.key===k); if(o) chips.push({t:o.label, kind:"dest", v:k}); });
+                    state.dur.forEach(k=>{ const o=DUR_OPTS.find(d=>d.key===k); if(o) chips.push({t:o.label, kind:"dur", v:k}); });
+                    state.price.forEach(k=>{ const o=PRICE_OPTS.find(p=>p.key===k); if(o) chips.push({t:o.label, kind:"price", v:k}); });
+                    state.type.forEach(v=>{ const o=TYPE_OPTS.find(c=>c.id===v); if(o) chips.push({t:o.label, kind:"type", v}); });
+                    if(state.rating){ const o=RATING_OPTS.find(r=>r.key===state.rating); if(o) chips.push({t:o.label+" ★", kind:"rating", v:state.rating}); }
+                    if(state.q) chips.push({t:'"'+state.q+'"', kind:"q", v:state.q});
+                    return chips.map(c=>`<span class="chip" onclick="removeChip('${c.kind}','${(c.v+'').replace(/'/g,"")}')">${c.t} <span class="x">×</span></span>`).join("");
+                }
+
+                function removeChip(kind, v){
+                    const uncheck = (sel,val)=>document.querySelectorAll(sel).forEach(i=>{ if(i.value===val) i.checked=false; });
+                    if(kind==="dest") uncheck(".f-dest", v);
+                    if(kind==="dur") uncheck(".f-dur", v);
+                    if(kind==="price") uncheck(".f-price", v);
+                    if(kind==="type") uncheck(".f-type", v);
+                    if(kind==="rating") document.querySelectorAll(".f-rating").forEach(i=>i.checked=false);
+                    if(kind==="q") document.querySelectorAll(".f-search").forEach(i=>i.value="");
                     syncState(); render();
                 }
-            });
 
-            document.getElementById("sortSelect").addEventListener("change", (e)=>{
-                state.sort = e.target.value; render();
-            });
+                /* ---------- MAIN RENDER ---------- */
+                function render(){
+                    const list = getFiltered();
+                    const grid = document.getElementById("tourGrid");
+                    const empty = document.getElementById("emptyState");
+                    const pager = document.getElementById("pager");
 
-            function applyFromButton(){
-                syncState(); render();
-                const oc = document.getElementById("filterOffcanvas");
-                if(window.bootstrap && bootstrap.Offcanvas){
-                    const inst = bootstrap.Offcanvas.getInstance(oc);
-                    if(inst) inst.hide();
+                    document.getElementById("resultCount").textContent = list.length;
+                    document.getElementById("activeChips").innerHTML = chipsHTML();
+
+                    if(list.length===0){
+                        grid.innerHTML = "";
+                        empty.style.display = "block";
+                        pager.style.display = "none";
+                    } else {
+                        grid.innerHTML = list.map(cardHTML).join("");
+                        empty.style.display = "none";
+                        pager.style.display = list.length > 6 ? "flex" : "none";
+                    }
                 }
-            }
 
-            function clearFilters(){
-                document.querySelectorAll(".f-search").forEach(i=>i.value="");
-                document.querySelectorAll(".f-dest,.f-dur,.f-price,.f-type").forEach(i=>i.checked=false);
-                document.querySelectorAll(".f-rating").forEach(i=>i.checked=false);
-                state.sort = "onerilen";
-                document.getElementById("sortSelect").value = "onerilen";
-                syncState(); render();
-            }
+                /* ---------- EVENTS ---------- */
+                document.addEventListener("input", (e)=>{
+                    if(e.target.matches(".f-search, .f-dest, .f-dur, .f-price, .f-type, .f-rating")){
+                        syncState(); render();
+                    }
+                });
 
-            // Başlangıç çalıştırması
-            render();
+                document.getElementById("sortSelect").addEventListener("change", (e)=>{
+                    state.sort = e.target.value; render();
+                });
+
+                function applyFromButton(){
+                    syncState(); render();
+                    const oc = document.getElementById("filterOffcanvas");
+                    if(window.bootstrap && bootstrap.Offcanvas){
+                        const inst = bootstrap.Offcanvas.getInstance(oc);
+                        if(inst) inst.hide();
+                    }
+                }
+
+                function clearFilters(){
+                    document.querySelectorAll(".f-search").forEach(i=>i.value="");
+                    document.querySelectorAll(".f-dest,.f-dur,.f-price,.f-type").forEach(i=>i.checked=false);
+                    document.querySelectorAll(".f-rating").forEach(i=>i.checked=false);
+                    state.sort = "onerilen";
+                    document.getElementById("sortSelect").value = "onerilen";
+                    syncState(); render();
+                }
+
+                // Başlangıç çalıştırması
+                render();
         </script>
     }

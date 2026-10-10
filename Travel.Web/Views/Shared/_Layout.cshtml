@@ -230,12 +230,12 @@
             </button>
             <div class="collapse navbar-collapse" id="nav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link active" href="/">@(isEn ? "Home" : "Ana Sayfa")</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Tour/Index">@(isEn ? "Tours" : "Turlar")</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/#destinasyonlar">@(isEn ? "Destinations" : "Destinasyonlar")</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/#yorumlar">@(isEn ? "Reviews" : "Yorumlar")</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/#hakkimizda">@(isEn ? "About Us" : "Hakkımızda")</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/#iletisim">@(isEn ? "Contact" : "İletişim")</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/">@L["Ana Sayfa"]</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Tour/Index">@L["Turlar"]</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#destinasyonlar">@L["Destinasyonlar"]</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#yorumlar">@L["Yorumlar"]</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#hakkimizda">@L["Hakkımızda"]</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#iletisim">@L["İletişim"]</a></li>
                 </ul>
                 <div class="d-flex align-items-center gap-2">
                     <!-- DİL SEÇİCİ DROPDOWN (TR / EN) -->
@@ -283,18 +283,18 @@
                     {
                         <!-- Oturum Açıkken -->
                         <a href="/Profile/Index" class="profile-pill text-decoration-none">
-                            <span style="font-size: .9rem;">@(userName ?? (isEn ? "My Profile" : "Profilim"))</span>
+                            <span style="font-size: .9rem;">@(userName ?? L["Profilim"].Value)</span>
                             <span class="avatar">@initials</span>
                         </a>
-                        <a href="/Account/Logout" class="btn btn-sm btn-outline-danger rounded-pill px-3" style="font-size: .82rem; font-weight: 600;" title="@(isEn ? "Sign Out" : "Oturumu Kapat")">
-                            @(isEn ? "Sign Out" : "Çıkış Yap")
+                        <a href="/Account/Logout" class="btn btn-sm btn-outline-danger rounded-pill px-3" style="font-size: .82rem; font-weight: 600;" title="@L["Oturumu Kapat"]">
+                            @L["Çıkış Yap"]
                         </a>
                     }
                     else
                     {
                         <!-- Oturum Kapalıyken -->
                         <a href="/Account/Login" class="btn btn-teal py-2 px-3" style="font-size: .85rem;">
-                            @(isEn ? "Sign In" : "Giriş Yap")
+                            @L["Giriş Yap"]
                         </a>
                     }
                 </div>
@@ -314,34 +314,34 @@
                 <div class="col-lg-4">
                     <a class="brand mb-3" href="/"><span class="dot"></span>Travelio</a>
                     <p style="max-width:34ch">
-                        @(isEn ? "Unforgettable journeys across the globe with carefully curated tours." : "Dünyanın dört bir yanına, özenle tasarlanmış turlarla unutulmaz seyahatler.")
+                        @L["Dünyanın dört bir yanına, özenle tasarlanmış turlarla unutulmaz seyahatler."]
                     </p>
                 </div>
                 <div class="col-6 col-lg-2">
-                    <h6>@(isEn ? "Explore" : "Keşfet")</h6>
-                    <a href="/Tour/Index">@(isEn ? "Tours" : "Turlar")</a>
-                    <a href="/#destinasyonlar">@(isEn ? "Destinations" : "Destinasyonlar")</a>
-                    <a href="/#yorumlar">@(isEn ? "Reviews" : "Yorumlar")</a>
+                    <h6>@L["Keşfet"]</h6>
+                    <a href="/Tour/Index">@L["Turlar"]</a>
+                    <a href="/#destinasyonlar">@L["Destinasyonlar"]</a>
+                    <a href="/#yorumlar">@L["Yorumlar"]</a>
                 </div>
                 <div class="col-6 col-lg-2">
-                    <h6>@(isEn ? "Company" : "Kurumsal")</h6>
-                    <a href="/#hakkimizda">@(isEn ? "About Us" : "Hakkımızda")</a>
-                    <a href="/#iletisim">@(isEn ? "Contact" : "İletişim")</a>
+                    <h6>@L["Kurumsal"]</h6>
+                    <a href="/#hakkimizda">@L["Hakkımızda"]</a>
+                    <a href="/#iletisim">@L["İletişim"]</a>
                 </div>
                 <div class="col-lg-4">
-                    <h6>@(isEn ? "Newsletter" : "Bültene Katıl")</h6>
+                    <h6>@L["Bültene Katıl"]</h6>
                     <p style="max-width:36ch">
-                        @(isEn ? "Be the first to hear about new itineraries and early bird offers." : "Yeni rotalardan ve erken rezervasyon fırsatlarından ilk sen haberdar ol.")
+                        @L["Yeni rotalardan ve erken rezervasyon fırsatlarından ilk sen haberdar ol."]
                     </p>
                     <div class="d-flex gap-2 mt-2" style="max-width:360px">
-                        <input class="form-control" style="border-radius:999px" placeholder="@(isEn ? "Your email address" : "E-posta adresin")" />
-                        <button class="btn-teal" style="white-space:nowrap">@(isEn ? "Join" : "Katıl")</button>
+                        <input class="form-control" style="border-radius:999px" placeholder="@L["E-posta adresin"]" />
+                        <button class="btn-teal" style="white-space:nowrap">@L["Katıl"]</button>
                     </div>
                 </div>
             </div>
             <div class="foot-bottom d-flex flex-wrap justify-content-between gap-2">
-                <span>© 2026 Travelio. @(isEn ? "All rights reserved." : "Tüm hakları saklıdır.")</span>
-                <span>@(isEn ? "Privacy · Terms of Service · Cookies" : "Gizlilik · Kullanım Koşulları · Çerezler")</span>
+                <span>© 2026 Travelio. @L["Tüm hakları saklıdır."]</span>
+                <span>@L["Gizlilik · Kullanım Koşulları · Çerezler"]</span>
             </div>
         </div>
     </footer>

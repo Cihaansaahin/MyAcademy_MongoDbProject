@@ -1,7 +1,7 @@
 ﻿@model Travel.Web.DTOs.DashboardDtos.DashboardStatisticsDto
 @{
     var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
-    ViewData["Title"] = isEn ? "Dashboard" : "Dashboard";
+    ViewData["Title"] = L["Dashboard"].Value;
 
     var recentReservations = ViewBag.RecentReservations as List<Travel.Web.DTOs.ReservationDtos.ResultReservationDto>;
     var recentComments = ViewBag.RecentComments as List<Travel.Web.DTOs.CommentDtos.ResultCommentDto>;
@@ -539,9 +539,9 @@
 <!-- INTRO -->
 <div class="page-intro">
     <div>
-        <div class="eyebrow">@(isEn ? "Overview" : "Genel Bakış")</div>
-        <h1>@(isEn ? "Welcome Back, Admin 👋" : "Hoş Geldiniz, Yönetici 👋")</h1>
-        <p>@(isEn ? "Track recent platform updates and key metrics across Travelio." : "Travelio platformundaki son gelişmeleri ve önemli verileri buradan takip edebilirsiniz.")</p>
+        <div class="eyebrow">@L["Genel Bakış"]</div>
+        <h1>@L["Hoş Geldiniz, Yönetici 👋"]</h1>
+        <p>@L["Travelio platformundaki son gelişmeleri ve önemli verileri buradan takip edebilirsiniz."]</p>
     </div>
     <div class="date-pill">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
@@ -558,8 +558,8 @@
                 <span class="trend">+@Model.ActiveTours</span>
             </div>
             <div class="num">@Model.TotalTours</div>
-            <div class="lab">@(isEn ? "Total Tours" : "Toplam Tur")</div>
-            <div class="sub"><span class="up">@(isEn ? $"{Model.ActiveTours} active tours" : $"{Model.ActiveTours} aktif tur")</span></div>
+            <div class="lab">@L["Toplam Tur"]</div>
+            <div class="sub"><span class="up">@L["{0} aktif tur", Model.ActiveTours]</span></div>
         </div>
     </div>
     <div class="col-6 col-xl-3">
@@ -569,8 +569,8 @@
                 <span class="trend">+@Model.ThisMonthReservationsCount</span>
             </div>
             <div class="num">@Model.TotalReservations</div>
-            <div class="lab">@(isEn ? "Total Reservations" : "Toplam Rezervasyon")</div>
-            <div class="sub"><span class="up">@(isEn ? $"This month +{Model.ThisMonthReservationsCount}" : $"Bu ay +{Model.ThisMonthReservationsCount}")</span></div>
+            <div class="lab">@L["Toplam Rezervasyon"]</div>
+            <div class="sub"><span class="up">@L["Bu ay +{0}", Model.ThisMonthReservationsCount]</span></div>
         </div>
     </div>
     <div class="col-6 col-xl-3">
@@ -580,8 +580,8 @@
                 <span class="trend">+@(Model.ToursByCategory?.Count ?? 0)</span>
             </div>
             <div class="num">@(Model.ToursByCategory?.Count ?? 0)</div>
-            <div class="lab">@(isEn ? "Categories" : "Kategori Sayısı")</div>
-            <div class="sub"><span class="up">@(isEn ? "Catalog active" : "Katalog aktif")</span></div>
+            <div class="lab">@L["Kategori Sayısı"]</div>
+            <div class="sub"><span class="up">@L["Katalog aktif"]</span></div>
         </div>
     </div>
     <div class="col-6 col-xl-3">
@@ -590,8 +590,8 @@
                 <div class="ic warn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12" y2="17" /></svg></div>
             </div>
             <div class="num">@Model.PendingQuestionsCount</div>
-            <div class="lab">@(isEn ? "Pending Questions" : "Bekleyen Sorular")</div>
-            <div class="sub warn">@(isEn ? "Awaiting reply" : "Yanıt bekliyor")</div>
+            <div class="lab">@L["Bekleyen Sorular"]</div>
+            <div class="sub warn">@L["Yanıt bekliyor"]</div>
         </div>
     </div>
 </div>
@@ -601,11 +601,11 @@
     <div class="col-lg-8">
         <div class="card-x h-100">
             <div class="card-head">
-                <h3>@(isEn ? "Reservation Statistics" : "Rezervasyon İstatistikleri")</h3>
+                <h3>@L["Rezervasyon İstatistikleri"]</h3>
                 <select class="chart-select" id="rangeSelect">
-                    <option>@(isEn ? "Last 7 Days" : "Son 7 Gün")</option>
-                    <option>@(isEn ? "Last 30 Days" : "Son 30 Gün")</option>
-                    <option selected>@(isEn ? "Last 6 Months" : "Son 6 Ay")</option>
+                    <option>@L["Son 7 Gün"]</option>
+                    <option>@L["Son 30 Gün"]</option>
+                    <option selected>@L["Son 6 Ay"]</option>
                 </select>
             </div>
             <div class="card-body">
@@ -616,34 +616,34 @@
     <div class="col-lg-4">
         <div class="card-x h-100">
             <div class="card-head">
-                <h3>@(isEn ? "Most Popular Tours" : "En Popüler Turlar")</h3>
+                <h3>@L["En Popüler Turlar"]</h3>
             </div>
             <div class="card-body pt-1" id="popularTours">
-    @if (Model.Top5SellingTours != null && Model.Top5SellingTours.Any())
-    {
-        int rank = 1;
-        foreach (var tour in Model.Top5SellingTours.Take(4))
-        {
-           
-            var tourImage = !string.IsNullOrEmpty(tour.CoverImageUrl) 
-                ? tour.CoverImageUrl 
-                : "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=200&q=80";
+                @if (Model.Top5SellingTours != null && Model.Top5SellingTours.Any())
+                {
+                    int rank = 1;
+                    foreach (var tour in Model.Top5SellingTours.Take(4))
+                    {
 
-            <div class="pt-item">
-                <span class="rank">@(rank++)</span>
-                <img src="@tourImage" alt="@tour.TourTitle">
-                <div class="nm">
-                    <b>@tour.TourTitle</b>
-                    <span>@(isEn ? $"{tour.TotalBookings} bookings · {tour.TotalRevenue:N0} TL" : $"{tour.TotalBookings} rez · {tour.TotalRevenue:N0} TL")</span>
-                </div>
+                        var tourImage = !string.IsNullOrEmpty(tour.CoverImageUrl)
+                                        ? tour.CoverImageUrl
+                                        : "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=200&q=80";
+
+                        <div class="pt-item">
+                            <span class="rank">@(rank++)</span>
+                            <img src="@tourImage" alt="@tour.TourTitle">
+                            <div class="nm">
+                                <b>@tour.TourTitle</b>
+                                <span>@L["{0} rez · {1} TL", tour.TotalBookings, tour.TotalRevenue.ToString("N0")]</span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mt-2 mb-0" style="font-size:.8rem">@L["Henüz tamamlanan satış verisi bulunmuyor."]</p>
+                }
             </div>
-        }
-    }
-    else
-    {
-        <p class="text-muted mt-2 mb-0" style="font-size:.8rem">@(isEn ? "No popular tour sales recorded yet." : "Henüz tamamlanan satış verisi bulunmuyor.")</p>
-    }
-</div>
         </div>
     </div>
 </div>
@@ -651,21 +651,21 @@
 <!-- RECENT BOOKINGS TABLE -->
 <div class="card-x mb-2">
     <div class="card-head">
-        <h3>@(isEn ? "Recent Reservations" : "Son Rezervasyonlar")</h3>
-        <a href="/Admin/Reservation/Index" class="btn-soft">@(isEn ? "View All" : "Tümünü Gör")</a>
+        <h3>@L["Son Rezervasyonlar"]</h3>
+        <a href="/Admin/Reservation/Index" class="btn-soft">@L["Tümünü Gör"]</a>
     </div>
     <div class="card-body pt-1">
         <div class="tbl-wrap">
             <table class="tx">
                 <thead>
                     <tr>
-                        <th>@(isEn ? "Booking No" : "Rezervasyon No")</th>
-                        <th>@(isEn ? "Guest" : "Misafir")</th>
-                        <th>@(isEn ? "Tour" : "Tur")</th>
-                        <th>@(isEn ? "Date" : "Tur Tarihi")</th>
-                        <th>@(isEn ? "Guests" : "Kişi")</th>
-                        <th>@(isEn ? "Amount" : "Tutar")</th>
-                        <th>@(isEn ? "Status" : "Durum")</th>
+                        <th>@L["Rezervasyon No"]</th>
+                        <th>@L["Misafir"]</th>
+                        <th>@L["Tur"]</th>
+                        <th>@L["Tur Tarihi"]</th>
+                        <th>@L["Kişi"]</th>
+                        <th>@L["Tutar"]</th>
+                        <th>@L["Durum"]</th>
                     </tr>
                 </thead>
                 <tbody id="bookingRows">
@@ -682,11 +682,11 @@
                                 <td><div class="guest"><span class="av">@initials</span>@b.FullName</div></td>
                                 <td>@b.TourTitle</td>
                                 <td>@b.SelectedTourDate.ToString("dd.MM.yyyy")</td>
-                                <td>@b.TotalParticipants @(isEn ? "guests" : "kişi")</td>
+                                <td>@b.TotalParticipants @L["kişi"]</td>
                                 <td><span class="amount">@b.TotalPrice.ToString("N0") TL</span></td>
                                 <td>
                                     <span class="badge-x @(isApproved ? "b-ok" : (isCancelled ? "b-cancel" : "b-wait"))">
-                                        @(isEn ? (isApproved ? "Approved" : (isCancelled ? "Cancelled" : "Pending")) : b.Status)
+                                        @(isApproved ? L["Onaylandı"] : (isCancelled ? L["İptal Edildi"] : L["Beklemede"]))
                                     </span>
                                 </td>
                             </tr>
@@ -696,7 +696,7 @@
                     {
                         <tr>
                             <td colspan="7" class="text-center py-3 text-muted" style="font-size:.8rem">
-                                @(isEn ? "No recent reservations found." : "Henüz bir rezervasyon kaydı bulunamadı.")
+                                @L["Henüz bir rezervasyon kaydı bulunamadı."]
                             </td>
                         </tr>
                     }
@@ -712,7 +712,7 @@
     <div class="col-lg-4">
         <div class="card-x h-100">
             <div class="card-head">
-                <h3>@(isEn ? "Recent Reviews" : "Son Yorumlar")</h3>
+                <h3>@L["Son Yorumlar"]</h3>
             </div>
             <div class="card-body pt-1" id="recentReviews">
                 @if (recentComments != null && recentComments.Any())
@@ -732,7 +732,7 @@
                 }
                 else
                 {
-                    <p class="text-muted mt-1 mb-0" style="font-size:.8rem">@(isEn ? "No recent reviews." : "Henüz iletilen bir yorum yok.")</p>
+                    <p class="text-muted mt-1 mb-0" style="font-size:.8rem">@L["Henüz iletilen bir yorum yok."]</p>
                 }
             </div>
         </div>
@@ -742,7 +742,7 @@
     <div class="col-lg-4">
         <div class="card-x h-100">
             <div class="card-head">
-                <h3>@(isEn ? "Pending Questions" : "Yanıt Bekleyen Sorular")</h3>
+                <h3>@L["Yanıt Bekleyen Sorular"]</h3>
             </div>
             <div class="card-body pt-1" id="pendingQuestions">
                 @if (pendingQuestions != null && pendingQuestions.Any())
@@ -755,13 +755,13 @@
                                 <div class="q">@q.QuestionText</div>
                                 <div class="time">@q.AskedDate.ToString("dd.MM.yyyy HH:mm")</div>
                             </div>
-                            <a href="/Admin/Question/AnswerQuestion/@q.Id" class="btn-soft">@(isEn ? "Reply" : "Cevapla")</a>
+                            <a href="/Admin/Question/AnswerQuestion/@q.Id" class="btn-soft">@L["Cevapla"]</a>
                         </div>
                     }
                 }
                 else
                 {
-                    <p class="text-muted mt-1 mb-0" style="font-size:.8rem">@(isEn ? "No pending questions." : "Yanıt bekleyen soru bulunmuyor.")</p>
+                    <p class="text-muted mt-1 mb-0" style="font-size:.8rem">@L["Yanıt bekleyen soru bulunmuyor."]</p>
                 }
             </div>
         </div>
@@ -771,27 +771,27 @@
     <div class="col-lg-4">
         <div class="card-x h-100">
             <div class="card-head">
-                <h3>@(isEn ? "Quick Actions" : "Hızlı İşlemler")</h3>
+                <h3>@L["Hızlı İşlemler"]</h3>
             </div>
             <div class="card-body pt-1" id="quickActions">
                 <a href="/Admin/Tour/CreateTour" class="qa-link">
                     <span class="qa-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg></span>
-                    @(isEn ? "Add New Tour" : "Yeni Tur Ekle")
+                    @L["Yeni Tur Ekle"]
                     <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg></span>
                 </a>
                 <a href="/Admin/Reservation/Index" class="qa-link">
                     <span class="qa-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></span>
-                    @(isEn ? "View Reservations" : "Rezervasyonları Gör")
+                    @L["Rezervasyonları Gör"]
                     <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg></span>
                 </a>
                 <a href="/Admin/Question/Index" class="qa-link">
                     <span class="qa-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg></span>
-                    @(isEn ? "Answer Questions" : "Soruları Yanıtla")
+                    @L["Soruları Yanıtla"]
                     <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg></span>
                 </a>
                 <a href="/Admin/Destination/Index" class="qa-link">
                     <span class="qa-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg></span>
-                    @(isEn ? "Add New Destination" : "Yeni Destinasyon Ekle")
+                    @L["Yeni Destinasyon Ekle"]
                     <span class="arr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg></span>
                 </a>
             </div>
@@ -811,7 +811,7 @@
 
         const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyChartLabels ?? new List<string>()));
         const data = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyChartData ?? new List<int>()));
-        const chartLabel = "@(isEn ? "Reservations" : "Rezervasyon")";
+        const chartLabel = "@L["Rezervasyon"]";
 
         const chart = new Chart(ctx, {
         type: "line",
@@ -845,7 +845,7 @@
         bodyFont: { size: 11 },
         displayColors: false,
         callbacks: {
-        label: c => c.parsed.y + " " + "@(isEn ? "bookings" : "rezervasyon")"
+        label: c => c.parsed.y + " " + "@L["rezervasyon"]"
         }
         }
         },

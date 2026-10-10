@@ -1,7 +1,7 @@
 ﻿@model Travel.Web.DTOs.TourDtos.ResultTourDto
 @{
     var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
-    var tourTitle = Model.Title?.Value ?? (isEn ? Model.Title?.En : Model.Title?.Tr) ?? (isEn ? "Untitled Tour" : "İsimsiz Tur");
+    var tourTitle = Model.Title?.Value ?? L["İsimsiz Tur"].Value;
     ViewData["Title"] = tourTitle;
     var comments = ViewBag.Comments as List<Travel.Web.DTOs.CommentDtos.ResultCommentDto>;
     var questions = ViewBag.Questions as List<Travel.Web.DTOs.QuestionDtos.ResultQuestionDto>;
@@ -1011,7 +1011,7 @@
 <div class="container">
     <!-- BREADCRUMB -->
     <div class="crumb">
-        <a href="/">@(isEn ? "Home" : "Ana Sayfa")</a> / <a href="/Tour/Index">@(isEn ? "Tours" : "Turlar")</a> / <span class="cur">@tourTitle</span>
+        <a href="/">@L["Ana Sayfa"]</a> / <a href="/Tour/Index">@L["Turlar"]</a> / <span class="cur">@tourTitle</span>
     </div>
 
     <!-- DETAIL HEADER -->
@@ -1022,9 +1022,9 @@
                 <h1>@tourTitle</h1>
                 <div class="head-meta">
                     <span class="rating"><span class="star">★</span> 4.8</span>
-                    <span>@(comments?.Count ?? 0) @(isEn ? "reviews" : "değerlendirme")</span>
+                    <span>@(comments?.Count ?? 0) @L["değerlendirme"]</span>
                     <span class="dot-sep"></span>
-                    <span>@Model.DurationDays @(isEn ? "Days" : "Gün") / @(Model.DurationDays > 1 ? Model.DurationDays - 1 : 1) @(isEn ? "Nights" : "Gece")</span>
+                    <span>@Model.DurationDays @L["Gün"] / @(Model.DurationDays > 1 ? Model.DurationDays - 1 : 1) @L["Gece"]</span>
                     <span class="dot-sep"></span>
                     <span>@Model.Country · @Model.City</span>
                 </div>
@@ -1032,11 +1032,11 @@
             <div class="head-actions">
                 <button class="icon-btn" id="favBtn" onclick="this.classList.toggle('on')">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg>
-                    @(isEn ? "Save" : "Kaydet")
+                    @L["Kaydet"]
                 </button>
                 <button class="icon-btn" onclick="sharePage()">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.6" y1="13.5" x2="15.4" y2="17.5" /><line x1="15.4" y1="6.5" x2="8.6" y2="10.5" /></svg>
-                    @(isEn ? "Share" : "Paylaş")
+                    @L["Paylaş"]
                 </button>
             </div>
         </div>
@@ -1070,7 +1070,7 @@
                     <div class="col-6">
                         <div class="g-wrap">
                             <img class="g-img g-small" src="@(galleryList.Count > 3 ? galleryList[3] : "https://images.unsplash.com/photo-1531572753322-ad063cecc140?auto=format&fit=crop&w=600&q=80")" alt="@tourTitle" />
-                            <span class="g-more">+@(galleryList.Count > 4 ? galleryList.Count - 4 : 4) @(isEn ? "photos" : "fotoğraf")</span>
+                            <span class="g-more">+@(galleryList.Count > 4 ? galleryList.Count - 4 : 4) @L["fotoğraf"]</span>
                         </div>
                     </div>
                 </div>
@@ -1087,15 +1087,15 @@
 
             <!-- ABOUT -->
             <div class="content-block">
-                <h2>@(isEn ? "About the Tour" : "Tur Hakkında")</h2>
-                <p>@(Model.Description?.Value ?? (isEn ? Model.Description?.En : Model.Description?.Tr) ?? Model.Description?.ToString())</p>
+                <h2>@L["Tur Hakkında"]</h2>
+                <p>@(Model.Description?.Value ?? Model.Description?.ToString())</p>
             </div>
 
             <!-- HIGHLIGHTS -->
             @if (Model.Features != null && Model.Features.Any())
             {
                 <div class="content-block">
-                    <h2>@(isEn ? "Tour Highlights" : "Turun Öne Çıkanları")</h2>
+                    <h2>@L["Turun Öne Çıkanları"]</h2>
                     <ul class="hl-list">
                         @foreach (var feat in Model.Features)
                         {
@@ -1112,7 +1112,7 @@
             @if (Model.Itinerary != null && Model.Itinerary.Any())
             {
                 <div class="content-block">
-                    <h2>@(isEn ? "Day by Day Itinerary" : "Gün Gün Tur Programı")</h2>
+                    <h2>@L["Gün Gün Tur Programı"]</h2>
                     <div id="itinerary">
                         @{
                             var idx = 0;
@@ -1121,17 +1121,17 @@
                         {
                             <div class="itin-item @(idx == 0 ? "open" : "")">
                                 <div class="itin-head" onclick="toggleDay(this)">
-                                    <span class="day-tag">@(isEn ? $"Day {day.DayNumber}" : $"{day.DayNumber}. Gün")</span>
-                                    <span class="itin-title">@(day.Title?.Value ?? (isEn ? day.Title?.En : day.Title?.Tr) ?? day.Title?.ToString())</span>
+                                    <span class="day-tag">@L["{0}. Gün", day.DayNumber]</span>
+                                    <span class="itin-title">@(day.Title?.Value ?? day.Title?.ToString())</span>
                                     <span class="itin-toggle"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg></span>
                                 </div>
                                 <div class="itin-body" style="@(idx == 0 ? "max-height: 600px;" : "")">
                                     <div class="itin-inner">
-                                        <p style="margin-bottom:.4rem">@(day.Description?.Value ?? (isEn ? day.Description?.En : day.Description?.Tr) ?? day.Description?.ToString())</p>
+                                        <p style="margin-bottom:.4rem">@(day.Description?.Value ?? day.Description?.ToString())</p>
                                         <div class="itin-tags">
-                                            <span>🏨 @(isEn ? "Hotel Stay" : "Konaklama")</span>
-                                            <span>🚌 @(isEn ? "Transfer Included" : "Transfer Dahil")</span>
-                                            <span>🍽️ @(isEn ? "Breakfast" : "Kahvaltı")</span>
+                                            <span>🏨 @L["Konaklama"]</span>
+                                            <span>🚌 @L["Transfer Dahil"]</span>
+                                            <span>🍽️ @L["Kahvaltı"]</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1146,24 +1146,24 @@
             <div class="content-block">
                 <div class="row g-4">
                     <div class="col-md-6">
-                        <h2>@(isEn ? "Included in Price" : "Fiyata Dahil Olanlar")</h2>
+                        <h2>@L["Fiyata Dahil Olanlar"]</h2>
                         <ul class="inc-list">
-                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? "Round-trip flight tickets" : "Gidiş-dönüş uçak bileti")</li>
-                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? $"{Model.DurationDays - 1} nights hotel accommodation" : $"{Model.DurationDays - 1} gece otel konaklaması")</li>
-                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? "Daily breakfasts" : "Kahvaltılar")</li>
-                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? "Airport transfers" : "Havalimanı transferleri")</li>
-                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? "Intercity transportation" : "Şehirler arası ulaşım")</li>
-                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@(isEn ? "Professional guiding service" : "Profesyonel rehberlik hizmeti")</li>
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@L["Gidiş-dönüş uçak bileti"]</li>
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@L["{0} gece otel konaklaması", Model.DurationDays - 1]</li>
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@L["Kahvaltılar"]</li>
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@L["Havalimanı transferleri"]</li>
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@L["Şehirler arası ulaşım"]</li>
+                            <li><span class="inc-yes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>@L["Profesyonel rehberlik hizmeti"]</li>
                         </ul>
                     </div>
                     <div class="col-md-6">
-                        <h2>@(isEn ? "Not Included in Price" : "Fiyata Dahil Olmayanlar")</h2>
+                        <h2>@L["Fiyata Dahil Olmayanlar"]</h2>
                         <ul class="inc-list">
-                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@(isEn ? "Museum & site entrance tickets" : "Müze ve ören yeri giriş ücretleri")</li>
-                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@(isEn ? "Lunch and dinners" : "Öğle ve akşam yemekleri")</li>
-                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@(isEn ? "Personal expenses" : "Kişisel harcamalar")</li>
-                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@(isEn ? "Travel health insurance" : "Seyahat sağlık sigortası")</li>
-                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@(isEn ? "Optional activities" : "Opsiyonel etkinlikler")</li>
+                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@L["Müze ve ören yeri giriş ücretleri"]</li>
+                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@L["Öğle ve akşam yemekleri"]</li>
+                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@L["Kişisel harcamalar"]</li>
+                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@L["Seyahat sağlık sigortası"]</li>
+                            <li><span class="inc-no"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>@L["Opsiyonel etkinlikler"]</li>
                         </ul>
                     </div>
                 </div>
@@ -1171,36 +1171,36 @@
 
             <!-- INFO -->
             <div class="content-block">
-                <h2>@(isEn ? "Tour Information" : "Tur Bilgileri")</h2>
+                <h2>@L["Tur Bilgileri"]</h2>
                 <div class="info-grid">
-                    <div class="info-cell"><div class="k">@(isEn ? "Duration" : "Tur Süresi")</div><div class="v">@Model.DurationDays @(isEn ? "Days" : "Gün") / @(Model.DurationDays - 1) @(isEn ? "Nights" : "Gece")</div></div>
-                    <div class="info-cell"><div class="k">@(isEn ? "Departure City" : "Başlangıç Şehri")</div><div class="v">İstanbul</div></div>
-                    <div class="info-cell"><div class="k">@(isEn ? "Transport" : "Ulaşım")</div><div class="v">@(isEn ? "Flight + Bus" : "Uçak + Otobüs")</div></div>
-                    <div class="info-cell"><div class="k">@(isEn ? "Accommodation" : "Konaklama")</div><div class="v">@(isEn ? "4-Star Hotels" : "4 Yıldızlı Oteller")</div></div>
-                    <div class="info-cell"><div class="k">@(isEn ? "Guide Language" : "Rehber Dili")</div><div class="v">@(isEn ? "English / Turkish" : "Türkçe")</div></div>
-                    <div class="info-cell"><div class="k">@(isEn ? "Group Size" : "Grup Büyüklüğü")</div><div class="v">@(isEn ? "Max. 28 People" : "Maks. 28 Kişi")</div></div>
+                    <div class="info-cell"><div class="k">@L["Tur Süresi"]</div><div class="v">@Model.DurationDays @L["Gün"] / @(Model.DurationDays - 1) @L["Gece"]</div></div>
+                    <div class="info-cell"><div class="k">@L["Başlangıç Şehri"]</div><div class="v">İstanbul</div></div>
+                    <div class="info-cell"><div class="k">@L["Ulaşım"]</div><div class="v">@L["Uçak + Otobüs"]</div></div>
+                    <div class="info-cell"><div class="k">@L["Konaklama"]</div><div class="v">@L["4 Yıldızlı Oteller"]</div></div>
+                    <div class="info-cell"><div class="k">@L["Rehber Dili"]</div><div class="v">@L["Türkçe"]</div></div>
+                    <div class="info-cell"><div class="k">@L["Grup Büyüklüğü"]</div><div class="v">@L["Maks. 28 Kişi"]</div></div>
                 </div>
                 <div class="meet-note">
-                    <b>@(isEn ? "Meeting Point" : "Buluşma Noktası")</b>
-                    <p>@(isEn ? "Istanbul Airport International Terminal. Meeting with our guide 3 hours before departure." : "İstanbul Havalimanı Dış Hatlar Terminali. Tur başlangıcından 3 saat önce rehberimizle buluşma yapılır.")</p>
+                    <b>@L["Buluşma Noktası"]</b>
+                    <p>@L["İstanbul Havalimanı Dış Hatlar Terminali. Tur başlangıcından 3 saat önce rehberimizle buluşma yapılır."]</p>
                 </div>
             </div>
 
             <!-- REVIEWS -->
             <div class="content-block">
-                <h2>@(isEn ? "Guest Reviews" : "Misafir Yorumları")</h2>
+                <h2>@L["Misafir Yorumları"]</h2>
                 <div class="rev-summary mb-3">
                     <div class="rev-score">
                         <div class="num">4.8</div>
                         <div class="stars">★★★★★</div>
-                        <div class="cnt">@(comments?.Count ?? 0) @(isEn ? "reviews" : "değerlendirme")</div>
+                        <div class="cnt">@(comments?.Count ?? 0) @L["değerlendirme"]</div>
                     </div>
                     <div class="rev-bars">
-                        <div class="bar-row"><span class="lab">5 @(isEn ? "star" : "yıldız")</span><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div><span class="pct">%82</span></div>
-                        <div class="bar-row"><span class="lab">4 @(isEn ? "star" : "yıldız")</span><div class="bar-track"><div class="bar-fill" style="width:13%"></div></div><span class="pct">%13</span></div>
-                        <div class="bar-row"><span class="lab">3 @(isEn ? "star" : "yıldız")</span><div class="bar-track"><div class="bar-fill" style="width:4%"></div></div><span class="pct">%4</span></div>
-                        <div class="bar-row"><span class="lab">2 @(isEn ? "star" : "yıldız")</span><div class="bar-track"><div class="bar-fill" style="width:1%"></div></div><span class="pct">%1</span></div>
-                        <div class="bar-row"><span class="lab">1 @(isEn ? "star" : "yıldız")</span><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><span class="pct">%0</span></div>
+                        <div class="bar-row"><span class="lab">5 @L["yıldız"]</span><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div><span class="pct">%82</span></div>
+                        <div class="bar-row"><span class="lab">4 @L["yıldız"]</span><div class="bar-track"><div class="bar-fill" style="width:13%"></div></div><span class="pct">%13</span></div>
+                        <div class="bar-row"><span class="lab">3 @L["yıldız"]</span><div class="bar-track"><div class="bar-fill" style="width:4%"></div></div><span class="pct">%4</span></div>
+                        <div class="bar-row"><span class="lab">2 @L["yıldız"]</span><div class="bar-track"><div class="bar-fill" style="width:1%"></div></div><span class="pct">%1</span></div>
+                        <div class="bar-row"><span class="lab">1 @L["yıldız"]</span><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><span class="pct">%0</span></div>
                     </div>
                 </div>
 
@@ -1222,23 +1222,23 @@
                 }
                 else
                 {
-                    <p class="text-muted">@(isEn ? "No approved reviews for this tour yet." : "Bu tur için henüz onaylanmış bir yorum bulunmuyor.")</p>
+                    <p class="text-muted">@L["Bu tur için henüz onaylanmış bir yorum bulunmuyor."]</p>
                 }
 
                 <div class="write-box">
                     <div>
-                        <b>@(isEn ? "Did you take this tour?" : "Bu Tura Katıldın mı?")</b>
-                        <p>@(isEn ? "Share your experience with other travelers." : "Deneyimini diğer gezginlerle paylaş.")</p>
+                        <b>@L["Bu Tura Katıldın mı?"]</b>
+                        <p>@L["Deneyimini diğer gezginlerle paylaş."]</p>
                     </div>
                     <button class="btn-teal" type="button" data-bs-toggle="modal" data-bs-target="#reviewModal">
-                        @(isEn ? "Write a Review" : "Yorum Yaz")
+                        @L["Yorum Yaz"]
                     </button>
                 </div>
             </div>
 
             <!-- Q&A -->
             <div class="content-block">
-                <h2>@(isEn ? "Tour Questions" : "Tur Hakkında Sorular")</h2>
+                <h2>@L["Tur Hakkında Sorular"]</h2>
                 @if (questions != null && questions.Any())
                 {
                     foreach (var q in questions)
@@ -1263,15 +1263,15 @@
                 }
                 else
                 {
-                    <p class="text-muted">@(isEn ? "No questions submitted for this tour yet." : "Bu tur hakkında henüz soru iletilmemiş.")</p>
+                    <p class="text-muted">@L["Bu tur hakkında henüz soru iletilmemiş."]</p>
                 }
 
                 <div class="ask-box">
-                    <div class="book-label" style="margin-top:0">@(isEn ? "Have a question about this tour?" : "Bu tur hakkında merak ettiğin bir şey mi var?")</div>
-                    <textarea id="askInput" placeholder="@(isEn ? "Type your question..." : "Sorunu yaz...")"></textarea>
-                    <button class="btn-teal mt-3" type="button" onclick="sendQuestion()">@(isEn ? "Send Question" : "Soru Gönder")</button>
+                    <div class="book-label" style="margin-top:0">@L["Bu tur hakkında merak ettiğin bir şey mi var?"]</div>
+                    <textarea id="askInput" placeholder="@L["Sorunu yaz..."]"></textarea>
+                    <button class="btn-teal mt-3" type="button" onclick="sendQuestion()">@L["Soru Gönder"]</button>
                     <div id="askOk" style="display:none;color:var(--teal-dark);font-weight:600;font-size:.9rem;margin-top:.8rem">
-                        @(isEn ? "Your question has been received! We'll reply soon." : "Sorun alındı! Ekibimiz en kısa sürede yanıtlayacak.")
+                        @L["Sorun alındı! Ekibimiz en kısa sürede yanıtlayacak."]
                     </div>
                 </div>
             </div>
@@ -1283,42 +1283,58 @@
             <div class="book-sticky">
                 <div class="book-card">
                     <div class="price-top">
-                        <small>@(isEn ? "Per person" : "Kişi başı")</small>
+                        <small>@L["Kişi başı"]</small>
                         <div class="big" id="unitPrice">@Model.Price.ToString("N0") <span>TL</span></div>
-                        <div class="price-note">@(isEn ? "Taxes and specified services included." : "Vergiler ve belirtilen hizmetler dahildir.")</div>
+                        <div class="price-note">@L["Vergiler ve belirtilen hizmetler dahildir."]</div>
                     </div>
 
-                    <div class="book-label">@(isEn ? "Tour Date" : "Tur Tarihi")</div>
+                    <div class="book-label">@L["Tur Tarihi"]</div>
                     <div id="dateOptions">
                         @if (Model.TourDates != null && Model.TourDates.Any())
                         {
                             var first = true;
                             foreach (var td in Model.TourDates)
                             {
-                                // KONTENJAN DÜZELTMESİ: RemainingCapacity sıfırsa toplam Capacity baz alınır
+                                // Kalan kontenjan; geçmiş, pasif veya dolu tarihler seçilemez
                                 var availableSeats = td.RemainingCapacity;
-                                var isFull = availableSeats <= 0 || !td.IsActive;
+                                var isPast = td.StartDate.Date < DateTime.UtcNow.Date;
+                                var isFull = availableSeats <= 0 || !td.IsActive || isPast;
 
                                 <label class="date-opt @(first && !isFull ? "sel" : "")" style="@(isFull ? "opacity:.5;cursor:not-allowed" : "")">
                                     <span class="d">@td.StartDate.ToString("dd.MM.yyyy") - @td.EndDate.ToString("dd.MM.yyyy")</span>
                                     <input type="radio" name="tourDate" value="@td.StartDate.ToString("yyyy-MM-dd")" data-date-id="@td.Id"
                                     @(first && !isFull ? "checked" : "") @(isFull ? "disabled" : "") />
-                                    <span class="left">@(isFull ? (isEn ? "Full" : "Dolu") : $"{availableSeats} {(isEn ? "Seats Left" : "Kontenjan")}")</span>
+                                    <span class="left">
+                                        @if (isPast)
+                                        {
+                                            @L["Başladı"]
+                                        }
+                                        else if (availableSeats <= 0)
+                                        {
+
+                                            @L["Dolu"]
+                                        }
+                                        else
+                                        {
+
+                                            @($"{availableSeats} {L["Kalan Kontenjan"].Value}")
+                                        }
+                                    </span>
                                 </label>
                                 if (!isFull) first = false;
                             }
                         }
                         else
                         {
-                            <p class="text-muted" style="font-size: .85rem;">@(isEn ? "No active tour dates available." : "Yakın zamanda açık tur tarihi bulunmuyor.")</p>
+                            <p class="text-muted" style="font-size: .85rem;">@L["Yakın zamanda açık tur tarihi bulunmuyor."]</p>
                         }
                     </div>
 
-                    <div class="book-label">@(isEn ? "Number of Guests" : "Kişi Sayısı")</div>
+                    <div class="book-label">@L["Kişi Sayısı"]</div>
                     <div class="counter-row">
                         <div class="cl">
-                            <b>@(isEn ? "Adult" : "Yetişkin")</b>
-                            <span>@(isEn ? "Age 12 and above" : "12 yaş ve üzeri")</span>
+                            <b>@L["Yetişkin"]</b>
+                            <span>@L["12 yaş ve üzeri"]</span>
                         </div>
                         <div class="counter">
                             <button type="button" onclick="changeCount('adult', -1)" id="adultMinus">−</button>
@@ -1328,8 +1344,8 @@
                     </div>
                     <div class="counter-row">
                         <div class="cl">
-                            <b>@(isEn ? "Child" : "Çocuk")</b>
-                            <span>@(isEn ? "Age 2 - 11" : "2 - 11 yaş")</span>
+                            <b>@L["Çocuk"]</b>
+                            <span>@L["2 - 11 yaş"]</span>
                         </div>
                         <div class="counter">
                             <button type="button" onclick="changeCount('child', -1)" id="childMinus" disabled>−</button>
@@ -1339,18 +1355,18 @@
                     </div>
 
                     <div class="summary">
-                        <div class="row-line"><span id="adultLine">1 @(isEn ? "Adult" : "Yetişkin")</span><b id="adultSum">@Model.Price.ToString("N0") TL</b></div>
-                        <div class="row-line" id="childRow" style="display:none"><span id="childLine">0 @(isEn ? "Child" : "Çocuk")</span><b id="childSum">0 TL</b></div>
-                        <div class="row-line"><span>@(isEn ? "Subtotal" : "Ara Toplam")</span><b id="subtotal">@Model.Price.ToString("N0") TL</b></div>
-                        <div class="total"><span>@(isEn ? "Total" : "Toplam")</span><b id="grandTotal">@Model.Price.ToString("N0") TL</b></div>
+                        <div class="row-line"><span id="adultLine">1 @L["Yetişkin"]</span><b id="adultSum">@Model.Price.ToString("N0") TL</b></div>
+                        <div class="row-line" id="childRow" style="display:none"><span id="childLine">0 @L["Çocuk"]</span><b id="childSum">0 TL</b></div>
+                        <div class="row-line"><span>@L["Ara Toplam"]</span><b id="subtotal">@Model.Price.ToString("N0") TL</b></div>
+                        <div class="total"><span>@L["Toplam"]</span><b id="grandTotal">@Model.Price.ToString("N0") TL</b></div>
                     </div>
 
                     <button class="btn-teal" type="button" id="btnBook" onclick="submitBooking()">
-                        @(isEn ? "Book Now" : "Rezervasyon Yap")
+                        @L["Rezervasyon Yap"]
                     </button>
                     <div class="trust">
-                        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> @(isEn ? "Secure booking" : "Güvenli rezervasyon")</span>
-                        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg> @(isEn ? "Free pre-booking" : "Ücretsiz ön rezervasyon")</span>
+                        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg> @L["Güvenli rezervasyon"]</span>
+                        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg> @L["Ücretsiz ön rezervasyon"]</span>
                     </div>
                 </div>
             </div>
@@ -1362,31 +1378,31 @@
     {
         <div class="mt-4">
             <h2 style="font-family:'Sora';font-weight:700;font-size:1.6rem;color:var(--navy);margin-bottom:1.4rem">
-                @(isEn ? "You May Also Like" : "Bunları da Beğenebilirsin")
+                @L["Bunları da Beğenebilirsin"]
             </h2>
             <div class="row g-4">
                 @foreach (var sim in similarTours)
                 {
-                    var simTitle = sim.Title?.Value ?? (isEn ? sim.Title?.En : sim.Title?.Tr) ?? sim.Title?.ToString();
+                    var simTitle = sim.Title?.Value ?? sim.Title?.ToString();
                     <div class="col-md-6 col-lg-4">
                         <article class="tour-card">
                             <div class="tour-media">
                                 <img src="@(string.IsNullOrEmpty(sim.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : sim.CoverImageUrl)" alt="@simTitle" loading="lazy" />
                                 @if (sim.IsPopular)
                                 {
-                                    <span class="tour-badge">@(isEn ? "Popular" : "Popüler")</span>
+                                    <span class="tour-badge">@L["Popüler"]</span>
                                 }
                             </div>
                             <div class="tour-body">
                                 <div class="tour-country">@sim.Country · @sim.City</div>
                                 <h3 class="tour-title">@simTitle</h3>
                                 <div class="tour-meta">
-                                    <span>🗓️ @sim.DurationDays @(isEn ? "Days" : "Gün")</span>
+                                    <span>🗓️ @sim.DurationDays @L["Gün"]</span>
                                     <span><span class="star">★</span> 4.8 <span style="color:var(--muted)">(1.2k)</span></span>
                                 </div>
                                 <div class="tour-foot">
-                                    <div class="price"><small>@(isEn ? "Per person" : "Kişi başı")</small><b>@sim.Price.ToString("N0") <span>TL</span></b></div>
-                                    <a href="/Tour/Detail/@sim.Id" class="btn-incele">@(isEn ? "Explore Tour" : "Turu İncele")</a>
+                                    <div class="price"><small>@L["Kişi başı"]</small><b>@sim.Price.ToString("N0") <span>TL</span></b></div>
+                                    <a href="/Tour/Detail/@sim.Id" class="btn-incele">@L["Turu İncele"]</a>
                                 </div>
                             </div>
                         </article>
@@ -1403,21 +1419,21 @@
         <div class="modal-content">
             <div class="modal-header border-0">
                 <h5 class="modal-title" style="font-family:'Sora';font-weight:700;color:var(--navy)">
-                    @(isEn ? "Share Your Experience" : "Deneyimini Paylaş")
+                    @L["Deneyimini Paylaş"]
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="book-label" style="margin-top:0">@(isEn ? "Your Rating" : "Puanın")</div>
+                <div class="book-label" style="margin-top:0">@L["Puanın"]</div>
                 <div id="starPicker" class="mb-3">
                     <span class="star-pick on" data-v="1">★</span><span class="star-pick on" data-v="2">★</span><span class="star-pick on" data-v="3">★</span><span class="star-pick on" data-v="4">★</span><span class="star-pick on" data-v="5">★</span>
                 </div>
-                <div class="book-label" style="margin-top:0">@(isEn ? "Your Review" : "Yorumun")</div>
-                <textarea id="reviewText" class="form-control" style="border-radius:14px;border-color:var(--line);min-height:110px" placeholder="@(isEn ? "Describe your tour experience..." : "Tur deneyimini birkaç cümleyle anlat...")"></textarea>
+                <div class="book-label" style="margin-top:0">@L["Yorumun"]</div>
+                <textarea id="reviewText" class="form-control" style="border-radius:14px;border-color:var(--line);min-height:110px" placeholder="@L["Tur deneyimini birkaç cümleyle anlat..."]"></textarea>
             </div>
             <div class="modal-footer border-0">
                 <button class="btn-teal" type="button" id="btnSubmitReview" onclick="submitReview()">
-                    @(isEn ? "Submit Review" : "Yorumu Gönder")
+                    @L["Yorumu Gönder"]
                 </button>
             </div>
         </div>

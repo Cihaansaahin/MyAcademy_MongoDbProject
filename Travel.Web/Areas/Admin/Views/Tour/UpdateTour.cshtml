@@ -1,7 +1,7 @@
 ﻿@model Travel.Web.DTOs.TourDtos.UpdateTourDto
 @{
     var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
-    ViewData["Title"] = isEn ? "Edit Tour" : "Turu Düzenle";
+    ViewData["Title"] = L["Turu Düzenle"].Value;
 }
 
 @section Styles {
@@ -655,26 +655,28 @@
 }
 
 <div class="crumb">
-    <a href="/Admin/Dashboard">Dashboard</a> / <a href="/Admin/Tour/Index">@(isEn ? "Tours" : "Turlar")</a> / <span class="cur">@(isEn ? "Edit Tour" : "Turu Düzenle")</span>
+    <a href="/Admin/Dashboard">Dashboard</a> / <a href="/Admin/Tour/Index">@L["Turlar"]</a> / <span class="cur">@L["Turu Düzenle"]</span>
 </div>
 <div class="page-intro">
     <div>
-        <h1>@(isEn ? "Edit Tour" : "Turu Düzenle")</h1>
-        <p>@(isEn ? "Update tour details, itinerary schedule, departures, and publishing options." : "Tur rota ve fiyat bilgilerini güncelleyin.")</p>
+        <h1>@L["Turu Düzenle"]</h1>
+        <p>@L["Tur rota ve fiyat bilgilerini güncelleyin."]</p>
     </div>
     <a href="/Admin/Tour/Index" class="btn-ghost">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
-        @(isEn ? "Back to Tours" : "Turlara Dön")
+        @L["Turlara Dön"]
     </a>
 </div>
 
 <!-- VALIDATION BANNER -->
 <div class="val-banner" id="valBanner">
-    <b>@(isEn ? "Please complete the missing fields:" : "Lütfen eksik alanları tamamlayın:")</b>
+    <b>@L["Lütfen eksik alanları tamamlayın:"]</b>
     <ul id="valList"></ul>
 </div>
 
 <form asp-area="Admin" asp-controller="Tour" asp-action="UpdateTour" method="post" id="tourForm" enctype="multipart/form-data">
+
+    <div asp-validation-summary="All" class="alert alert-danger" style="margin-bottom:20px;border-radius:12px"></div>
     <!-- MongoDB ID -->
     <input type="hidden" asp-for="Id" />
 
@@ -685,63 +687,63 @@
                 <span class="sec-ic">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
                 </span>
-                @(isEn ? "Basic Information" : "Temel Bilgiler")
+                @L["Temel Bilgiler"]
             </h2>
-            <p>@(isEn ? "Enter the general public information for this tour." : "Turun kullanıcı tarafında görünen temel bilgilerini girin.")</p>
+            <p>@L["Turun kullanıcı tarafında görünen temel bilgilerini girin."]</p>
         </div>
         <div class="row g-3">
             <div class="col-md-6 field">
-                <label>@(isEn ? "Tour Title (Turkish)" : "Tur Adı (Türkçe)") <span class="req">*</span></label>
+                <label>@L["Tur Adı (Türkçe)"] <span class="req">*</span></label>
                 <input class="ctrl" asp-for="Title.Tr" id="tNameTr" placeholder="Örn. Roma & Toskana Keşfi" required>
             </div>
             <div class="col-md-6 field">
-                <label>@(isEn ? "Tour Title (English)" : "Tur Adı (İngilizce)")</label>
+                <label>@L["Tur Adı (İngilizce)"]</label>
                 <input class="ctrl" asp-for="Title.En" placeholder="e.g. Rome & Tuscany Discovery">
             </div>
             <div class="col-12 field">
-                <label>@(isEn ? "Short Summary" : "Kısa Açıklama")</label>
-                <textarea class="ctrl" rows="2" placeholder="@(isEn ? "Highlight the tour's top features in a few sentences..." : "Turun öne çıkan özelliklerini birkaç cümleyle anlatın...")"></textarea>
+                <label>@L["Kısa Açıklama"]</label>
+                <textarea class="ctrl" rows="2" placeholder="@L["Turun öne çıkan özelliklerini birkaç cümleyle anlatın..."]"></textarea>
             </div>
             <div class="col-md-6 field">
-                <label>@(isEn ? "Full Description (Turkish)" : "Tur Açıklaması (Türkçe)") <span class="req">*</span></label>
+                <label>@L["Tur Açıklaması (Türkçe)"] <span class="req">*</span></label>
                 <textarea class="ctrl" asp-for="Description.Tr" id="tDescTr" rows="4" placeholder="Turun konsepti, deneyimi ve önemli detayları..." required></textarea>
             </div>
             <div class="col-md-6 field">
-                <label>@(isEn ? "Full Description (English)" : "Tur Açıklaması (İngilizce)")</label>
+                <label>@L["Tur Açıklaması (İngilizce)"]</label>
                 <textarea class="ctrl" asp-for="Description.En" rows="4" placeholder="Tour concept, experiences and itinerary summary..."></textarea>
             </div>
             <div class="col-md-6 field">
-                <label>@(isEn ? "Category" : "Kategori") <span class="req">*</span></label>
+                <label>@L["Kategori"] <span class="req">*</span></label>
                 <select class="ctrl" asp-for="CategoryId" asp-items="ViewBag.Categories" id="tCat" required>
-                    <option value="">@(isEn ? "Select Category" : "Kategori Seçiniz")</option>
+                    <option value="">@L["Kategori Seçiniz"]</option>
                 </select>
             </div>
             <div class="col-md-6 field">
-                <label>@(isEn ? "Destination" : "Destinasyon") <span class="req">*</span></label>
+                <label>@L["Destinasyon"] <span class="req">*</span></label>
                 <select class="ctrl" asp-for="DestinationId" asp-items="ViewBag.Destinations" id="tDest" required>
-                    <option value="">@(isEn ? "Select Destination" : "Destinasyon Seçiniz")</option>
+                    <option value="">@L["Destinasyon Seçiniz"]</option>
                 </select>
             </div>
             <div class="col-md-8 field">
-                <label>@(isEn ? "Tour Route Path" : "Tur Rotası")</label>
+                <label>@L["Tur Rotası"]</label>
                 <input class="ctrl" placeholder="Roma · Vatikan · Floransa · Pisa · Toskana">
             </div>
             <div class="col-md-4 field">
-                <label>@(isEn ? "Tour Type" : "Tur Tipi")</label>
+                <label>@L["Tur Tipi"]</label>
                 <select class="ctrl">
-                    <option>@(isEn ? "Culture Tour" : "Kültür Turu")</option>
-                    <option>@(isEn ? "City Tour" : "Şehir Turu")</option>
-                    <option>@(isEn ? "Nature & Adventure" : "Doğa & Macera")</option>
-                    <option>@(isEn ? "Romantic Escapes" : "Romantik Rota")</option>
-                    <option>@(isEn ? "Gastronomy" : "Gastronomi")</option>
+                    <option>@L["Kültür Turu"]</option>
+                    <option>@L["Şehir Turu"]</option>
+                    <option>@L["Doğa & Macera"]</option>
+                    <option>@L["Romantik Rota"]</option>
+                    <option>@L["Gastronomi"]</option>
                 </select>
             </div>
             <div class="col-md-6 field">
-                <label>@(isEn ? "Country" : "Ülke") <span class="req">*</span></label>
+                <label>@L["Ülke"] <span class="req">*</span></label>
                 <input class="ctrl" asp-for="Country" id="tCountry" placeholder="İtalya" required>
             </div>
             <div class="col-md-6 field">
-                <label>@(isEn ? "City" : "Şehir") <span class="req">*</span></label>
+                <label>@L["Şehir"] <span class="req">*</span></label>
                 <input class="ctrl" asp-for="City" id="tCity" placeholder="Roma" required>
             </div>
         </div>
@@ -754,54 +756,54 @@
                 <span class="sec-ic">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
                 </span>
-                @(isEn ? "Price & Capacity" : "Fiyat & Kontenjan")
+                @L["Fiyat & Kontenjan"]
             </h2>
-            <p>@(isEn ? "Define retail pricing, duration, and participant thresholds." : "Satış fiyatı, süre ve katılımcı limitlerini belirleyin.")</p>
+            <p>@L["Satış fiyatı, süre ve katılımcı limitlerini belirleyin."]</p>
         </div>
         <div class="row g-3">
             <div class="col-6 col-lg-3 field">
-                <label>@(isEn ? "Price per Person" : "Kişi Başı Fiyat") <span class="req">*</span></label>
+                <label>@L["Kişi Başı Fiyat"] <span class="req">*</span></label>
                 <div class="input-group-x">
                     <input class="ctrl" asp-for="Price" id="tPrice" type="number" step="0.01" placeholder="42500" style="padding-right:2.6rem" required>
                     <span class="suffix">TL</span>
                 </div>
             </div>
             <div class="col-3 col-lg-2 field">
-                <label>@(isEn ? "Days" : "Gün") <span class="req">*</span></label>
+                <label>@L["Gün"] <span class="req">*</span></label>
                 <input class="ctrl" asp-for="DurationDays" id="tDays" type="number" min="1" placeholder="6" required>
             </div>
             <div class="col-3 col-lg-2 field">
-                <label>@(isEn ? "Nights" : "Gece")</label>
+                <label>@L["Gece"]</label>
                 <input class="ctrl" type="number" min="0" placeholder="5">
             </div>
             <div class="col-6 col-lg-2 field">
-                <label>@(isEn ? "Max Capacity" : "Maks. Kontenjan")</label>
+                <label>@L["Maks. Kontenjan"]</label>
                 <input class="ctrl" type="number" min="1" placeholder="28">
             </div>
             <div class="col-6 col-lg-3 field">
-                <label>@(isEn ? "Min Participants" : "Min. Katılımcı")</label>
+                <label>@L["Min. Katılımcı"]</label>
                 <input class="ctrl" type="number" min="1" placeholder="12">
             </div>
         </div>
         <div class="row g-3">
             <div class="col-md-6 col-lg-3 field">
-                <label>@(isEn ? "Departure City" : "Başlangıç Şehri")</label>
+                <label>@L["Başlangıç Şehri"]</label>
                 <select class="ctrl"><option selected>İstanbul</option><option>Ankara</option><option>İzmir</option></select>
             </div>
             <div class="col-md-6 col-lg-3 field">
-                <label>@(isEn ? "Transport" : "Ulaşım")</label>
+                <label>@L["Ulaşım"]</label>
                 <select class="ctrl"><option>Uçak</option><option>Otobüs</option><option selected>Uçak + Otobüs</option><option>Tren</option></select>
             </div>
             <div class="col-md-6 col-lg-3 field">
-                <label>@(isEn ? "Accommodation" : "Konaklama")</label>
+                <label>@L["Konaklama"]</label>
                 <input class="ctrl" placeholder="4 Yıldızlı Oteller">
             </div>
             <div class="col-md-6 col-lg-3 field">
-                <label>@(isEn ? "Guide Language" : "Rehber Dili")</label>
+                <label>@L["Rehber Dili"]</label>
                 <select class="ctrl"><option selected>Türkçe</option><option>İngilizce</option><option>Türkçe + İngilizce</option></select>
             </div>
             <div class="col-md-6 col-lg-3 field">
-                <label>@(isEn ? "Visa Requirements" : "Vize Bilgisi")</label>
+                <label>@L["Vize Bilgisi"]</label>
                 <select class="ctrl"><option>Vize Gerekiyor</option><option>Vizesiz</option><option>Kapıda Vize</option><option selected>Schengen Vizesi</option></select>
             </div>
         </div>
@@ -814,14 +816,14 @@
                 <span class="sec-ic">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
                 </span>
-                @(isEn ? "Tour Departures" : "Tur Tarihleri") <span class="req">*</span>
+                @L["Tur Tarihleri"] <span class="req">*</span>
             </h2>
-            <p>@(isEn ? "Add one or multiple departure schedules with seat capacities." : "Aynı tur için birden fazla kalkış tarihi ekleyebilirsiniz.")</p>
+            <p>@L["Aynı tur için birden fazla kalkış tarihi ekleyebilirsiniz."]</p>
         </div>
         <div id="dateList"></div>
         <button type="button" class="btn-add" onclick="addDate()">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-            @(isEn ? "Add New Departure Date" : "Yeni Tarih Ekle")
+            @L["Yeni Tarih Ekle"]
         </button>
     </div>
 
@@ -832,14 +834,14 @@
                 <span class="sec-ic">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6" /></svg>
                 </span>
-                @(isEn ? "Day by Day Itinerary" : "Gün Gün Tur Programı") <span class="req">*</span>
+                @L["Gün Gün Tur Programı"] <span class="req">*</span>
             </h2>
-            <p>@(isEn ? "Create day-by-day itineraries displayed on public tour detail pages." : "Misafirlerin tur detay sayfasında göreceği günlük programı oluşturun.")</p>
+            <p>@L["Misafirlerin tur detay sayfasında göreceği günlük programı oluşturun."]</p>
         </div>
         <div id="dayList"></div>
         <button type="button" class="btn-add" onclick="addDay()">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-            @(isEn ? "Add New Day" : "Yeni Gün Ekle")
+            @L["Yeni Gün Ekle"]
         </button>
     </div>
 
@@ -850,30 +852,30 @@
                 <span class="sec-ic">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
                 </span>
-                @(isEn ? "Services & Highlights" : "Hizmetler & Öne Çıkanlar")
+                @L["Hizmetler & Öne Çıkanlar"]
             </h2>
-            <p>@(isEn ? "Manage inclusions, exclusions, and key tour highlights." : "Fiyata dahil olan / olmayan hizmetleri ve turun öne çıkan özelliklerini yönetin.")</p>
+            <p>@L["Fiyata dahil olan / olmayan hizmetleri ve turun öne çıkan özelliklerini yönetin."]</p>
         </div>
         <div class="row g-4">
             <div class="col-lg-6">
-                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">@(isEn ? "Included in Price" : "Fiyata Dahil Olanlar")</label>
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">@L["Fiyata Dahil Olanlar"]</label>
                 <div id="incList"></div>
                 <button type="button" class="btn-add" onclick="addItem('incList', isEn ? 'New service inclusion' : 'Yeni hizmet')">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg> @(isEn ? "Add Service" : "Yeni Hizmet Ekle")
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg> @L["Yeni Hizmet Ekle"]
                 </button>
             </div>
             <div class="col-lg-6">
-                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">@(isEn ? "Not Included in Price" : "Fiyata Dahil Olmayanlar")</label>
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">@L["Fiyata Dahil Olmayanlar"]</label>
                 <div id="excList"></div>
                 <button type="button" class="btn-add" onclick="addItem('excList', isEn ? 'New exclusion item' : 'Yeni madde')">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg> @(isEn ? "Add Item" : "Yeni Madde Ekle")
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg> @L["Yeni Madde Ekle"]
                 </button>
             </div>
             <div class="col-12">
-                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">@(isEn ? "Tour Highlights (Features)" : "Turun Öne Çıkanları")</label>
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.6rem;display:block">@L["Turun Öne Çıkanları"]</label>
                 <div id="hlList"></div>
                 <button type="button" class="btn-add" onclick="addItem('hlList', isEn ? 'Tour highlight' : 'Öne çıkan özellik')">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg> @(isEn ? "Add Highlight" : "Öne Çıkan Özellik Ekle")
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg> @L["Öne Çıkan Özellik Ekle"]
                 </button>
             </div>
         </div>
@@ -886,74 +888,74 @@
                 <span class="sec-ic">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                 </span>
-                @(isEn ? "Images & Publication Settings" : "Görseller & Yayın Ayarları")
+                @L["Görseller & Yayın Ayarları"]
             </h2>
-            <p>@(isEn ? "Specify cover images, gallery uploads, and status switches." : "Kapak görselini, galeriyi ve turun yayın durumunu belirleyin.")</p>
+            <p>@L["Kapak görselini, galeriyi ve turun yayın durumunu belirleyin."]</p>
         </div>
         <div class="row g-4">
             <!-- Kapak Görseli -->
             <div class="col-lg-6">
-                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">@(isEn ? "Cover Image File / URL" : "Ana Kapak Görseli") <span class="req">*</span></label>
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">@L["Ana Kapak Görseli"] <span class="req">*</span></label>
                 <label class="upload" for="coverInput">
                     <div class="uic">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
                     </div>
-                    <b>@(isEn ? "Drag cover image here or browse" : "Ana tur görselini buraya sürükleyin veya seçin.")</b>
-                    <span>@(isEn ? "JPG, PNG · Recommended 1600x900" : "JPG, PNG · Önerilen 1600x900")</span>
+                    <b>@L["Ana tur görselini buraya sürükleyin veya seçin."]</b>
+                    <span>@L["JPG, PNG · Önerilen 1600x900"]</span>
                 </label>
                 <input type="file" id="coverInput" name="CoverImageFile" accept="image/*" style="display:none" onchange="previewCover(this)">
                 <div class="cover-preview" id="coverPreview" style="display:@(string.IsNullOrEmpty(Model.CoverImageUrl) ? "none" : "block")">
                     <img id="coverImg" src="@Model.CoverImageUrl" alt="Cover Preview">
                 </div>
                 <div class="mt-2">
-                    <label style="font-size:.76rem;color:var(--muted);font-weight:600">@(isEn ? "Or enter Cover Image URL directly:" : "Veya doğrudan Kapak Görseli URL'si girin:")</label>
-                   <input type="file" id="galleryInput" name="GalleryFiles" accept="image/*" multiple style="display:none" onchange="previewGallery(this)">
+                    <label style="font-size:.76rem;color:var(--muted);font-weight:600">@L["Veya doğrudan Kapak Görseli URL'si girin:"]</label>
+                    <input class="ctrl" asp-for="CoverImageUrl" id="tCoverUrl" placeholder="https://images.unsplash.com/..." oninput="previewCoverUrl(this.value)">
                 </div>
             </div>
 
             <!-- Galeri Görselleri -->
             <div class="col-lg-6">
-                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">@(isEn ? "Gallery Images" : "Galeri Görselleri")</label>
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">@L["Galeri Görselleri"]</label>
                 <label class="upload" for="galleryInput">
                     <div class="uic">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                     </div>
-                    <b>@(isEn ? "Select gallery photos" : "Galeri görsellerini seçin.")</b>
-                    <span>@(isEn ? "You can select up to 8 images for the gallery." : "Tur galerisi için en fazla 8 görsel ekleyebilirsiniz.")</span>
+                    <b>@L["Galeri görsellerini seçin."]</b>
+                    <span>@L["Tur galerisi için en fazla 8 görsel ekleyebilirsiniz."]</span>
                 </label>
-                <input type="file" id="galleryInput" accept="image/*" multiple style="display:none" onchange="previewGallery(this)">
+                <input type="file" id="galleryInput" name="GalleryFiles" accept="image/*" multiple style="display:none" onchange="previewGallery(this)">
                 <div class="previews" id="galleryPreviews"></div>
             </div>
 
             <!-- Durum Hapları -->
             <div class="col-lg-7">
-                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">@(isEn ? "Tour Status" : "Tur Durumu")</label>
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.5rem;display:block">@L["Tur Durumu"]</label>
                 <div class="status-pills">
                     <label class="status-pill @(Model.IsActive ? "sel" : "")" data-status="true">
                         <input type="radio" name="IsActive" value="true" @(Model.IsActive ? "checked" : "")>
-                        <b>@(isEn ? "Active" : "Aktif")</b>
-                        <span>@(isEn ? "Live on website" : "Sitede yayında")</span>
+                        <b>@L["Aktif"]</b>
+                        <span>@L["Sitede yayında"]</span>
                     </label>
                     <label class="status-pill @(!Model.IsActive ? "sel" : "")" data-status="false">
                         <input type="radio" name="IsActive" value="false" @(!Model.IsActive ? "checked" : "")>
-                        <b>@(isEn ? "Inactive" : "Pasif")</b>
-                        <span>@(isEn ? "Hidden from public" : "Gizli")</span>
+                        <b>@L["Pasif"]</b>
+                        <span>@L["Gizli"]</span>
                     </label>
                     <label class="status-pill @(!Model.IsActive ? "sel" : "")" data-status="false">
                         <input type="radio" name="IsActive" value="false">
-                        <b>@(isEn ? "Draft" : "Taslak")</b>
-                        <span>@(isEn ? "Unpublished" : "Yayınlanmadı")</span>
+                        <b>@L["Taslak"]</b>
+                        <span>@L["Yayınlanmadı"]</span>
                     </label>
                 </div>
             </div>
 
             <!-- Rozetler -->
             <div class="col-lg-5">
-                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.2rem;display:block">@(isEn ? "Badges" : "Rozetler")</label>
+                <label style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.2rem;display:block">@L["Rozetler"]</label>
                 <div class="switch-row">
                     <div class="sl">
-                        <b>@(isEn ? "Featured on Home" : "Ana sayfada öne çıkar")</b>
-                        <span>@(isEn ? "Showcase tour on home" : "Öne çıkan tur")</span>
+                        <b>@L["Ana sayfada öne çıkar"]</b>
+                        <span>@L["Öne çıkan tur"]</span>
                     </div>
                     <div class="form-check form-switch m-0">
                         <input class="form-check-input" type="checkbox" id="swFeatured">
@@ -961,8 +963,8 @@
                 </div>
                 <div class="switch-row">
                     <div class="sl">
-                        <b>@(isEn ? "Best Seller Badge" : "Çok Satan etiketi göster")</b>
-                        <span>@(isEn ? "\"Best Seller\" label" : "\"Çok Satan\" rozeti")</span>
+                        <b>@L["Çok Satan etiketi göster"]</b>
+                        <span>@L["\"Çok Satan\" rozeti"]</span>
                     </div>
                     <div class="form-check form-switch m-0">
                         <input class="form-check-input" type="checkbox" asp-for="IsPopular" id="swBest" onchange="oneBadge(this,'swNew')">
@@ -970,8 +972,8 @@
                 </div>
                 <div class="switch-row">
                     <div class="sl">
-                        <b>@(isEn ? "New Badge" : "Yeni etiketi göster")</b>
-                        <span>@(isEn ? "\"New\" label" : "\"Yeni\" rozeti")</span>
+                        <b>@L["Yeni etiketi göster"]</b>
+                        <span>@L["\"Yeni\" rozeti"]</span>
                     </div>
                     <div class="form-check form-switch m-0">
                         <input class="form-check-input" type="checkbox" id="swNew" onchange="oneBadge(this,'swBest')">
@@ -985,22 +987,21 @@
     <div class="action-bar">
         <div class="saved" id="savedInfo">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-            @(isEn ? "Editing existing tour" : "Mevcut tur düzenleniyor")
+            @L["Mevcut tur düzenleniyor"]
         </div>
         <div class="btns">
-            <a href="/Admin/Tour/Index" class="btn-ghost">@(isEn ? "Cancel" : "Vazgeç")</a>
-            <button type="button" class="btn-navy" onclick="saveDraft()">@(isEn ? "Save Draft" : "Taslak Kaydet")</button>
-            <button type="submit" class="btn-teal">@(isEn ? "Save Changes" : "Değişiklikleri Kaydet")</button>
+            <a href="/Admin/Tour/Index" class="btn-ghost">@L["Vazgeç"]</a>
+            <button type="button" class="btn-navy" onclick="saveDraft()">@L["Taslak Kaydet"]</button>
+            <button type="submit" class="btn-teal">@L["Değişiklikleri Kaydet"]</button>
         </div>
     </div>
 </form>
 
-<div asp-validation-summary="All" class="alert alert-danger" style="margin-bottom:20px;border-radius:12px"></div>
 
 <!-- TOAST -->
 <div class="toast-ok" id="toast">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-    <span id="toastMsg">@(isEn ? "Changes saved." : "Değişiklikler kaydedildi.")</span>
+    <span id="toastMsg">@L["Değişiklikler kaydedildi."]</span>
 </div>
 
 @section Scripts {
@@ -1074,7 +1075,7 @@
             rows.forEach((r, idx) => {
                 const idInp = r.querySelector('input[type="hidden"][name*="Id"]');
                 if (idInp) idInp.name = `TourDates[${idx}].Id`;
-                
+
                 const remInp = r.querySelector(".d-rem");
                 if (remInp) remInp.name = `TourDates[${idx}].RemainingCapacity`;
 
@@ -1094,15 +1095,15 @@
         // Modeldeki Mevcut Tarihleri Doldur
         @if (Model.TourDates != null && Model.TourDates.Any())
         {
-            foreach (var td in Model.TourDates)
-            {
-                        var remCap = td.RemainingCapacity;
-                <text>addDate("@td.Id", "@td.StartDate.ToString("yyyy-MM-dd")", "@td.EndDate.ToString("yyyy-MM-dd")", @td.Capacity, @remCap);</text>
-            }
+                foreach (var td in Model.TourDates)
+                {
+                                var remCap = td.RemainingCapacity;
+                        <text>addDate("@td.Id", "@td.StartDate.ToString("yyyy-MM-dd")", "@td.EndDate.ToString("yyyy-MM-dd")", @td.Capacity, @remCap);</text>
+                }
         }
         else
         {
-            <text>addDate("", "2026-10-12", "2026-10-17", 28, 28);</text>
+                <text>addDate();</text>
         }
 
         /* ---------- GÜN GÜN PROGRAM (AKORDEON) ---------- */
@@ -1196,16 +1197,16 @@
         // Modeldeki Mevcut Programı Doldur
         @if (Model.Itinerary != null && Model.Itinerary.Any())
         {
-            foreach (var it in Model.Itinerary.OrderBy(x => x.DayNumber))
-            {
-                var itTitle = it.Title?.Tr ?? "";
-                var itDesc = it.Description?.Tr ?? "";
-                <text>addDay("@Html.Raw(itTitle.Replace("\"", "\\\""))", "@Html.Raw(itDesc.Replace("\"", "\\\""))");</text>
-            }
+                foreach (var it in Model.Itinerary.OrderBy(x => x.DayNumber))
+                {
+                        var itTitle = it.Title?.Tr ?? "";
+                        var itDesc = it.Description?.Tr ?? "";
+                        <text>addDay("@Html.Raw(itTitle.Replace("\"", "\\\""))", "@Html.Raw(itDesc.Replace("\"", "\\\""))");</text>
+                }
         }
         else
         {
-            <text>addDay("1. Gün", "İstanbul Havalimanı'nda buluşma ve otele transfer.");</text>
+                <text>addDay("1. Gün", "İstanbul Havalimanı'nda buluşma ve otele transfer.");</text>
         }
 
         /* ---------- DİNAMİK LİSTELER (INCLUDES / EXCLUDES / HIGHLIGHTS) ---------- */
@@ -1236,14 +1237,14 @@
 
         @if (Model.Features != null && Model.Features.Any())
         {
-            foreach (var feat in Model.Features)
-            {
-                <text>addItem("hlList", "Öne çıkan özellik", "@Html.Raw(feat.Replace("\"", "\\\""))");</text>
-            }
+                foreach (var feat in Model.Features)
+                {
+                        <text>addItem("hlList", "Öne çıkan özellik", "@Html.Raw(feat.Replace("\"", "\\\""))");</text>
+                }
         }
         else
         {
-            <text>addItem("hlList", "Öne çıkan özellik", "Rehberlik hizmeti ve özel transferler");</text>
+                <text>addItem("hlList", "Öne çıkan özellik", "Rehberlik hizmeti ve özel transferler");</text>
         }
 
         /* ---------- UPLOAD & PREVIEWS ---------- */

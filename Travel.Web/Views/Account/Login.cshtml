@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@(isEn ? "Sign In" : "Giriş Yap") — Travelio</title>
+    <title>@L["Giriş Yap"] — Travelio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -352,53 +352,49 @@
             <div class="auth-visual">
                 <a class="brand" href="/"><span class="dot"></span>Travelio</a>
                 <div class="visual-body">
-                    <div class="eyebrow">@(isEn ? "Welcome Back" : "Tekrar Hoş Geldin")</div>
-                    <h1>@(isEn ? "Continue Exploring Where You Left Off" : "Kaldığın Yerden Keşfetmeye Devam Et")</h1>
+                    <div class="eyebrow">@L["Tekrar Hoş Geldin"]</div>
+                    <h1>@L["Kaldığın Yerden Keşfetmeye Devam Et"]</h1>
                     <p>
-                        @(isEn
-                            ? "Sign in to view saved tours, manage your bookings, and plan unforgettable journeys."
-                            : "Giriş yaparak kayıtlı turlarını görüntüle, rezervasyonlarını yönet ve yeni seyahat rotaları planla.")
+                        @L["Giriş yaparak kayıtlı turlarını görüntüle, rezervasyonlarını yönet ve yeni seyahat rotaları planla."]
                     </p>
                     <ul class="perks">
-                        <li><span class="pc">✓</span>@(isEn ? "Review your active bookings" : "Kayıtlı rezervasyonlarını incele")</li>
-                        <li><span class="pc">✓</span>@(isEn ? "See responses to your questions" : "Sorduğun soruların cevaplarını gör")</li>
-                        <li><span class="pc">✓</span>@(isEn ? "Get personalized itinerary recommendations" : "Kişiselleştirilmiş rota önerileri al")</li>
+                        <li><span class="pc">✓</span>@L["Kayıtlı rezervasyonlarını incele"]</li>
+                        <li><span class="pc">✓</span>@L["Sorduğun soruların cevaplarını gör"]</li>
+                        <li><span class="pc">✓</span>@L["Kişiselleştirilmiş rota önerileri al"]</li>
                     </ul>
                 </div>
-                <div class="visual-foot">© 2026 Travelio · @(isEn ? "Get ready to explore the world." : "Dünyayı keşfetmeye hazır ol.")</div>
+                <div class="visual-foot">© 2026 Travelio · @L["Dünyayı keşfetmeye hazır ol."]</div>
             </div>
 
             <!-- SAĞ FORM ALANI -->
             <div class="auth-form">
                 <div class="form-top">
                     <a class="back-link" href="/">
-                        ← @(isEn ? "Back to Home" : "Ana Sayfaya Dön")
+                        ← @L["Ana Sayfaya Dön"]
                     </a>
                 </div>
 
                 <div class="form-wrap">
                     <div class="form-inner">
-                        <div class="eyebrow">@(isEn ? "Access Your Account" : "Hesabına Eriş")</div>
-                        <h2>@(isEn ? "Sign In" : "Giriş Yap")</h2>
+                        <div class="eyebrow">@L["Hesabına Eriş"]</div>
+                        <h2>@L["Giriş Yap"]</h2>
                         <p class="lead">
-                            @(isEn
-                                ? "Sign in with your email and password to manage your trips."
-                                : "E-posta ve şifrenle giriş yaparak seyahatini yönet.")
+                            @L["E-posta ve şifrenle giriş yaparak seyahatini yönet."]
                         </p>
 
                         <form method="post" asp-action="Login" asp-controller="Account">
                             <div class="field">
-                                <label for="email">@(isEn ? "Email Address" : "E-posta")</label>
+                                <label for="email">@L["E-posta"]</label>
                                 <div class="input-wrap">
-                                    <input type="email" asp-for="Email" id="email" placeholder="@(isEn ? "name@example.com" : "ornek@email.com")" required />
+                                    <input type="email" asp-for="Email" id="email" placeholder="@L["ornek@email.com"]" required />
                                 </div>
                                 <span asp-validation-for="Email" class="text-danger" style="font-size: .78rem;"></span>
                             </div>
 
                             <div class="field">
-                                <label for="password">@(isEn ? "Password" : "Şifre")</label>
+                                <label for="password">@L["Şifre"]</label>
                                 <div class="input-wrap">
-                                    <input type="password" asp-for="Password" id="password" placeholder="@(isEn ? "Enter your password" : "Şifrenizi girin")" required />
+                                    <input type="password" asp-for="Password" id="password" placeholder="@L["Şifrenizi girin"]" required />
                                     <button type="button" class="toggle-eye" onclick="togglePass('password')">👁️</button>
                                 </div>
                                 <span asp-validation-for="Password" class="text-danger" style="font-size: .78rem;"></span>
@@ -407,20 +403,20 @@
                             <div class="form-options">
                                 <label class="remember-me">
                                     <input type="checkbox" asp-for="RememberMe" />
-                                    <span>@(isEn ? "Remember Me" : "Beni Hatırla")</span>
+                                    <span>@L["Beni Hatırla"]</span>
                                 </label>
-                                <a href="#" class="forgot-link" onclick="alert('@(isEn ? "Password reset link sent to your email address." : "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.")')">
-                                    @(isEn ? "Forgot Password?" : "Şifremi Unuttum")
+                                <a href="#" class="forgot-link" onclick="alert('@L["Şifre sıfırlama bağlantısı e-posta adresinize gönderildi."]')">
+                                    @L["Şifremi Unuttum"]
                                 </a>
                             </div>
 
                             <button type="submit" class="btn-teal btn-submit">
-                                @(isEn ? "Sign In" : "Giriş Yap")
+                                @L["Giriş Yap"]
                             </button>
 
                             <div class="register-line">
-                                @(isEn ? "Don't have an account yet?" : "Henüz hesabın yok mu?")
-                                <a href="/Account/Register">@(isEn ? "Sign Up Now" : "Hemen Kayıt Ol")</a>
+                                @L["Henüz hesabın yok mu?"]
+                                <a href="/Account/Register">@L["Hemen Kayıt Ol"]</a>
                             </div>
                         </form>
                     </div>

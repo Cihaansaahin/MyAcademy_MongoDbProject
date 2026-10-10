@@ -1,7 +1,7 @@
 ﻿@model List<Travel.Web.DTOs.QuestionDtos.ResultQuestionDto>
 @{
     var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
-    ViewData["Title"] = isEn ? "Question Management" : "Soru Yönetimi";
+    ViewData["Title"] = L["Soru Yönetimi"].Value;
 
     var totalQuestions = Model?.Count ?? 0;
     var answeredQuestions = Model?.Count(x => x.IsAnswered) ?? 0;
@@ -376,9 +376,9 @@
 
 <div class="page-intro">
     <div>
-        <div class="eyebrow">@(isEn ? "MANAGEMENT" : "YÖNETİM")</div>
-        <h1>@(isEn ? "Question Management" : "Soru Yönetimi")</h1>
-        <p>@(isEn ? "Answer or manage inquiries submitted by users regarding tours." : "Kullanıcıların turlarla ilgili yönelttiği soruları yanıtlayın veya yönetin.")</p>
+        <div class="eyebrow">@L["YÖNETİM"]</div>
+        <h1>@L["Soru Yönetimi"]</h1>
+        <p>@L["Kullanıcıların turlarla ilgili yönelttiği soruları yanıtlayın veya yönetin."]</p>
     </div>
 </div>
 
@@ -391,7 +391,7 @@
             </div>
             <div>
                 <div class="num">@totalQuestions</div>
-                <div class="lab">@(isEn ? "Total Questions" : "Toplam Soru")</div>
+                <div class="lab">@L["Toplam Soru"]</div>
             </div>
         </div>
     </div>
@@ -402,7 +402,7 @@
             </div>
             <div>
                 <div class="num">@answeredQuestions</div>
-                <div class="lab">@(isEn ? "Answered" : "Cevaplandı")</div>
+                <div class="lab">@L["Cevaplandı"]</div>
             </div>
         </div>
     </div>
@@ -413,7 +413,7 @@
             </div>
             <div>
                 <div class="num">@pendingQuestions</div>
-                <div class="lab">@(isEn ? "Awaiting Reply" : "Cevap Bekleyen")</div>
+                <div class="lab">@L["Cevap Bekleyen"]</div>
             </div>
         </div>
     </div>
@@ -424,7 +424,7 @@
             </div>
             <div>
                 <div class="num">@answerRate</div>
-                <div class="lab">@(isEn ? "Response Rate" : "Yanıt Oranı")</div>
+                <div class="lab">@L["Yanıt Oranı"]</div>
             </div>
         </div>
     </div>
@@ -436,23 +436,23 @@
         <div class="col-lg-6 col-md-6">
             <div class="f-search">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-                <input type="text" id="fSearch" placeholder="@(isEn ? "Search user or question text..." : "Kullanıcı adı veya soru içeriği ara...")">
+                <input type="text" id="fSearch" placeholder="@L["Kullanıcı adı veya soru içeriği ara..."]">
             </div>
         </div>
         <div class="col-lg-4 col-md-4">
             <select class="f-select" id="fStatus">
-                <option value="">@(isEn ? "All Statuses" : "Tüm Durumlar")</option>
-                <option value="true">@(isEn ? "Answered" : "Cevaplandı")</option>
-                <option value="false">@(isEn ? "Awaiting Reply" : "Cevap Bekliyor")</option>
+                <option value="">@L["Tüm Durumlar"]</option>
+                <option value="true">@L["Cevaplandı"]</option>
+                <option value="false">@L["Cevap Bekliyor"]</option>
             </select>
         </div>
         <div class="col-lg-2 col-md-2">
-            <button type="button" class="btn-clear" onclick="clearFilters()">@(isEn ? "Clear" : "Temizle")</button>
+            <button type="button" class="btn-clear" onclick="clearFilters()">@L["Temizle"]</button>
         </div>
     </div>
 </div>
 
-<div class="result-line"><b id="resultCount">@totalQuestions</b> @(isEn ? "questions listed" : "soru listeleniyor")</div>
+<div class="result-line"><b id="resultCount">@totalQuestions</b> @L["soru listeleniyor"]</div>
 
 <!-- TABLO -->
 <div class="card-x mb-4">
@@ -460,11 +460,11 @@
         <table class="tx">
             <thead>
                 <tr>
-                    <th>@(isEn ? "User" : "Kullanıcı")</th>
-                    <th>@(isEn ? "Question & Answer" : "Soru & Cevap")</th>
-                    <th>@(isEn ? "Date" : "Tarih")</th>
-                    <th>@(isEn ? "Status" : "Durum")</th>
-                    <th style="text-align: right;">@(isEn ? "Actions" : "İşlemler")</th>
+                    <th>@L["Kullanıcı"]</th>
+                    <th>@L["Soru & Cevap"]</th>
+                    <th>@L["Tarih"]</th>
+                    <th>@L["Durum"]</th>
+                    <th style="text-align: right;">@L["İşlemler"]</th>
                 </tr>
             </thead>
             <tbody id="questionRows">
@@ -474,7 +474,7 @@
                     {
                         var initials = string.Join("", (item.UserName ?? "U").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => s[0])).ToUpper();
                         var stClass = item.IsAnswered ? "b-ok" : "b-wait";
-                        var stText = item.IsAnswered ? (isEn ? "Answered" : "Cevaplandı") : (isEn ? "Awaiting Reply" : "Cevap Bekliyor");
+                        var stText = item.IsAnswered ? L["Cevaplandı"].Value : L["Cevap Bekliyor"].Value;
 
                         <tr class="question-row"
                             data-search="@(item.UserName?.ToLower()) @(item.QuestionText?.ToLower()) @(item.AnswerText?.ToLower())"
@@ -492,7 +492,7 @@
                                 @if (!string.IsNullOrEmpty(item.AnswerText))
                                 {
                                     <div style="margin-top: .4rem; padding-left: .65rem; border-left: 2px solid var(--teal); font-size: .82rem; color: var(--muted); line-height: 1.45;">
-                                        <b style="color: var(--teal-dark);">@(isEn ? "Travelio:" : "Cevabınız:")</b> @item.AnswerText
+                                        <b style="color: var(--teal-dark);">@L["Cevabınız:"]</b> @item.AnswerText
                                     </div>
                                 }
                             </td>
@@ -505,12 +505,12 @@
                             <td style="text-align: right; white-space: nowrap;">
                                 <a href="/Admin/Question/AnswerQuestion/@item.Id" class="btn-action-ok">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" /></svg>
-                                    @(item.IsAnswered ? (isEn ? "Edit Answer" : "Cevabı Düzenle") : (isEn ? "Answer" : "Cevapla"))
+                                    @(item.IsAnswered ? L["Cevabı Düzenle"].Value : L["Cevapla"].Value)
                                 </a>
                                 <a href="/Admin/Question/Delete/@item.Id"
-                                   onclick="return confirm('@(isEn ? "Are you sure you want to delete this question?" : "Bu soruyu silmek istediğinize emin misiniz?")');"
+                                   onclick="return confirm('@L["Bu soruyu silmek istediğinize emin misiniz?"]');"
                                    class="btn-action-cancel">
-                                    ✕ @(isEn ? "Delete" : "Sil")
+                                    ✕ @L["Sil"]
                                 </a>
                             </td>
                         </tr>
@@ -526,9 +526,9 @@
             <div class="eic">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12" y2="17" /></svg>
             </div>
-            <h3>@(isEn ? "No questions found" : "Soru bulunamadı")</h3>
-            <p>@(isEn ? "Try adjusting your search or status filter." : "Arama veya filtre kriterlerinizi değiştirerek tekrar deneyebilirsiniz.")</p>
-            <button type="button" class="btn-clear" style="width:auto;margin:0 auto;padding:.5rem 1.2rem" onclick="clearFilters()">@(isEn ? "Clear Filters" : "Filtreleri Temizle")</button>
+            <h3>@L["Soru bulunamadı"]</h3>
+            <p>@L["Arama veya filtre kriterlerinizi değiştirerek tekrar deneyebilirsiniz."]</p>
+            <button type="button" class="btn-clear" style="width:auto;margin:0 auto;padding:.5rem 1.2rem" onclick="clearFilters()">@L["Filtreleri Temizle"]</button>
         </div>
     </div>
 </div>

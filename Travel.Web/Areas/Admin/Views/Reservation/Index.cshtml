@@ -2,7 +2,7 @@
 @using Travel.Web.Entities
 @{
     var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
-    ViewData["Title"] = isEn ? "Reservation Management" : "Rezervasyon Yönetimi";
+    ViewData["Title"] = L["Rezervasyon Yönetimi"].Value;
 
     var totalRes = Model?.Count ?? 0;
     var approvedRes = Model?.Count(x => x.Status == ReservationStatus.Approved) ?? 0;
@@ -387,9 +387,9 @@
 
 <div class="page-intro">
     <div>
-        <div class="eyebrow">@(isEn ? "MANAGEMENT" : "YÖNETİM")</div>
-        <h1>@(isEn ? "Reservation Management" : "Rezervasyon Yönetimi")</h1>
-        <p>@(isEn ? "Review, approve, or cancel incoming tour booking requests." : "Gelen tur rezervasyon taleplerini inceleyin, onaylayın veya iptal edin.")</p>
+        <div class="eyebrow">@L["YÖNETİM"]</div>
+        <h1>@L["Rezervasyon Yönetimi"]</h1>
+        <p>@L["Gelen tur rezervasyon taleplerini inceleyin, onaylayın veya iptal edin."]</p>
     </div>
 </div>
 
@@ -402,7 +402,7 @@
             </div>
             <div>
                 <div class="num">@totalRes</div>
-                <div class="lab">@(isEn ? "Total Bookings" : "Toplam Rezervasyon")</div>
+                <div class="lab">@L["Toplam Rezervasyon"]</div>
             </div>
         </div>
     </div>
@@ -413,7 +413,7 @@
             </div>
             <div>
                 <div class="num">@approvedRes</div>
-                <div class="lab">@(isEn ? "Approved" : "Onaylandı")</div>
+                <div class="lab">@L["Onaylandı"]</div>
             </div>
         </div>
     </div>
@@ -424,7 +424,7 @@
             </div>
             <div>
                 <div class="num">@pendingRes</div>
-                <div class="lab">@(isEn ? "Pending" : "Bekleyen Talep")</div>
+                <div class="lab">@L["Bekleyen Talep"]</div>
             </div>
         </div>
     </div>
@@ -435,7 +435,7 @@
             </div>
             <div>
                 <div class="num">@totalRevenue.ToString("N0") ₺</div>
-                <div class="lab">@(isEn ? "Approved Revenue" : "Onaylanan Hasılat")</div>
+                <div class="lab">@L["Onaylanan Hasılat"]</div>
             </div>
         </div>
     </div>
@@ -447,24 +447,24 @@
         <div class="col-lg-6 col-md-6">
             <div class="f-search">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-                <input type="text" id="fSearch" placeholder="@(isEn ? "Search customer name, email or tour title..." : "Müşteri adı, e-posta veya tur ara...")">
+                <input type="text" id="fSearch" placeholder="@L["Müşteri adı, e-posta veya tur ara..."]">
             </div>
         </div>
         <div class="col-lg-4 col-md-4">
             <select class="f-select" id="fStatus">
-                <option value="">@(isEn ? "All Statuses" : "Tüm Durumlar")</option>
-                <option value="Approved">@(isEn ? "Approved" : "Onaylandı")</option>
-                <option value="Pending">@(isEn ? "Pending" : "Beklemede")</option>
-                <option value="Cancelled">@(isEn ? "Cancelled" : "İptal Edildi")</option>
+                <option value="">@L["Tüm Durumlar"]</option>
+                <option value="Approved">@L["Onaylandı"]</option>
+                <option value="Pending">@L["Beklemede"]</option>
+                <option value="Cancelled">@L["İptal Edildi"]</option>
             </select>
         </div>
         <div class="col-lg-2 col-md-2">
-            <button type="button" class="btn-clear" onclick="clearFilters()">@(isEn ? "Clear" : "Temizle")</button>
+            <button type="button" class="btn-clear" onclick="clearFilters()">@L["Temizle"]</button>
         </div>
     </div>
 </div>
 
-<div class="result-line"><b id="resultCount">@totalRes</b> @(isEn ? "reservations listed" : "rezervasyon listeleniyor")</div>
+<div class="result-line"><b id="resultCount">@totalRes</b> @L["rezervasyon listeleniyor"]</div>
 
 <!-- TABLO -->
 <div class="card-x mb-4">
@@ -472,12 +472,12 @@
         <table class="tx">
             <thead>
                 <tr>
-                    <th>@(isEn ? "Customer" : "Müşteri")</th>
-                    <th>@(isEn ? "Tour & Date" : "Tur & Tarih")</th>
-                    <th>@(isEn ? "Guests" : "Katılımcı")</th>
-                    <th>@(isEn ? "Total Amount" : "Toplam Tutar")</th>
-                    <th>@(isEn ? "Status" : "Durum")</th>
-                    <th style="text-align: right;">@(isEn ? "Actions" : "İşlemler")</th>
+                    <th>@L["Müşteri"]</th>
+                    <th>@L["Tur & Tarih"]</th>
+                    <th>@L["Katılımcı"]</th>
+                    <th>@L["Toplam Tutar"]</th>
+                    <th>@L["Durum"]</th>
+                    <th style="text-align: right;">@L["İşlemler"]</th>
                 </tr>
             </thead>
             <tbody id="resRows">
@@ -487,9 +487,9 @@
                     {
                         var initials = string.Join("", (item.FullName ?? "M G").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => s[0])).ToUpper();
                         var stClass = item.Status == ReservationStatus.Approved ? "b-ok" : (item.Status == ReservationStatus.Cancelled ? "b-cancel" : "b-wait");
-                        var stText = item.Status == ReservationStatus.Approved ? (isEn ? "Approved" : "Onaylandı")
-                                   : (item.Status == ReservationStatus.Cancelled ? (isEn ? "Cancelled" : "İptal Edildi")
-                                   : (isEn ? "Pending" : "Beklemede"));
+                        var stText = item.Status == ReservationStatus.Approved ? L["Onaylandı"].Value
+                                   : (item.Status == ReservationStatus.Cancelled ? L["İptal Edildi"].Value
+                                   : L["Beklemede"].Value);
 
                         <tr class="res-row"
                             data-search="@(item.FullName?.ToLower()) @(item.Email?.ToLower()) @(item.TourTitle?.ToLower())"
@@ -511,10 +511,10 @@
                             </td>
                             <td>
                                 <span style="font-weight: 600; color: var(--navy); font-size: .9rem;">
-                                    @item.TotalParticipants @(isEn ? "Guest(s)" : "Kişi")
+                                    @item.TotalParticipants @L["Kişi"]
                                 </span>
                                 <div style="color: var(--muted); font-size: .75rem;">
-                                    (@item.AdultCount @(isEn ? "Adult" : "Yetişkin")@(item.ChildCount > 0 ? $", {item.ChildCount} {(isEn ? "Child" : "Çocuk")}" : ""))
+                                    (@item.AdultCount @L["Yetişkin"]@(item.ChildCount > 0 ? $", {item.ChildCount} {L["Çocuk"].Value}" : ""))
                                 </div>
                             </td>
                             <td>
@@ -527,15 +527,15 @@
                                 @if (item.Status != ReservationStatus.Approved)
                                 {
                                     <a href="/Admin/Reservation/Approve/@item.Id" class="btn-action-ok">
-                                        ✓ @(isEn ? "Approve" : "Onayla")
+                                        ✓ @L["Onayla"]
                                     </a>
                                 }
                                 @if (item.Status != ReservationStatus.Cancelled)
                                 {
                                     <a href="/Admin/Reservation/Cancel/@item.Id"
-                                       onclick="return confirm('@(isEn ? "Are you sure you want to cancel this reservation?" : "Bu rezervasyonu iptal etmek istediğinize emin misiniz?")');"
+                                       onclick="return confirm('@L["Bu rezervasyonu iptal etmek istediğinize emin misiniz?"]');"
                                        class="btn-action-cancel">
-                                        ✕ @(isEn ? "Cancel" : "İptal Et")
+                                        ✕ @L["İptal Et"]
                                     </a>
                                 }
                             </td>
@@ -552,9 +552,9 @@
             <div class="eic">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             </div>
-            <h3>@(isEn ? "No reservations found" : "Rezervasyon bulunamadı")</h3>
-            <p>@(isEn ? "Try adjusting your search or status filter." : "Arama veya filtre kriterlerinizi değiştirerek tekrar deneyebilirsiniz.")</p>
-            <button type="button" class="btn-clear" style="width:auto;margin:0 auto;padding:.5rem 1.2rem" onclick="clearFilters()">@(isEn ? "Clear Filters" : "Filtreleri Temizle")</button>
+            <h3>@L["Rezervasyon bulunamadı"]</h3>
+            <p>@L["Arama veya filtre kriterlerinizi değiştirerek tekrar deneyebilirsiniz."]</p>
+            <button type="button" class="btn-clear" style="width:auto;margin:0 auto;padding:.5rem 1.2rem" onclick="clearFilters()">@L["Filtreleri Temizle"]</button>
         </div>
     </div>
 </div>

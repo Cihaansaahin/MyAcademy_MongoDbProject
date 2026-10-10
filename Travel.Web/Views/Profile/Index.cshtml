@@ -1,7 +1,7 @@
 ﻿@model dynamic
 @{
     var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
-    ViewData["Title"] = isEn ? "My Profile" : "Profilim";
+    ViewData["Title"] = L["Profilim"].Value;
     var reservations = ViewBag.Reservations as List<Travel.Web.DTOs.ReservationDtos.ResultReservationDto>;
     var comments = ViewBag.Comments as List<Travel.Web.DTOs.CommentDtos.ResultCommentDto>;
     var questions = ViewBag.Questions as List<Travel.Web.DTOs.QuestionDtos.ResultQuestionDto>;
@@ -978,17 +978,17 @@
 
 <!-- PAGE HEAD -->
 <div class="container prof-head">
-    <div class="crumb"><a href="/">@(isEn ? "Home" : "Ana Sayfa")</a> / <span class="cur">@(isEn ? "My Profile" : "Profilim")</span></div>
-    <div class="eyebrow">@(isEn ? "My Account" : "Hesabım")</div>
-    <h1>@(isEn ? "My Profile" : "Profilim")</h1>
-    <p>@(isEn ? "Manage your travels, favorites, and overall Travelio experience from here." : "Seyahatlerini, favorilerini ve Travelio deneyimini buradan yönetebilirsin.")</p>
+    <div class="crumb"><a href="/">@L["Ana Sayfa"]</a> / <span class="cur">@L["Profilim"]</span></div>
+    <div class="eyebrow">@L["Hesabım"]</div>
+    <h1>@L["Profilim"]</h1>
+    <p>@L["Seyahatlerini, favorilerini ve Travelio deneyimini buradan yönetebilirsin."]</p>
 </div>
 
 <div class="container pb-2">
     <!-- MOBILE MENU BUTTON -->
     <div class="d-lg-none mb-3">
         <button class="menu-btn-mobile" type="button" data-bs-toggle="offcanvas" data-bs-target="#accountMenu">
-            <span>@(isEn ? "Account Menu" : "Hesap Menüsü")</span>
+            <span>@L["Hesap Menüsü"]</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
         </button>
     </div>
@@ -1007,8 +1007,8 @@
             <!-- 1. GENEL BAKIŞ (OVERVIEW) -->
             <div id="pane-overview" class="pane active">
                 <div class="pane-head">
-                    <h1>@(isEn ? $"Hello {ViewBag.UserName} 👋" : $"Merhaba {ViewBag.UserName} 👋")</h1>
-                    <p>@(isEn ? "Explore your next adventure and manage your past bookings and favorites." : "Bir sonraki maceranın detaylarına göz atabilir, geçmiş seyahatlerini ve favorilerini yönetebilirsin.")</p>
+                    <h1>@L["Merhaba {0} 👋", (object)ViewBag.UserName]</h1>
+                    <p>@L["Bir sonraki maceranın detaylarına göz atabilir, geçmiş seyahatlerini ve favorilerini yönetebilirsin."]</p>
                 </div>
                 <div class="row g-3 mb-4">
                     <div class="col-6 col-md-3">
@@ -1017,7 +1017,7 @@
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
                             </div>
                             <div class="num">@upcomingTrips.Count</div>
-                            <div class="lab">@(isEn ? "Upcoming Tour" : "Yaklaşan Tur")</div>
+                            <div class="lab">@L["Yaklaşan Tur"]</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
@@ -1026,7 +1026,7 @@
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                             </div>
                             <div class="num">@completedTrips.Count</div>
-                            <div class="lab">@(isEn ? "Completed Tour" : "Tamamlanan Tur")</div>
+                            <div class="lab">@L["Tamamlanan Tur"]</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
@@ -1035,7 +1035,7 @@
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg>
                             </div>
                             <div class="num" id="statFavCount">4</div>
-                            <div class="lab">@(isEn ? "Favorite Tour" : "Favori Tur")</div>
+                            <div class="lab">@L["Favori Tur"]</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
@@ -1044,7 +1044,7 @@
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                             </div>
                             <div class="num">@(comments?.Count ?? 0)</div>
-                            <div class="lab">@(isEn ? "Reviews" : "Yorum")</div>
+                            <div class="lab">@L["Yorum"]</div>
                         </div>
                     </div>
                 </div>
@@ -1053,22 +1053,22 @@
                 {
                     var up = upcomingTrips.First();
                     <h2 style="font-family:'Sora';font-weight:700;font-size:1.25rem;color:var(--navy);margin-bottom:1rem">
-                        @(isEn ? "Upcoming Journey" : "Yaklaşan Seyahatin")
+                        @L["Yaklaşan Seyahatin"]
                     </h2>
                     <div class="upcoming mb-4">
                         <img src="https://images.unsplash.com/photo-1541849546-216549ae216d?auto=format&fit=crop&w=800&q=80" alt="@up.TourTitle">
                         <div class="inner">
-                            <span class="up-badge">@(isEn ? "Booking" : "Rezervasyon") #@up.Id.Substring(Math.Max(0, up.Id.Length - 6))</span>
+                            <span class="up-badge">@L["Rezervasyon"] #@up.Id.Substring(Math.Max(0, up.Id.Length - 6))</span>
                             <h3>@up.TourTitle</h3>
-                            <div class="sub">@up.TotalParticipants @(isEn ? "Guests" : "Kişi")</div>
+                            <div class="sub">@up.TotalParticipants @L["Kişi"]</div>
                             <div class="up-meta">
                                 <span>📅 <b>@up.SelectedTourDate.ToString("dd.MM.yyyy")</b></span>
                                 <span>💰 <b>@up.TotalPrice.ToString("N0") TL</b></span>
                                 <span class="status-chip status-ok">● @up.Status</span>
                             </div>
                             <div class="up-btns d-flex gap-2 flex-wrap">
-                                <a href="/Tour/Detail/@up.TourId" class="btn-white">@(isEn ? "Tour Details" : "Tur Detayı")</a>
-                                <button type="button" class="btn-linewhite" onclick="go('trips')">@(isEn ? "View Booking" : "Rezervasyonu Gör")</button>
+                                <a href="/Tour/Detail/@up.TourId" class="btn-white">@L["Tur Detayı"]</a>
+                                <button type="button" class="btn-linewhite" onclick="go('trips')">@L["Rezervasyonu Gör"]</button>
                             </div>
                         </div>
                     </div>
@@ -1076,15 +1076,15 @@
 
                 <div class="card-soft">
                     <h2 style="font-family:'Sora';font-weight:700;font-size:1.15rem;color:var(--navy);margin-bottom:1rem">
-                        @(isEn ? "Recent Activities" : "Son Aktiviteler")
+                        @L["Son Aktiviteler"]
                     </h2>
                     <div class="act-item">
                         <div class="act-ico">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                         </div>
                         <div>
-                            <div class="t">@(isEn ? "Your reviews are published on active tours." : "Onaylanan yorumların turlarda listeleniyor.")</div>
-                            <div class="time">@(isEn ? "Active" : "Aktif")</div>
+                            <div class="t">@L["Onaylanan yorumların turlarda listeleniyor."]</div>
+                            <div class="time">@L["Aktif"]</div>
                         </div>
                     </div>
                     <div class="act-item">
@@ -1092,8 +1092,8 @@
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
                         </div>
                         <div>
-                            <div class="t">@(isEn ? "Your tour booking records have been synchronized." : "Tur rezervasyon kayıtların başarıyla senkronize edildi.")</div>
-                            <div class="time">@(isEn ? "Recent" : "Yakın zamanda")</div>
+                            <div class="t">@L["Tur rezervasyon kayıtların başarıyla senkronize edildi."]</div>
+                            <div class="time">@L["Yakın zamanda"]</div>
                         </div>
                     </div>
                 </div>
@@ -1102,8 +1102,8 @@
             <!-- 2. PROFİL BİLGİLERİM (PROFILE) -->
             <div id="pane-profile" class="pane">
                 <div class="pane-head">
-                    <h1>@(isEn ? "Personal Information" : "Profil Bilgilerim")</h1>
-                    <p>@(isEn ? "Update your personal and contact details from here." : "Kişisel bilgilerini buradan güncelleyebilirsin.")</p>
+                    <h1>@L["Profil Bilgilerim"]</h1>
+                    <p>@L["Kişisel bilgilerini buradan güncelleyebilirsin."]</p>
                 </div>
 
                 @if (TempData["ProfileUpdateSuccess"] != null)
@@ -1118,27 +1118,27 @@
                     <form method="post" asp-action="UpdateProfile" asp-controller="Profile">
                         <div class="row g-3">
                             <div class="col-md-6 field">
-                                <label>@(isEn ? "Full Name" : "Ad Soyad")</label>
+                                <label>@L["Ad Soyad"]</label>
                                 <input type="text" name="fullName" value="@ViewBag.UserName" required />
                             </div>
                             <div class="col-md-6 field">
-                                <label>@(isEn ? "Email Address" : "E-posta")</label>
+                                <label>@L["E-posta"]</label>
                                 <input type="email" name="email" value="@ViewBag.UserEmail" required />
                             </div>
                             <div class="col-md-6 field">
-                                <label>@(isEn ? "Phone Number" : "Telefon")</label>
+                                <label>@L["Telefon"]</label>
                                 <input type="text" name="phone" value="@ViewBag.UserPhone" />
                             </div>
                             <div class="col-md-6 field">
-                                <label>@(isEn ? "Birth Date" : "Doğum Tarihi")</label>
+                                <label>@L["Doğum Tarihi"]</label>
                                 <input type="date" value="2003-06-02" />
                             </div>
                             <div class="col-md-6 field">
-                                <label>@(isEn ? "City" : "Şehir")</label>
+                                <label>@L["Şehir"]</label>
                                 <input type="text" name="city" value="İstanbul" />
                             </div>
                             <div class="col-md-6 field">
-                                <label>@(isEn ? "Country" : "Ülke")</label>
+                                <label>@L["Ülke"]</label>
                                 <select>
                                     <option selected>Türkiye</option>
                                     <option>United Kingdom</option>
@@ -1148,7 +1148,7 @@
                             </div>
                         </div>
                         <button type="submit" class="btn-teal mt-4">
-                            @(isEn ? "Update Information" : "Bilgileri Güncelle")
+                            @L["Bilgileri Güncelle"]
                         </button>
                     </form>
                 </div>
@@ -1157,18 +1157,18 @@
             <!-- 3. TURLARIM (TRIPS) -->
             <div id="pane-trips" class="pane">
                 <div class="pane-head">
-                    <h1>@(isEn ? "My Trips" : "Turlarım")</h1>
-                    <p>@(isEn ? "All your upcoming and completed travels." : "Yaklaşan ve tamamlanan tüm seyahatlerin.")</p>
+                    <h1>@L["Turlarım"]</h1>
+                    <p>@L["Yaklaşan ve tamamlanan tüm seyahatlerin."]</p>
                 </div>
                 <div class="subtabs" role="tablist">
-                    <button type="button" class="subtab active" onclick="tripFilter(this,'all')">@(isEn ? "All" : "Tümü")</button>
-                    <button type="button" class="subtab" onclick="tripFilter(this,'upcoming')">@(isEn ? "Upcoming" : "Yaklaşan")</button>
-                    <button type="button" class="subtab" onclick="tripFilter(this,'completed')">@(isEn ? "Completed" : "Tamamlanan")</button>
+                    <button type="button" class="subtab active" onclick="tripFilter(this,'all')">@L["Tümü"]</button>
+                    <button type="button" class="subtab" onclick="tripFilter(this,'upcoming')">@L["Yaklaşan"]</button>
+                    <button type="button" class="subtab" onclick="tripFilter(this,'completed')">@L["Tamamlanan"]</button>
                 </div>
 
                 <div id="tripUpcoming">
                     <h3 style="font-family:'Sora';font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.9rem">
-                        @(isEn ? "Upcoming" : "Yaklaşan")
+                        @L["Yaklaşan"]
                     </h3>
                     @if (upcomingTrips.Any())
                     {
@@ -1180,12 +1180,12 @@
                                     <div class="country">Travelio Tour</div>
                                     <h4>@t.TourTitle</h4>
                                     <div class="meta"><span>📅 @t.SelectedTourDate.ToString("dd.MM.yyyy")</span></div>
-                                    <div class="resno">@(isEn ? "Booking" : "Rezervasyon"): #@t.Id.Substring(Math.Max(0, t.Id.Length - 6))</div>
+                                    <div class="resno">@L["Rezervasyon"]: #@t.Id.Substring(Math.Max(0, t.Id.Length - 6))</div>
                                 </div>
                                 <div class="trip-right">
                                     <span class="badge-soft badge-ok">@t.Status</span>
                                     <div class="acts">
-                                        <a href="/Tour/Detail/@t.TourId" class="mini-btn">@(isEn ? "Tour Details" : "Tur Detayı")</a>
+                                        <a href="/Tour/Detail/@t.TourId" class="mini-btn">@L["Tur Detayı"]</a>
                                     </div>
                                 </div>
                             </div>
@@ -1193,13 +1193,13 @@
                     }
                     else
                     {
-                        <p class="text-muted" style="font-size: .9rem;">@(isEn ? "No upcoming trips." : "Yaklaşan bir seyahatiniz bulunmuyor.")</p>
+                        <p class="text-muted" style="font-size: .9rem;">@L["Yaklaşan bir seyahatiniz bulunmuyor."]</p>
                     }
                 </div>
 
                 <div id="tripCompleted">
                     <h3 style="font-family:'Sora';font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:1.6rem 0 .9rem">
-                        @(isEn ? "Completed" : "Tamamlanan")
+                        @L["Tamamlanan"]
                     </h3>
                     @if (completedTrips.Any())
                     {
@@ -1211,13 +1211,13 @@
                                     <div class="country">Travelio Tour</div>
                                     <h4>@t.TourTitle</h4>
                                     <div class="meta"><span>📅 @t.SelectedTourDate.ToString("dd.MM.yyyy")</span></div>
-                                    <div class="resno">@(isEn ? "Booking" : "Rezervasyon"): #@t.Id.Substring(Math.Max(0, t.Id.Length - 6))</div>
+                                    <div class="resno">@L["Rezervasyon"]: #@t.Id.Substring(Math.Max(0, t.Id.Length - 6))</div>
                                 </div>
                                 <div class="trip-right">
-                                    <span class="badge-soft badge-done">@(isEn ? "Completed" : "Tamamlandı")</span>
+                                    <span class="badge-soft badge-done">@L["Tamamlandı"]</span>
                                     <div class="acts">
-                                        <a href="/Tour/Detail/@t.TourId" class="mini-btn">@(isEn ? "Tour Details" : "Tur Detayı")</a>
-                                        <button type="button" class="mini-btn solid" onclick="go('reviews')">@(isEn ? "Write Review" : "Yorum Yap")</button>
+                                        <a href="/Tour/Detail/@t.TourId" class="mini-btn">@L["Tur Detayı"]</a>
+                                        <button type="button" class="mini-btn solid" onclick="go('reviews')">@L["Yorum Yap"]</button>
                                     </div>
                                 </div>
                             </div>
@@ -1225,7 +1225,7 @@
                     }
                     else
                     {
-                        <p class="text-muted" style="font-size: .9rem;">@(isEn ? "No completed trips yet." : "Henüz tamamlanan bir seyahatiniz bulunmuyor.")</p>
+                        <p class="text-muted" style="font-size: .9rem;">@L["Henüz tamamlanan bir seyahatiniz bulunmuyor."]</p>
                     }
                 </div>
             </div>
@@ -1233,8 +1233,8 @@
             <!-- 4. FAVORİLERİM (FAVORITES) -->
             <div id="pane-favorites" class="pane">
                 <div class="pane-head">
-                    <h1>@(isEn ? "My Favorites" : "Favorilerim")</h1>
-                    <p>@(isEn ? "Tours saved to explore and review later." : "Daha sonra incelemek için kaydettiğin turlar.")</p>
+                    <h1>@L["Favorilerim"]</h1>
+                    <p>@L["Daha sonra incelemek için kaydettiğin turlar."]</p>
                 </div>
                 <div class="row g-4" id="favGrid"></div>
             </div>
@@ -1242,8 +1242,8 @@
             <!-- 5. YORUMLARIM (REVIEWS) -->
             <div id="pane-reviews" class="pane">
                 <div class="pane-head">
-                    <h1>@(isEn ? "My Reviews" : "Yorumlarım")</h1>
-                    <p>@(isEn ? "Experiences and reviews you shared across tours." : "Turlar hakkında paylaştığın değerlendirmeler.")</p>
+                    <h1>@L["Yorumlarım"]</h1>
+                    <p>@L["Turlar hakkında paylaştığın değerlendirmeler."]</p>
                 </div>
                 <div id="reviewList">
                     @if (comments != null && comments.Any())
@@ -1260,8 +1260,8 @@
                                 </div>
                                 <p>@r.Content</p>
                                 <div class="rev-acts">
-                                    <button type="button" class="mini-btn" onclick="toast('@(isEn ? "Editing active in demo mode." : "Düzenleme demo modunda çalışıyor.")')">@(isEn ? "Edit" : "Düzenle")</button>
-                                    <button type="button" class="mini-btn" onclick="askDeleteReview('@r.Id')">@(isEn ? "Delete" : "Sil")</button>
+                                    <button type="button" class="mini-btn" onclick="toast('@L["Düzenleme demo modunda çalışıyor."]')">@L["Düzenle"]</button>
+                                    <button type="button" class="mini-btn" onclick="askDeleteReview('@r.Id')">@L["Sil"]</button>
                                 </div>
                             </div>
                         }
@@ -1273,9 +1273,9 @@
                                 <div class="ico">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                                 </div>
-                                <h3>@(isEn ? "You don't have any reviews yet." : "Henüz yorumun yok.")</h3>
-                                <p>@(isEn ? "Share your authentic experience on tours you attended." : "Tamamladığın turlar hakkında deneyimini paylaşabilirsin.")</p>
-                                <button type="button" class="btn-teal" onclick="go('trips')">@(isEn ? "Go to My Trips" : "Turlarıma Git")</button>
+                                <h3>@L["Henüz yorumun yok."]</h3>
+                                <p>@L["Tamamladığın turlar hakkında deneyimini paylaşabilirsin."]</p>
+                                <button type="button" class="btn-teal" onclick="go('trips')">@L["Turlarıma Git"]</button>
                             </div>
                         </div>
                     }
@@ -1285,8 +1285,8 @@
             <!-- 6. SORULARIM (QUESTIONS) -->
             <div id="pane-questions" class="pane">
                 <div class="pane-head">
-                    <h1>@(isEn ? "My Questions" : "Sorularım")</h1>
-                    <p>@(isEn ? "Questions asked on tour detail pages and responses." : "Tur detay sayfalarında sorduğun sorular ve yanıtları.")</p>
+                    <h1>@L["Sorularım"]</h1>
+                    <p>@L["Tur detay sayfalarında sorduğun sorular ve yanıtları."]</p>
                 </div>
                 @if (questions != null && questions.Any())
                 {
@@ -1300,7 +1300,7 @@
                                     <div class="q-date">@q.AskedDate.ToString("dd MMMM yyyy")</div>
                                 </div>
                                 <span class="badge-soft @(q.IsAnswered ? "badge-ok" : "badge-wait")">
-                                    @(q.IsAnswered ? (isEn ? "Answered" : "Cevaplandı") : (isEn ? "Awaiting Reply" : "Cevap Bekliyor"))
+                                    @(q.IsAnswered ? L["Cevaplandı"].Value : L["Cevap Bekliyor"].Value)
                                 </span>
                             </div>
                             @if (q.IsAnswered)
@@ -1312,7 +1312,7 @@
                             }
                             else
                             {
-                                <div class="q-wait-note">@(isEn ? "Our team will reply to your question shortly." : "Ekibimiz sorunu en kısa sürede yanıtlayacak.")</div>
+                                <div class="q-wait-note">@L["Ekibimiz sorunu en kısa sürede yanıtlayacak."]</div>
                             }
                         </div>
                     }
@@ -1324,8 +1324,8 @@
                             <div class="ico">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12" y2="17" /></svg>
                             </div>
-                            <h3>@(isEn ? "No questions asked yet." : "Henüz iletilen bir sorun yok.")</h3>
-                            <p>@(isEn ? "Ask questions about itineraries anytime from the tour detail pages." : "Tur detay sayfalarından rehberlerimize aklına takılanları sorabilirsin.")</p>
+                            <h3>@L["Henüz iletilen bir sorun yok."]</h3>
+                            <p>@L["Tur detay sayfalarından rehberlerimize aklına takılanları sorabilirsin."]</p>
                         </div>
                     </div>
                 }
@@ -1334,8 +1334,8 @@
             <!-- 7. DEĞERLENDİRMELERİM (RATINGS) -->
             <div id="pane-ratings" class="pane">
                 <div class="pane-head">
-                    <h1>@(isEn ? "My Ratings" : "Değerlendirmelerim")</h1>
-                    <p>@(isEn ? "Ratings given to tours you attended." : "Katıldığın turlara verdiğin puanlar.")</p>
+                    <h1>@L["Değerlendirmelerim"]</h1>
+                    <p>@L["Katıldığın turlara verdiğin puanlar."]</p>
                 </div>
                 <div class="row g-3" id="rateGrid"></div>
             </div>
@@ -1347,7 +1347,7 @@
 <!-- OFFCANVAS (MOBILE MENU) -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="accountMenu" style="width:300px;background:var(--cream)">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" style="font-family:'Sora';font-weight:700;color:var(--navy)">@(isEn ? "Account Menu" : "Hesap Menüsü")</h5>
+        <h5 class="offcanvas-title" style="font-family:'Sora';font-weight:700;color:var(--navy)">@L["Hesap Menüsü"]</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body p-2">
@@ -1363,11 +1363,11 @@
                 <div style="width:56px;height:56px;border-radius:16px;background:rgba(192,85,79,.1);color:#c0554f;display:grid;place-items:center;margin:0 auto 1rem">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
                 </div>
-                <h5 style="font-family:'Sora';font-weight:700;color:var(--navy)">@(isEn ? "Are you sure you want to sign out?" : "Çıkış yapmak istediğine emin misin?")</h5>
-                <p style="color:var(--muted);font-size:.9rem">@(isEn ? "Your saved bookings and preferences remain safe." : "Hesabından çıkış yapıldığında rezervasyonların ve favorilerin güvende kalır.")</p>
+                <h5 style="font-family:'Sora';font-weight:700;color:var(--navy)">@L["Çıkış yapmak istediğine emin misin?"]</h5>
+                <p style="color:var(--muted);font-size:.9rem">@L["Hesabından çıkış yapıldığında rezervasyonların ve favorilerin güvende kalır."]</p>
                 <div class="d-flex gap-2 justify-content-center mt-3">
-                    <button type="button" class="btn-outline" data-bs-dismiss="modal">@(isEn ? "Cancel" : "Vazgeç")</button>
-                    <a href="/Account/Logout" class="btn-teal" style="background:#c0554f;text-decoration:none">@(isEn ? "Sign Out" : "Çıkış Yap")</a>
+                    <button type="button" class="btn-outline" data-bs-dismiss="modal">@L["Vazgeç"]</button>
+                    <a href="/Account/Logout" class="btn-teal" style="background:#c0554f;text-decoration:none">@L["Çıkış Yap"]</a>
                 </div>
             </div>
         </div>
@@ -1379,7 +1379,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header border-0">
-                <h5 class="modal-title" style="font-family:'Sora';font-weight:700;color:var(--navy)">@(isEn ? "Update Rating" : "Değerlendirmeyi Güncelle")</h5>
+                <h5 class="modal-title" style="font-family:'Sora';font-weight:700;color:var(--navy)">@L["Değerlendirmeyi Güncelle"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -1389,7 +1389,7 @@
                 </div>
             </div>
             <div class="modal-footer border-0">
-                <button type="button" class="btn-teal" onclick="saveRating()">@(isEn ? "Save" : "Kaydet")</button>
+                <button type="button" class="btn-teal" onclick="saveRating()">@L["Kaydet"]</button>
             </div>
         </div>
     </div>
@@ -1400,11 +1400,11 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-body text-center p-4">
-                <h5 style="font-family:'Sora';font-weight:700;color:var(--navy)">@(isEn ? "Do you want to delete this review?" : "Yorumu silmek istiyor musun?")</h5>
-                <p style="color:var(--muted);font-size:.9rem">@(isEn ? "This action cannot be undone." : "Bu işlem geri alınamaz.")</p>
+                <h5 style="font-family:'Sora';font-weight:700;color:var(--navy)">@L["Yorumu silmek istiyor musun?"]</h5>
+                <p style="color:var(--muted);font-size:.9rem">@L["Bu işlem geri alınamaz."]</p>
                 <div class="d-flex gap-2 justify-content-center mt-3">
-                    <button type="button" class="btn-outline" data-bs-dismiss="modal">@(isEn ? "Cancel" : "Vazgeç")</button>
-                    <button type="button" class="btn-teal" style="background:#c0554f" onclick="confirmDeleteReview()">@(isEn ? "Delete" : "Sil")</button>
+                    <button type="button" class="btn-outline" data-bs-dismiss="modal">@L["Vazgeç"]</button>
+                    <button type="button" class="btn-teal" style="background:#c0554f" onclick="confirmDeleteReview()">@L["Sil"]</button>
                 </div>
             </div>
         </div>
@@ -1414,7 +1414,7 @@
 <!-- TOAST -->
 <div class="toast-ok" id="toast">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-    <span id="toastMsg">@(isEn ? "Saved." : "Kaydedildi.")</span>
+    <span id="toastMsg">@L["Kaydedildi."]</span>
 </div>
 
 @section Scripts {
