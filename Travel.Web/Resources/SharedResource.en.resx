@@ -445,9 +445,6 @@
   <data name="Tutar" xml:space="preserve">
     <value>Amount</value>
   </data>
-  <data name="kişi" xml:space="preserve">
-    <value>guests</value>
-  </data>
   <data name="Henüz bir rezervasyon kaydı bulunamadı." xml:space="preserve">
     <value>No recent reservations found.</value>
   </data>
@@ -483,9 +480,6 @@
   </data>
   <data name="Rezervasyon" xml:space="preserve">
     <value>Booking</value>
-  </data>
-  <data name="rezervasyon" xml:space="preserve">
-    <value>bookings</value>
   </data>
   <data name="Sisteme yeni bir şehir veya ülke rotası kaydedin." xml:space="preserve">
     <value>Save a new city or country route destination in the platform.</value>
@@ -933,9 +927,6 @@
   </data>
   <data name="Kontenjan" xml:space="preserve">
     <value>Capacity</value>
-  </data>
-  <data name="GÜN" xml:space="preserve">
-    <value>DAY</value>
   </data>
   <data name="Gün Başlığı" xml:space="preserve">
     <value>Day Title (Turkish)</value>
@@ -1792,9 +1783,6 @@
   <data name="Fiyat Aralığı" xml:space="preserve">
     <value>Price Range</value>
   </data>
-  <data name="Değerlendirme" xml:space="preserve">
-    <value>Rating</value>
-  </data>
   <data name="Filtreleri Uygula" xml:space="preserve">
     <value>Apply Filters</value>
   </data>
@@ -1821,5 +1809,215 @@
   </data>
   <data name="{0} rez · {1} TL" xml:space="preserve">
     <value>{0} bookings · {1} TL</value>
+  </data>
+  <data name="Tur başlangıç tarihi boş bırakılamaz." xml:space="preserve">
+    <value>Tour start date cannot be empty.</value>
+  </data>
+  <data name="Bitiş tarihi başlangıç tarihinden önce olamaz." xml:space="preserve">
+    <value>End date cannot be before the start date.</value>
+  </data>
+  <data name="Kontenjan 1 ile 500 arasında olmalıdır." xml:space="preserve">
+    <value>Capacity must be between 1 and 500.</value>
+  </data>
+  <data name="Gün numarası 1 veya daha büyük olmalıdır." xml:space="preserve">
+    <value>Day number must be 1 or greater.</value>
+  </data>
+  <data name="Her program gününün bir başlığı olmalıdır." xml:space="preserve">
+    <value>Each itinerary day must have a title.</value>
+  </data>
+  <data name="Gün başlığı en fazla 150 karakter olabilir." xml:space="preserve">
+    <value>Day title can be at most 150 characters.</value>
+  </data>
+  <data name="Tur adı (Türkçe) boş bırakılamaz." xml:space="preserve">
+    <value>Tour title (Turkish) cannot be empty.</value>
+  </data>
+  <data name="Tur adı en az 3 karakter olmalıdır." xml:space="preserve">
+    <value>Tour title must be at least 3 characters.</value>
+  </data>
+  <data name="Tur adı en fazla 150 karakter olabilir." xml:space="preserve">
+    <value>Tour title can be at most 150 characters.</value>
+  </data>
+  <data name="Tur adı (İngilizce) boş bırakılamaz." xml:space="preserve">
+    <value>Tour title (English) cannot be empty.</value>
+  </data>
+  <data name="Açıklama (Türkçe) boş bırakılamaz." xml:space="preserve">
+    <value>Description (Turkish) cannot be empty.</value>
+  </data>
+  <data name="Açıklama (İngilizce) boş bırakılamaz." xml:space="preserve">
+    <value>Description (English) cannot be empty.</value>
+  </data>
+  <data name="Fiyat 0'dan büyük olmalıdır." xml:space="preserve">
+    <value>Price must be greater than 0.</value>
+  </data>
+  <data name="Ülke boş bırakılamaz." xml:space="preserve">
+    <value>Country cannot be empty.</value>
+  </data>
+  <data name="Şehir boş bırakılamaz." xml:space="preserve">
+    <value>City cannot be empty.</value>
+  </data>
+  <data name="Lütfen bir kategori seçin." xml:space="preserve">
+    <value>Please select a category.</value>
+  </data>
+  <data name="Lütfen bir destinasyon seçin." xml:space="preserve">
+    <value>Please select a destination.</value>
+  </data>
+  <data name="Tur süresi 1 ile 60 gün arasında olmalıdır." xml:space="preserve">
+    <value>Tour duration must be between 1 and 60 days.</value>
+  </data>
+  <data name="Kapak görseli yükleyin veya bir görsel URL'si girin." xml:space="preserve">
+    <value>Upload a cover image or enter an image URL.</value>
+  </data>
+  <data name="En az bir tur tarihi eklemelisiniz." xml:space="preserve">
+    <value>You must add at least one tour date.</value>
+  </data>
+  <data name="Yeni tur tarihleri geçmiş bir tarih olamaz." xml:space="preserve">
+    <value>New tour dates cannot be in the past.</value>
+  </data>
+  <data name="Program gün sayısı tur süresinden fazla olamaz." xml:space="preserve">
+    <value>Itinerary days cannot exceed the tour duration.</value>
+  </data>
+  <data name="Güncellenecek tur bulunamadı." xml:space="preserve">
+    <value>The tour to update was not found.</value>
+  </data>
+  <data name="En az bir tur tarihi olmalıdır." xml:space="preserve">
+    <value>There must be at least one tour date.</value>
+  </data>
+  <data name="Tur bilgisi bulunamadı." xml:space="preserve">
+    <value>Tour information not found.</value>
+  </data>
+  <data name="Lütfen bir tur tarihi seçin." xml:space="preserve">
+    <value>Please select a tour date.</value>
+  </data>
+  <data name="Yetişkin sayısı 1 ile 20 arasında olmalıdır." xml:space="preserve">
+    <value>Number of adults must be between 1 and 20.</value>
+  </data>
+  <data name="Çocuk sayısı 0 ile 20 arasında olmalıdır." xml:space="preserve">
+    <value>Number of children must be between 0 and 20.</value>
+  </data>
+  <data name="Tek seferde en fazla 30 kişilik rezervasyon yapılabilir." xml:space="preserve">
+    <value>A single reservation can include at most 30 people.</value>
+  </data>
+  <data name="Puan 1 ile 5 yıldız arasında olmalıdır." xml:space="preserve">
+    <value>Rating must be between 1 and 5 stars.</value>
+  </data>
+  <data name="Lütfen bir yorum yazın." xml:space="preserve">
+    <value>Please write a review.</value>
+  </data>
+  <data name="Yorum en az 10 karakter olmalıdır." xml:space="preserve">
+    <value>Review must be at least 10 characters.</value>
+  </data>
+  <data name="Yorum en fazla 1000 karakter olabilir." xml:space="preserve">
+    <value>Review can be at most 1000 characters.</value>
+  </data>
+  <data name="Soru en az 10 karakter olmalıdır." xml:space="preserve">
+    <value>Question must be at least 10 characters.</value>
+  </data>
+  <data name="Soru en fazla 500 karakter olabilir." xml:space="preserve">
+    <value>Question can be at most 500 characters.</value>
+  </data>
+  <data name="Soru bulunamadı." xml:space="preserve">
+    <value>Question not found.</value>
+  </data>
+  <data name="Cevap boş bırakılamaz." xml:space="preserve">
+    <value>Answer cannot be empty.</value>
+  </data>
+  <data name="Cevap en az 5 karakter olmalıdır." xml:space="preserve">
+    <value>Answer must be at least 5 characters.</value>
+  </data>
+  <data name="Cevap en fazla 1000 karakter olabilir." xml:space="preserve">
+    <value>Answer can be at most 1000 characters.</value>
+  </data>
+  <data name="Başlık boş bırakılamaz." xml:space="preserve">
+    <value>Title cannot be empty.</value>
+  </data>
+  <data name="Başlık en az 3 karakter olmalıdır." xml:space="preserve">
+    <value>Title must be at least 3 characters.</value>
+  </data>
+  <data name="Başlık en fazla 100 karakter olabilir." xml:space="preserve">
+    <value>Title can be at most 100 characters.</value>
+  </data>
+  <data name="Açıklama boş bırakılamaz." xml:space="preserve">
+    <value>Description cannot be empty.</value>
+  </data>
+  <data name="Açıklama en fazla 250 karakter olabilir." xml:space="preserve">
+    <value>Description can be at most 250 characters.</value>
+  </data>
+  <data name="Görsel URL boş bırakılamaz." xml:space="preserve">
+    <value>Image URL cannot be empty.</value>
+  </data>
+  <data name="Geçerli bir görsel URL'si girin (https://...)." xml:space="preserve">
+    <value>Enter a valid image URL (https://...).</value>
+  </data>
+  <data name="Geçersiz rezervasyon bilgisi." xml:space="preserve">
+    <value>Invalid reservation data.</value>
+  </data>
+  <data name="Rezervasyon yapabilmek için lütfen önce giriş yapın." xml:space="preserve">
+    <value>Please sign in to make a reservation.</value>
+  </data>
+  <data name="Seçilen tarih için yeterli kontenjan yok veya tarih geçersiz." xml:space="preserve">
+    <value>Not enough capacity for the selected date, or the date is invalid.</value>
+  </data>
+  <data name="Rezervasyonunuz başarıyla oluşturuldu! Profilinize yönlendiriliyorsunuz..." xml:space="preserve">
+    <value>Your reservation has been created! Redirecting to your profile...</value>
+  </data>
+  <data name="Geçersiz istek." xml:space="preserve">
+    <value>Invalid request.</value>
+  </data>
+  <data name="Yorumunuz başarıyla paylaşıldı!" xml:space="preserve">
+    <value>Your review has been posted!</value>
+  </data>
+  <data name="Sorunuz rehbere iletildi! Yanıtlandığında bu alanda görüntülenecektir." xml:space="preserve">
+    <value>Your question has been sent to our guide! The answer will appear here once replied.</value>
+  </data>
+  <data name="Hoş geldin {0}!" xml:space="preserve">
+    <value>Welcome {0}!</value>
+  </data>
+  <data name="Bu alana erişim yetkiniz bulunmamaktadır!" xml:space="preserve">
+    <value>You do not have permission to access this area!</value>
+  </data>
+  <data name="Profil bilgileriniz başarıyla güncellendi." xml:space="preserve">
+    <value>Your profile has been updated successfully.</value>
+  </data>
+  <data name="Lütfen adınızı girin." xml:space="preserve">
+    <value>Please enter your first name.</value>
+  </data>
+  <data name="Lütfen soyadınızı girin." xml:space="preserve">
+    <value>Please enter your last name.</value>
+  </data>
+  <data name="Geçerli bir e-posta adresi girin." xml:space="preserve">
+    <value>Please enter a valid email address.</value>
+  </data>
+  <data name="E-posta formatı geçersiz." xml:space="preserve">
+    <value>Invalid email format.</value>
+  </data>
+  <data name="Lütfen telefon numaranızı girin." xml:space="preserve">
+    <value>Please enter your phone number.</value>
+  </data>
+  <data name="Şifre alanı zorunludur." xml:space="preserve">
+    <value>Password is required.</value>
+  </data>
+  <data name="Şifre en az 8 karakter olmalıdır." xml:space="preserve">
+    <value>Password must be at least 8 characters.</value>
+  </data>
+  <data name="Şifre tekrarı zorunludur." xml:space="preserve">
+    <value>Password confirmation is required.</value>
+  </data>
+  <data name="Şifreler eşleşmiyor." xml:space="preserve">
+    <value>Passwords do not match.</value>
+  </data>
+  <data name="Lütfen e-posta adresinizi girin." xml:space="preserve">
+    <value>Please enter your email address.</value>
+  </data>
+  <data name="Lütfen şifrenizi girin." xml:space="preserve">
+    <value>Please enter your password.</value>
+  </data>
+  <data name="Devam etmek için üyelik sözleşmesini kabul etmelisiniz." xml:space="preserve">
+    <value>You must accept the terms of service to continue.</value>
+  </data>
+  <data name="Bu e-posta adresiyle kayıtlı bir hesap zaten var." xml:space="preserve">
+    <value>An account with this email address already exists.</value>
+  </data>
+  <data name="E-posta veya şifre hatalı." xml:space="preserve">
+    <value>Incorrect email or password.</value>
   </data>
 </root>

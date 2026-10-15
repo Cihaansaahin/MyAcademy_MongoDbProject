@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 using System.Reflection;
+using Travel.Web;
 using Travel.Web.Services.BannerServices;
 using Travel.Web.Services.CategoryServices;
 using Travel.Web.Services.CommentServices;
@@ -13,7 +14,9 @@ using Travel.Web.Services.QuestionServices;
 using Travel.Web.Services.ReportServices;
 using Travel.Web.Services.ReservationServices;
 using Travel.Web.Services.TourServices;
+using Travel.Web.Services.UserServices;
 using Travel.Web.Settings;
+
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
@@ -33,6 +36,7 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddSingleton<IDataBaseSettings>(sp =>
 {
@@ -65,12 +69,24 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 
 builder.Services.AddControllersWithViews()
     .AddViewLocalization(Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix)
-    .AddDataAnnotationsLocalization();
+    .AddDataAnnotationsLocalization(options =>
+    {
+        options.DataAnnotationLocalizerProvider = (type, factory) => factory.Create(typeof(SharedResource));
+    });
 
 // ==========================================
 // 2. UYGULAMANIN DERLENMESİ
 // ==========================================
 var app = builder.Build();
+
+// Uygulama açılırken: Users koleksiyonuna unique index + admin hesabı yoksa oluştur
+using (var scope = app.Services.CreateScope())
+{
+    var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+    await userService.InitializeAsync(
+        builder.Configuration["AdminUser:Email"] ?? "admin@travelio.com",
+        builder.Configuration["AdminUser:Password"] ?? "Admin123*");
+}
 
 // 3. HTTP PIPELINE & MIDDLEWARE YAPILANDIRMASI
 if (!app.Environment.IsDevelopment())

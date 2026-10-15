@@ -682,7 +682,7 @@
                                 <td><div class="guest"><span class="av">@initials</span>@b.FullName</div></td>
                                 <td>@b.TourTitle</td>
                                 <td>@b.SelectedTourDate.ToString("dd.MM.yyyy")</td>
-                                <td>@b.TotalParticipants @L["kişi"]</td>
+                                <td>@b.TotalParticipants @L["Kişi"].Value.ToLower()</td>
                                 <td><span class="amount">@b.TotalPrice.ToString("N0") TL</span></td>
                                 <td>
                                     <span class="badge-x @(isApproved ? "b-ok" : (isCancelled ? "b-cancel" : "b-wait"))">
@@ -845,7 +845,7 @@
         bodyFont: { size: 11 },
         displayColors: false,
         callbacks: {
-        label: c => c.parsed.y + " " + "@L["rezervasyon"]"
+        label: c => c.parsed.y + " " + "@L["Rezervasyon"].Value.ToLower()"
         }
         }
         },

@@ -14,5 +14,6 @@ namespace Travel.Web.Settings
         public string QuestionCollectionName { get; set; } = "Questions";
         public string FavoriteCollectionName { get; set; } = "Favorites";
         public string BannerCollectionName { get; set; } = "Banners";
+        public string UserCollectionName { get; set; } = "Users";
     }
 }
