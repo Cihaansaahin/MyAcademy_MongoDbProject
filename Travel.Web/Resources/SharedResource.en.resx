@@ -2119,4 +2119,13 @@
   <data name="Favorilere ekle" xml:space="preserve">
     <value>Add to favorites</value>
   </data>
+  <data name="Sadece JPG, PNG, WEBP veya GIF (en fazla 5 MB) yükleyebilirsiniz." xml:space="preserve">
+    <value>Only JPG, PNG, WEBP or GIF (max 5 MB) can be uploaded.</value>
+  </data>
+  <data name="Banner Düzenle" xml:space="preserve">
+    <value>Edit Banner</value>
+  </data>
+  <data name="Banner görselini ve metinlerini güncelleyin." xml:space="preserve">
+    <value>Update the banner image and texts.</value>
+  </data>
 </root>

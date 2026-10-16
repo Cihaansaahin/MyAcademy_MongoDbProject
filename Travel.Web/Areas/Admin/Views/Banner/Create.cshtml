@@ -309,6 +309,7 @@
 </div>
 
 <form asp-area="Admin" asp-controller="Banner" asp-action="Create" method="post" id="bannerForm" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2" style="font-size:.85rem"></div>
     <div class="sec">
         <div class="sec-head">
             <h2>
@@ -341,9 +342,9 @@
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
                     </div>
                     <b>@L["Banner görselini buraya sürükleyin veya seçin."]</b>
-                    <span>JPG, PNG · Önerilen 1920x1080</span>
+                    <span>JPG, PNG, WEBP · max 5 MB · 1920x1080</span>
                 </label>
-                <input type="file" id="bannerImgInput" accept="image/*" style="display:none" onchange="previewImg(this)">
+                <input type="file" id="bannerImgInput" name="imageFile" accept="image/*" style="display:none" onchange="previewImg(this)">
 
                 <div class="cover-preview" id="coverPreview" style="display:none">
                     <img id="coverImg" alt="Preview">

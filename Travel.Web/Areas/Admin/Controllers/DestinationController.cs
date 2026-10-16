@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Travel.Web.DTOs.DestinationDtos;
+using Travel.Web.Helpers;
 using Travel.Web.Services.DestinationServices;
 
 namespace Travel.Web.Areas.Admin.Controllers
@@ -10,10 +11,12 @@ namespace Travel.Web.Areas.Admin.Controllers
     public class DestinationController : Controller
     {
         private readonly IDestinationService _destinationService;
+        private readonly IWebHostEnvironment _env;
 
-        public DestinationController(IDestinationService destinationService)
+        public DestinationController(IDestinationService destinationService, IWebHostEnvironment env)
         {
             _destinationService = destinationService;
+            _env = env;
         }
 
         public async Task<IActionResult> Index()
@@ -29,8 +32,14 @@ namespace Travel.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateDestination(CreateDestinationDto createDestinationDto)
+        public async Task<IActionResult> CreateDestination(CreateDestinationDto createDestinationDto, IFormFile? imageFile)
         {
+            // Dosya seçildiyse URL alanı yerine yüklenen görsel kullanılır
+            if (ImageUploadHelper.IsValid(imageFile))
+            {
+                createDestinationDto.ImageUrl = await ImageUploadHelper.SaveAsync(imageFile!, _env, "destinations");
+            }
+
             await _destinationService.CreateAsync(createDestinationDto);
             return RedirectToAction(nameof(Index));
         }
@@ -63,8 +72,14 @@ namespace Travel.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateDestination(UpdateDestinationDto updateDestinationDto)
+        public async Task<IActionResult> UpdateDestination(UpdateDestinationDto updateDestinationDto, IFormFile? imageFile)
         {
+            // Yeni dosya seçildiyse onu kullan; seçilmediyse formdaki mevcut URL korunur
+            if (ImageUploadHelper.IsValid(imageFile))
+            {
+                updateDestinationDto.ImageUrl = await ImageUploadHelper.SaveAsync(imageFile!, _env, "destinations");
+            }
+
             await _destinationService.UpdateAsync(updateDestinationDto);
             return RedirectToAction(nameof(Index));
         }
