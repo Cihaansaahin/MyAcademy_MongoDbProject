@@ -1,7 +1,8 @@
-﻿using ClosedXML.Excel;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using QuestPDF.Fluent;
+using Microsoft.Extensions.Localization;
+using Travel.Web.DTOs.ReservationDtos;
+using Travel.Web.Services.ReportServices;
 using Travel.Web.Services.ReservationServices;
 using Travel.Web.Services.TourServices;
 
@@ -13,17 +14,30 @@ namespace Travel.Web.Areas.Admin.Controllers
     {
         private readonly IReservationService _reservationService;
         private readonly ITourService _tourService;
+        private readonly IReportService _reportService;
+        private readonly IStringLocalizer<SharedResource> _L;
 
-        public ReservationController(IReservationService reservationService, ITourService tourService)
+        public ReservationController(
+            IReservationService reservationService,
+            ITourService tourService,
+            IReportService reportService,
+            IStringLocalizer<SharedResource> localizer)
         {
             _reservationService = reservationService;
             _tourService = tourService;
+            _reportService = reportService;
+            _L = localizer;
         }
 
         public async Task<IActionResult> Index()
         {
             var values = await _reservationService.GetAllAsync();
-            return View(values);
+
+            // Filtre çubuğundaki "Tur" listesi ve Rapor Al panelindeki tur/tarih seçimi için
+            var tours = await _tourService.GetAllAsync();
+            ViewBag.Tours = tours.OrderBy(x => x.Title?.Value).ToList();
+
+            return View(values.OrderByDescending(x => x.ReservationDate).ToList());
         }
 
         public async Task<IActionResult> Approve(string id)
@@ -38,109 +52,57 @@ namespace Travel.Web.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // Excel ve PDF için ortak veri hazırlığı (tur + isteğe bağlı tur tarihi filtresi)
+        private async Task<(List<ResultReservationDto> Rows, string Title, string Subtitle)?> LoadReportAsync(string tourId, string? tourDateId)
+        {
+            var tour = await _tourService.GetByIdAsync(tourId);
+            if (tour == null) return null;
+
+            var rows = await _reservationService.GetReservationsByTourIdAsync(tourId, tourDateId);
+            var title = tour.Title?.Value ?? _L["Tur"].Value;
+
+            var subtitle = _L["Tüm tarihler"].Value;
+            if (!string.IsNullOrEmpty(tourDateId))
+            {
+                var date = tour.TourDates.FirstOrDefault(x => x.Id == tourDateId);
+                if (date != null)
+                    subtitle = $"{_L["Tur Tarihi"].Value}: {date.StartDate:dd.MM.yyyy} - {date.EndDate:dd.MM.yyyy}";
+            }
+
+            return (rows, title, subtitle);
+        }
+
+        private static string SafeFileName(string text)
+        {
+            var invalid = Path.GetInvalidFileNameChars();
+            var clean = new string(text.Select(c => invalid.Contains(c) ? '_' : c).ToArray()).Replace(' ', '_');
+            return clean.Length > 60 ? clean[..60] : clean;
+        }
+
         [HttpGet]
         public async Task<IActionResult> ExportTourParticipantsToExcel(string tourId, string? tourDateId = null)
         {
-            if (string.IsNullOrEmpty(tourId)) return BadRequest("Geçersiz Tur ID.");
+            if (string.IsNullOrEmpty(tourId)) return BadRequest(_L["Geçersiz istek."].Value);
 
-            var reservations = await _reservationService.GetReservationsByTourIdAsync(tourId, tourDateId);
-            var tour = await _tourService.GetByIdAsync(tourId);
-            var tourTitle = tour?.Title?.Tr ?? tour?.Title?.ToString() ?? "Tur";
+            var data = await LoadReportAsync(tourId, tourDateId);
+            if (data == null) return NotFound();
 
-            using (var workbook = new XLWorkbook())
-            {
-                var worksheet = workbook.Worksheets.Add("Katılımcılar");
-
-                worksheet.Cell(1, 1).Value = $"{tourTitle} - Katılımcı Listesi";
-                worksheet.Cell(1, 1).Style.Font.Bold = true;
-                worksheet.Range(1, 1, 1, 6).Merge().Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-
-                worksheet.Cell(3, 1).Value = "Ad Soyad";
-                worksheet.Cell(3, 2).Value = "E-Posta";
-                worksheet.Cell(3, 3).Value = "Telefon";
-                worksheet.Cell(3, 4).Value = "Kişi Sayısı";
-                worksheet.Cell(3, 5).Value = "Toplam Tutar";
-                worksheet.Cell(3, 6).Value = "Durum";
-                worksheet.Range(3, 1, 3, 6).Style.Font.Bold = true;
-
-                int row = 4;
-                foreach (var item in reservations)
-                {
-                    worksheet.Cell(row, 1).Value = item.FullName;
-                    worksheet.Cell(row, 2).Value = item.Email;
-                    worksheet.Cell(row, 3).Value = item.Phone;
-                    worksheet.Cell(row, 4).Value = item.TotalParticipants;
-                    worksheet.Cell(row, 5).Value = item.TotalPrice;
-                    worksheet.Cell(row, 6).Value = item.Status.ToString();
-                    row++;
-                }
-
-                worksheet.Columns().AdjustToContents();
-
-                using (var stream = new MemoryStream())
-                {
-                    workbook.SaveAs(stream);
-                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{tourTitle}_Katilimcilar.xlsx");
-                }
-            }
+            var bytes = _reportService.GenerateExcelTourReport(data.Value.Rows, data.Value.Title, data.Value.Subtitle);
+            return File(bytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"{SafeFileName(data.Value.Title)}_{DateTime.Now:yyyyMMdd}.xlsx");
         }
 
         [HttpGet]
         public async Task<IActionResult> ExportTourParticipantsToPdf(string tourId, string? tourDateId = null)
         {
-            if (string.IsNullOrEmpty(tourId)) return BadRequest("Geçersiz Tur ID.");
+            if (string.IsNullOrEmpty(tourId)) return BadRequest(_L["Geçersiz istek."].Value);
 
-            var reservations = await _reservationService.GetReservationsByTourIdAsync(tourId, tourDateId);
-            var tour = await _tourService.GetByIdAsync(tourId);
-            var tourTitle = tour?.Title?.Tr ?? tour?.Title?.ToString() ?? "Tur";
+            var data = await LoadReportAsync(tourId, tourDateId);
+            if (data == null) return NotFound();
 
-            var document = QuestPDF.Fluent.Document.Create(container =>
-            {
-                container.Page(page =>
-                {
-                    page.Margin(30);
-                    page.Header().Text($"{tourTitle} - Katılımcı Raporu").SemiBold().FontSize(18).FontColor("#0FA3A3");
-
-                    page.Content().PaddingVertical(10).Table(table =>
-                    {
-                        table.ColumnsDefinition(columns =>
-                        {
-                            columns.RelativeColumn(2); // Ad Soyad
-                            columns.RelativeColumn(2); // E-Posta
-                            columns.RelativeColumn(1.5f); // Telefon
-                            columns.RelativeColumn(1); // Kişi
-                            columns.RelativeColumn(1.5f); // Tutar
-                        });
-
-                        table.Header(header =>
-                        {
-                            header.Cell().Text("Ad Soyad").Bold();
-                            header.Cell().Text("E-Posta").Bold();
-                            header.Cell().Text("Telefon").Bold();
-                            header.Cell().Text("Kişi").Bold();
-                            header.Cell().Text("Tutar").Bold();
-                        });
-
-                        foreach (var item in reservations)
-                        {
-                            table.Cell().Text(item.FullName ?? "-");
-                            table.Cell().Text(item.Email ?? "-");
-                            table.Cell().Text(item.Phone ?? "-");
-                            table.Cell().Text(item.TotalParticipants.ToString());
-                            table.Cell().Text($"{item.TotalPrice:N2} TL");
-                        }
-                    });
-
-                    page.Footer().AlignCenter().Text(x =>
-                    {
-                        x.Span("Oluşturulma Tarihi: " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
-                    });
-                });
-            });
-
-            var pdfBytes = document.GeneratePdf();
-            return File(pdfBytes, "application/pdf", $"{tourTitle}_Katilimcilar.pdf");
+            var bytes = _reportService.GeneratePdfTourReport(data.Value.Rows, data.Value.Title, data.Value.Subtitle);
+            return File(bytes, "application/pdf", $"{SafeFileName(data.Value.Title)}_{DateTime.Now:yyyyMMdd}.pdf");
         }
     }
-
 }

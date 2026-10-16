@@ -641,12 +641,11 @@
     <div class="col-6 col-xl-3">
         <div class="kpi">
             <div class="top">
-                <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /></svg></div>
-                <span class="trend">+@(Model.ToursByCategory?.Count ?? 0)</span>
+                <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg></div>
             </div>
-            <div class="num">@(Model.ToursByCategory?.Count ?? 0)</div>
-            <div class="lab">@L["Kategori Sayısı"]</div>
-            <div class="sub"><span class="up">@L["Katalog aktif"]</span></div>
+            <div class="num">@Model.TotalUsers</div>
+            <div class="lab">@L["Toplam Kullanıcı"]</div>
+            <div class="sub"><span class="up">@L["{0} destinasyon", Model.TotalDestinations]</span></div>
         </div>
     </div>
     <div class="col-6 col-xl-3">
@@ -713,9 +712,9 @@
     </div>
 </div>
 
-<!-- ROW: DESTINASYON RAPORU + ÖNE ÇIKANLAR (Aggregation) -->
+<!-- ROW: DESTINASYON RAPORU + KATEGORİLER + ÖNE ÇIKANLAR (Aggregation) -->
 <div class="row g-2 mb-2">
-    <div class="col-lg-8">
+    <div class="col-lg-5">
         <div class="card-x h-100">
             <div class="card-head">
                 <h3>@L["Destinasyonlara Göre Rezervasyonlar"]</h3>
@@ -739,6 +738,29 @@
                 else
                 {
                     <p class="text-muted mt-2 mb-0" style="font-size:.8rem">@L["Henüz tamamlanan satış verisi bulunmuyor."]</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card-x h-100">
+            <div class="card-head">
+                <h3>@L["Kategorilere Göre Turlar"]</h3>
+            </div>
+            <div class="card-body pt-1">
+                @if (Model.ToursByCategory.Any())
+                {
+                    var maxCat = Math.Max(1, Model.ToursByCategory.Max(x => x.TourCount));
+                    foreach (var c in Model.ToursByCategory.OrderByDescending(x => x.TourCount))
+                    {
+                        <div class="dest-row">
+                            <div class="dest-top">
+                                <b>@c.CategoryName</b>
+                                <span>@c.TourCount</span>
+                            </div>
+                            <div class="dest-track"><div class="dest-fill" style="width:@((int)Math.Round(c.TourCount * 100.0 / maxCat))%;background:#e0a33a"></div></div>
+                        </div>
+                    }
                 }
             </div>
         </div>

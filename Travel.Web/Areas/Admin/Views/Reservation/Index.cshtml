@@ -8,6 +8,7 @@
     var approvedRes = Model?.Count(x => x.Status == ReservationStatus.Approved) ?? 0;
     var pendingRes = Model?.Count(x => x.Status == ReservationStatus.Pending) ?? 0;
     var totalRevenue = Model?.Where(x => x.Status == ReservationStatus.Approved).Sum(x => x.TotalPrice) ?? 0;
+    var tours = ViewBag.Tours as List<Travel.Web.DTOs.TourDtos.ResultTourDto> ?? new List<Travel.Web.DTOs.TourDtos.ResultTourDto>();
 }
 
 @section Styles {
@@ -382,6 +383,40 @@
                 color: var(--muted);
                 margin: .3rem 0 1.2rem
             }
+
+        .report-title {
+            font-family: 'Sora';
+            font-weight: 600;
+            font-size: .9rem;
+            color: var(--navy);
+            margin-bottom: .6rem;
+        }
+
+        .btn-report {
+            display: block;
+            text-align: center;
+            border-radius: 11px;
+            padding: .62rem .8rem;
+            font-size: .86rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: .2s;
+        }
+
+            .btn-report.xls {
+                background: rgba(16,185,129,.12);
+                color: #10b981;
+            }
+
+            .btn-report.pdf {
+                background: rgba(239,68,68,.1);
+                color: #ef4444;
+            }
+
+            .btn-report.disabled {
+                opacity: .45;
+                pointer-events: none;
+            }
     </style>
 }
 
@@ -441,16 +476,58 @@
     </div>
 </div>
 
-<!-- FİLTRELEME ÇUBUĞU -->
+<!-- RAPOR AL (Case Madde 15): Tur + isteğe bağlı tur tarihi seçilerek Excel / PDF -->
+<div class="card-x filter-bar mb-3">
+    <div class="report-title">📄 @L["Katılımcı Raporu"]</div>
+    <div class="row g-2 align-items-center">
+        <div class="col-lg-4 col-md-6">
+            <select class="f-select" id="rTour">
+                <option value="">@L["Tur seçin..."]</option>
+                @foreach (var t in tours)
+                {
+                    <option value="@t.Id">@t.Title?.Value</option>
+                }
+            </select>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <select class="f-select" id="rDate" disabled>
+                <option value="">@L["Tüm tarihler"]</option>
+            </select>
+        </div>
+        <div class="col-lg-2 col-6">
+            <a class="btn-report xls disabled" id="rExcel" href="#">⬇ Excel</a>
+        </div>
+        <div class="col-lg-2 col-6">
+            <a class="btn-report pdf disabled" id="rPdf" href="#" target="_blank">⬇ PDF</a>
+        </div>
+    </div>
+</div>
+
+<!-- FİLTRELEME ÇUBUĞU (Case Madde 14 & 17: tur, kullanıcı, tarih ve durum) -->
 <div class="card-x filter-bar mb-3">
     <div class="row g-2 align-items-center">
-        <div class="col-lg-6 col-md-6">
+        <div class="col-lg-3 col-md-6">
             <div class="f-search">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-                <input type="text" id="fSearch" placeholder="@L["Müşteri adı, e-posta veya tur ara..."]">
+                <input type="text" id="fSearch" placeholder="@L["Müşteri adı veya e-posta..."]">
             </div>
         </div>
-        <div class="col-lg-4 col-md-4">
+        <div class="col-lg-3 col-md-6">
+            <select class="f-select" id="fTour">
+                <option value="">@L["Tüm Turlar"]</option>
+                @foreach (var t in tours)
+                {
+                    <option value="@t.Id">@t.Title?.Value</option>
+                }
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-4">
+            <input type="date" class="f-select" id="fFrom" title="@L["Tur tarihi (başlangıç)"]">
+        </div>
+        <div class="col-lg-2 col-md-4">
+            <input type="date" class="f-select" id="fTo" title="@L["Tur tarihi (bitiş)"]">
+        </div>
+        <div class="col-lg-1 col-md-2 col-6">
             <select class="f-select" id="fStatus">
                 <option value="">@L["Tüm Durumlar"]</option>
                 <option value="Approved">@L["Onaylandı"]</option>
@@ -458,7 +535,7 @@
                 <option value="Cancelled">@L["İptal Edildi"]</option>
             </select>
         </div>
-        <div class="col-lg-2 col-md-2">
+        <div class="col-lg-1 col-md-2 col-6">
             <button type="button" class="btn-clear" onclick="clearFilters()">@L["Temizle"]</button>
         </div>
     </div>
@@ -493,7 +570,9 @@
 
                         <tr class="res-row"
                             data-search="@(item.FullName?.ToLower()) @(item.Email?.ToLower()) @(item.TourTitle?.ToLower())"
-                            data-status="@item.Status">
+                            data-status="@item.Status"
+                            data-tour="@item.TourId"
+                            data-date="@item.SelectedTourDate.ToString("yyyy-MM-dd")">
                             <td>
                                 <div class="guest">
                                     <span class="av">@initials</span>
@@ -561,26 +640,27 @@
 
 @section Scripts {
     <script>
+        // ---------- FİLTRELER ----------
         function filterTable() {
             const q = document.getElementById("fSearch").value.trim().toLowerCase();
             const st = document.getElementById("fStatus").value;
+            const tour = document.getElementById("fTour").value;
+            const from = document.getElementById("fFrom").value; // yyyy-MM-dd
+            const to = document.getElementById("fTo").value;
             const rows = document.querySelectorAll("#resRows tr.res-row");
             let count = 0;
 
             rows.forEach(r => {
-                const searchData = r.getAttribute("data-search") || "";
-                const statusData = r.getAttribute("data-status") || "";
-
+                const date = r.dataset.date || "";
                 let matches = true;
-                if (q && !searchData.includes(q)) matches = false;
-                if (st && statusData !== st) matches = false;
+                if (q && !(r.dataset.search || "").includes(q)) matches = false;
+                if (st && r.dataset.status !== st) matches = false;
+                if (tour && r.dataset.tour !== tour) matches = false;
+                if (from && date < from) matches = false;   // yyyy-MM-dd metin karşılaştırması tarih sırasıyla aynı
+                if (to && date > to) matches = false;
 
-                if (matches) {
-                    r.style.display = "";
-                    count++;
-                } else {
-                    r.style.display = "none";
-                }
+                r.style.display = matches ? "" : "none";
+                if (matches) count++;
             });
 
             document.getElementById("resultCount").textContent = count;
@@ -588,12 +668,44 @@
         }
 
         document.getElementById("fSearch").addEventListener("input", filterTable);
-        document.getElementById("fStatus").addEventListener("change", filterTable);
+        ["fStatus", "fTour", "fFrom", "fTo"].forEach(id =>
+            document.getElementById(id).addEventListener("change", filterTable));
 
         function clearFilters() {
-            document.getElementById("fSearch").value = "";
-            document.getElementById("fStatus").value = "";
+            ["fSearch", "fStatus", "fTour", "fFrom", "fTo"].forEach(id => document.getElementById(id).value = "");
             filterTable();
         }
+
+        // ---------- RAPOR AL ----------
+        // { "tourId": [ { id: "tarihId", label: "01.11.2026 - 05.11.2026" }, ... ] }
+        const TOUR_DATES = @Html.Raw(Json.Serialize(tours.ToDictionary(
+                    t => t.Id,
+                    t => t.TourDates.OrderBy(d => d.StartDate)
+                                .Select(d => new { id = d.Id, label = $"{d.StartDate:dd.MM.yyyy} - {d.EndDate:dd.MM.yyyy}" }))));
+
+        const rTour = document.getElementById("rTour");
+        const rDate = document.getElementById("rDate");
+        const rExcel = document.getElementById("rExcel");
+        const rPdf = document.getElementById("rPdf");
+        const allDatesLabel = rDate.options[0].text;
+
+        function updateReportLinks() {
+            const tourId = rTour.value;
+            const dateId = rDate.value;
+            const qs = "tourId=" + encodeURIComponent(tourId) + (dateId ? "&tourDateId=" + encodeURIComponent(dateId) : "");
+            rExcel.href = "/Admin/Reservation/ExportTourParticipantsToExcel?" + qs;
+            rPdf.href = "/Admin/Reservation/ExportTourParticipantsToPdf?" + qs;
+            rExcel.classList.toggle("disabled", !tourId);
+            rPdf.classList.toggle("disabled", !tourId);
+        }
+
+        rTour.addEventListener("change", () => {
+            const dates = TOUR_DATES[rTour.value] || [];
+            rDate.innerHTML = `<option value="">${allDatesLabel}</option>` +
+                dates.map(d => `<option value="${d.id}">${d.label}</option>`).join("");
+            rDate.disabled = !rTour.value;
+            updateReportLinks();
+        });
+        rDate.addEventListener("change", updateReportLinks);
     </script>
 }

@@ -2059,4 +2059,52 @@
   <data name="İptal edilenler hariç" xml:space="preserve">
     <value>Excluding cancellations</value>
   </data>
+  <data name="Katılımcı Raporu" xml:space="preserve">
+    <value>Participant Report</value>
+  </data>
+  <data name="Katılımcılar" xml:space="preserve">
+    <value>Participants</value>
+  </data>
+  <data name="Toplam Kişi" xml:space="preserve">
+    <value>Total People</value>
+  </data>
+  <data name="Rezervasyon Tarihi" xml:space="preserve">
+    <value>Booking Date</value>
+  </data>
+  <data name="Toplam Ücret" xml:space="preserve">
+    <value>Total Price</value>
+  </data>
+  <data name="Oluşturulma Tarihi" xml:space="preserve">
+    <value>Generated</value>
+  </data>
+  <data name="Toplam (iptaller hariç)" xml:space="preserve">
+    <value>Total (excluding cancellations)</value>
+  </data>
+  <data name="Tüm tarihler" xml:space="preserve">
+    <value>All dates</value>
+  </data>
+  <data name="Tur seçin..." xml:space="preserve">
+    <value>Select a tour...</value>
+  </data>
+  <data name="Müşteri adı veya e-posta..." xml:space="preserve">
+    <value>Customer name or email...</value>
+  </data>
+  <data name="Tüm Turlar" xml:space="preserve">
+    <value>All Tours</value>
+  </data>
+  <data name="Tur tarihi (başlangıç)" xml:space="preserve">
+    <value>Tour date (from)</value>
+  </data>
+  <data name="Tur tarihi (bitiş)" xml:space="preserve">
+    <value>Tour date (to)</value>
+  </data>
+  <data name="Toplam Kullanıcı" xml:space="preserve">
+    <value>Total Users</value>
+  </data>
+  <data name="{0} destinasyon" xml:space="preserve">
+    <value>{0} destinations</value>
+  </data>
+  <data name="Kategorilere Göre Turlar" xml:space="preserve">
+    <value>Tours by Category</value>
+  </data>
 </root>

@@ -14,6 +14,8 @@ namespace Travel.Web.Services.DashboardServices
         private readonly IMongoCollection<Question> _questionCollection;
         private readonly IMongoCollection<Category> _categoryCollection;
         private readonly IMongoCollection<Comment> _commentCollection;
+        private readonly IMongoCollection<User> _userCollection;
+        private readonly IMongoCollection<Destination> _destinationCollection;
         private readonly string _tourCollectionName;
         private readonly string _destinationCollectionName;
 
@@ -30,6 +32,8 @@ namespace Travel.Web.Services.DashboardServices
             _questionCollection = database.GetCollection<Question>(databaseSettings.QuestionCollectionName);
             _categoryCollection = database.GetCollection<Category>(databaseSettings.CategoryCollectionName);
             _commentCollection = database.GetCollection<Comment>(databaseSettings.CommentCollectionName);
+            _userCollection = database.GetCollection<User>(databaseSettings.UserCollectionName);
+            _destinationCollection = database.GetCollection<Destination>(databaseSettings.DestinationCollectionName);
 
             _tourCollectionName = databaseSettings.TourCollectionName;
             _destinationCollectionName = databaseSettings.DestinationCollectionName;
@@ -47,6 +51,9 @@ namespace Travel.Web.Services.DashboardServices
 
             var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
             dto.ThisMonthReservationsCount = await _reservationCollection.CountDocumentsAsync(x => x.ReservationDate >= startOfMonth);
+
+            dto.TotalUsers = await _userCollection.CountDocumentsAsync(x => x.Role == "Member");
+            dto.TotalDestinations = await _destinationCollection.CountDocumentsAsync(_ => true);
 
             dto.PendingQuestionsCount = await _questionCollection.CountDocumentsAsync(x => x.AnswerText == null || x.AnswerText == "");
 

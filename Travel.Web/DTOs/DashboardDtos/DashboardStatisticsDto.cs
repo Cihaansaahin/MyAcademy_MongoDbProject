@@ -9,6 +9,8 @@
         public long TotalReservations { get; set; }
         public long ThisMonthReservationsCount { get; set; }
         public long PendingQuestionsCount { get; set; }
+        public long TotalUsers { get; set; }          // Üye sayısı (Admin hariç)
+        public long TotalDestinations { get; set; }
         public string TopBookedTourName { get; set; } = string.Empty;
 
         // 2. Öne çıkan değerler (Aggregation)

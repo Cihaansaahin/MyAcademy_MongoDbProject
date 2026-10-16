@@ -4,7 +4,8 @@ namespace Travel.Web.Services.ReportServices
 {
     public interface IReportService
     {
-        byte[] GenerateExcelTourReport(List<ResultReservationDto> reservations, string tourTitle);
-        byte[] GeneratePdfTourReport(List<ResultReservationDto> reservations, string tourTitle);
+        // subtitle: "Tur Tarihi: 01.11.2026 - 05.11.2026" veya "Tüm tarihler"
+        byte[] GenerateExcelTourReport(List<ResultReservationDto> reservations, string tourTitle, string subtitle);
+        byte[] GeneratePdfTourReport(List<ResultReservationDto> reservations, string tourTitle, string subtitle);
     }
 }
