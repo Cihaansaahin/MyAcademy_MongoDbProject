@@ -2044,4 +2044,19 @@
   <data name="Silinmiş Tur" xml:space="preserve">
     <value>Deleted tour</value>
   </data>
+  <data name="Destinasyonlara Göre Rezervasyonlar" xml:space="preserve">
+    <value>Reservations by Destination</value>
+  </data>
+  <data name="Öne Çıkanlar" xml:space="preserve">
+    <value>Highlights</value>
+  </data>
+  <data name="En Çok Gelir Getiren Tur" xml:space="preserve">
+    <value>Top Revenue Tour</value>
+  </data>
+  <data name="Toplam Gelir" xml:space="preserve">
+    <value>Total Revenue</value>
+  </data>
+  <data name="İptal edilenler hariç" xml:space="preserve">
+    <value>Excluding cancellations</value>
+  </data>
 </root>

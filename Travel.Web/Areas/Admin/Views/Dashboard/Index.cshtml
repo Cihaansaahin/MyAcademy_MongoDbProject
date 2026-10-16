@@ -533,6 +533,71 @@
                 margin-left: auto;
                 color: var(--muted);
             }
+
+        /* Destinasyon raporu & öne çıkanlar */
+        .dest-row {
+            padding: .45rem 0;
+        }
+
+        .dest-top {
+            display: flex;
+            justify-content: space-between;
+            gap: .5rem;
+            font-size: .8rem;
+            margin-bottom: .3rem;
+        }
+
+            .dest-top b {
+                color: var(--navy, #0e2a3b);
+                font-weight: 600;
+            }
+
+            .dest-top span {
+                color: #6a7c88;
+                white-space: nowrap;
+            }
+
+        .dest-track {
+            height: 8px;
+            background: #eef0ef;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .dest-fill {
+            height: 100%;
+            background: #0fa3a3;
+            border-radius: 999px;
+        }
+
+        .hl-item {
+            display: flex;
+            flex-direction: column;
+            padding: .6rem 0;
+            border-bottom: 1px solid #eef0ef;
+        }
+
+            .hl-item:last-child {
+                border-bottom: none;
+            }
+
+        .hl-lab {
+            font-size: .72rem;
+            color: #6a7c88;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .hl-item b {
+            font-size: .95rem;
+            color: var(--navy, #0e2a3b);
+        }
+
+        .hl-sub {
+            font-size: .78rem;
+            color: #0fa3a3;
+            font-weight: 600;
+        }
     </style>
 }
 
@@ -603,9 +668,9 @@
             <div class="card-head">
                 <h3>@L["Rezervasyon İstatistikleri"]</h3>
                 <select class="chart-select" id="rangeSelect">
-                    <option>@L["Son 7 Gün"]</option>
-                    <option>@L["Son 30 Gün"]</option>
-                    <option selected>@L["Son 6 Ay"]</option>
+                    <option value="7">@L["Son 7 Gün"]</option>
+                    <option value="30">@L["Son 30 Gün"]</option>
+                    <option value="6m" selected>@L["Son 6 Ay"]</option>
                 </select>
             </div>
             <div class="card-body">
@@ -643,6 +708,69 @@
                 {
                     <p class="text-muted mt-2 mb-0" style="font-size:.8rem">@L["Henüz tamamlanan satış verisi bulunmuyor."]</p>
                 }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ROW: DESTINASYON RAPORU + ÖNE ÇIKANLAR (Aggregation) -->
+<div class="row g-2 mb-2">
+    <div class="col-lg-8">
+        <div class="card-x h-100">
+            <div class="card-head">
+                <h3>@L["Destinasyonlara Göre Rezervasyonlar"]</h3>
+            </div>
+            <div class="card-body pt-1">
+                @if (Model.ReservationsByDestination.Any())
+                {
+                    var maxDest = Math.Max(1, Model.ReservationsByDestination.Max(x => x.ReservationCount));
+                    foreach (var d in Model.ReservationsByDestination.Take(6))
+                    {
+                        var w = (int)Math.Round(d.ReservationCount * 100.0 / maxDest);
+                        <div class="dest-row">
+                            <div class="dest-top">
+                                <b>@(string.IsNullOrEmpty(d.DestinationName) ? "-" : d.DestinationName)</b>
+                                <span>@L["{0} rez · {1} TL", d.ReservationCount, d.TotalRevenue.ToString("N0")]</span>
+                            </div>
+                            <div class="dest-track"><div class="dest-fill" style="width:@(w)%"></div></div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mt-2 mb-0" style="font-size:.8rem">@L["Henüz tamamlanan satış verisi bulunmuyor."]</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card-x h-100">
+            <div class="card-head">
+                <h3>@L["Öne Çıkanlar"]</h3>
+            </div>
+            <div class="card-body pt-1">
+                <div class="hl-item">
+                    <span class="hl-lab">@L["En Çok Gelir Getiren Tur"]</span>
+                    @if (Model.TopRevenueTour != null)
+                    {
+                        <b>@Model.TopRevenueTour.TourTitle</b>
+                        <span class="hl-sub">@Model.TopRevenueTour.TotalRevenue.ToString("N0") TL</span>
+                    }
+                    else
+                    {
+                        <b>-</b>
+                    }
+                </div>
+                <div class="hl-item">
+                    <span class="hl-lab">@L["Ortalama Puan"]</span>
+                    <b>★ @(Model.TotalReviews > 0 ? Model.AverageRating.ToString("0.0") : "-")</b>
+                    <span class="hl-sub">@Model.TotalReviews @L["değerlendirme"]</span>
+                </div>
+                <div class="hl-item">
+                    <span class="hl-lab">@L["Toplam Gelir"]</span>
+                    <b>@Model.TotalRevenue.ToString("N0") TL</b>
+                    <span class="hl-sub">@L["İptal edilenler hariç"]</span>
+                </div>
             </div>
         </div>
     </div>
@@ -809,8 +937,21 @@
         grad.addColorStop(0, "rgba(15,163,163,.28)");
         grad.addColorStop(1, "rgba(15,163,163,0)");
 
-        const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyChartLabels ?? new List<string>()));
-        const data = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyChartData ?? new List<int>()));
+        // Son 6 ay (aylık) ve son 30 gün (günlük) verileri — MongoDB aggregation ile gruplanmış
+        const RANGES = {
+        "6m": {
+        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyChartLabels)),
+        data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyChartData))
+        },
+        "30": {
+        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DailyChartLabels)),
+        data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DailyChartData))
+        }
+        };
+        RANGES["7"] = { labels: RANGES["30"].labels.slice(-7), data: RANGES["30"].data.slice(-7) };
+
+        const labels = RANGES["6m"].labels;
+        const data = RANGES["6m"].data;
         const chartLabel = "@L["Rezervasyon"]";
 
         const chart = new Chart(ctx, {
@@ -856,7 +997,12 @@
         }
         });
 
-        document.getElementById("rangeSelect").addEventListener("change", () => chart.update());
+        document.getElementById("rangeSelect").addEventListener("change", (e) => {
+        const r = RANGES[e.target.value] || RANGES["6m"];
+        chart.data.labels = r.labels;
+        chart.data.datasets[0].data = r.data;
+        chart.update();
+        });
         }
     </script>
 }
