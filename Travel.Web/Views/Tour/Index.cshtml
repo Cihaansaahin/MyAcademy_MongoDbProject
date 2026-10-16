@@ -732,6 +732,11 @@
                                             catLabel: "@catName",
                                             badge: "@badgeText",
                                             fav: @(favIds.Contains(t.Id) ? "true" : "false"),
+                                            // Tarih filtresi için: aktif ve geçmemiş tarihler { s: "yyyy-MM-dd", r: kalan kontenjan }
+                                            dates: @Html.Raw(Json.Serialize(t.TourDates
+                                                                                .Where(d => d.IsActive && d.StartDate.Date >= DateTime.UtcNow.Date)
+                                                                                .OrderBy(d => d.StartDate)
+                                                                                .Select(d => new { s = d.StartDate.ToString("yyyy-MM-dd"), r = d.RemainingCapacity }))),
                                             img: "@(string.IsNullOrEmpty(t.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : t.CoverImageUrl)"
                                         },</text>
                             }
@@ -781,7 +786,12 @@
                 ];
 
                 /* ---------- STATE ---------- */
-                const state = { q:"", dest:[], dur:[], price:[], type:[], rating:null, sort:"onerilen" };
+                const state = { q:"", dest:[], dur:[], price:[], type:[], rating:null, date:"", guests:1, sort:"onerilen" };
+
+                // Ana sayfadaki arama formundan gelen ?date=...&guests=... parametreleri
+                const urlParams = new URLSearchParams(window.location.search);
+                state.date = urlParams.get("date") || "";
+                state.guests = parseInt(urlParams.get("guests")) || 1;
 
                 function destCount(key){
                     return TOURS.filter(t => t.city.toLowerCase() === key || t.ctry === key).length;
@@ -805,6 +815,15 @@
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                             <input type="text" class="f-search" placeholder="${isEn ? "Search tour or city" : "Tur veya şehir ara"}" />
                         </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>${isEn ? "Departure Date" : "Tur Tarihi"}</h3>
+                        <input type="date" class="f-date form-control form-control-sm" value="${state.date}" />
+                        <small style="color:var(--muted);font-size:.72rem">${isEn ? "Tours departing on or after this date" : "Bu tarihte veya sonrasında başlayan turlar"}</small>
+                        <select class="f-guests form-select form-select-sm mt-2">
+                            ${[1,2,3,4,5].map(n=>`<option value="${n}" ${state.guests===n?'selected':''}>${n}${n===5?'+':''} ${isEn ? (n===1?"person":"people") : "kişi"}</option>`).join("")}
+                        </select>
                     </div>
 
                     ${DEST_OPTS.length > 0 ? `
@@ -870,6 +889,9 @@
                     state.type  = [...document.querySelectorAll(".f-type:checked")].map(i=>i.value);
                     const r = document.querySelector(".f-rating:checked");
                     state.rating = r ? r.value : null;
+                    // Masaüstü ve mobil kenar çubuğu aynı anda var: son değiştirilen inputun değeri tüm kopyalara yazılır
+                    state.date = lastDate !== null ? lastDate : state.date;
+                    state.guests = lastGuests !== null ? lastGuests : state.guests;
 
                     state.dest  = [...new Set(state.dest)];
                     state.dur   = [...new Set(state.dur)];
@@ -897,6 +919,11 @@
                         if(state.rating){
                             const o = RATING_OPTS.find(r=>r.key===state.rating);
                             if(t.rating < o.val) return false;
+                        }
+                        // Tarih + kişi: seçilen tarihte veya sonrasında başlayan ve yeterli kontenjanı olan bir tarih olmalı
+                        if(state.date || state.guests > 1){
+                            const ok = t.dates.some(d => (!state.date || d.s >= state.date) && d.r >= state.guests);
+                            if(!ok) return false;
                         }
                         return true;
                     });
@@ -954,6 +981,8 @@
                     state.type.forEach(v=>{ const o=TYPE_OPTS.find(c=>c.id===v); if(o) chips.push({t:o.label, kind:"type", v}); });
                     if(state.rating){ const o=RATING_OPTS.find(r=>r.key===state.rating); if(o) chips.push({t:o.label+" ★", kind:"rating", v:state.rating}); }
                     if(state.q) chips.push({t:'"'+state.q+'"', kind:"q", v:state.q});
+                    if(state.date) chips.push({t:"📅 " + new Date(state.date).toLocaleDateString(isEn ? "en-GB" : "tr-TR") + "+", kind:"date", v:state.date});
+                    if(state.guests > 1) chips.push({t:"👥 " + state.guests + (isEn ? " people" : " kişi"), kind:"guests", v:state.guests});
                     return chips.map(c=>`<span class="chip" onclick="removeChip('${c.kind}','${(c.v+'').replace(/'/g,"")}')">${c.t} <span class="x">×</span></span>`).join("");
                 }
 
@@ -965,6 +994,8 @@
                     if(kind==="type") uncheck(".f-type", v);
                     if(kind==="rating") document.querySelectorAll(".f-rating").forEach(i=>i.checked=false);
                     if(kind==="q") document.querySelectorAll(".f-search").forEach(i=>i.value="");
+                    if(kind==="date"){ lastDate = ""; document.querySelectorAll(".f-date").forEach(i=>i.value=""); }
+                    if(kind==="guests"){ lastGuests = 1; document.querySelectorAll(".f-guests").forEach(i=>i.value="1"); }
                     syncState(); render();
                 }
 
@@ -990,6 +1021,20 @@
                 }
 
                 /* ---------- EVENTS ---------- */
+                let lastDate = null, lastGuests = null;
+                document.addEventListener("change", (e)=>{
+                    if(e.target.matches(".f-date")){
+                        lastDate = e.target.value;
+                        document.querySelectorAll(".f-date").forEach(i=>i.value=lastDate);
+                        syncState(); render();
+                    }
+                    if(e.target.matches(".f-guests")){
+                        lastGuests = parseInt(e.target.value) || 1;
+                        document.querySelectorAll(".f-guests").forEach(i=>i.value=lastGuests);
+                        syncState(); render();
+                    }
+                });
+
                 document.addEventListener("input", (e)=>{
                     if(e.target.matches(".f-search, .f-dest, .f-dur, .f-price, .f-type, .f-rating")){
                         syncState(); render();
@@ -1013,6 +1058,9 @@
                     document.querySelectorAll(".f-search").forEach(i=>i.value="");
                     document.querySelectorAll(".f-dest,.f-dur,.f-price,.f-type").forEach(i=>i.checked=false);
                     document.querySelectorAll(".f-rating").forEach(i=>i.checked=false);
+                    lastDate = ""; lastGuests = 1;
+                    document.querySelectorAll(".f-date").forEach(i=>i.value="");
+                    document.querySelectorAll(".f-guests").forEach(i=>i.value="1");
                     state.sort = "onerilen";
                     document.getElementById("sortSelect").value = "onerilen";
                     syncState(); render();

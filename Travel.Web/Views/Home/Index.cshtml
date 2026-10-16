@@ -2,7 +2,25 @@
 @{
     var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower() == "en";
     ViewData["Title"] = isEn ? "Home" : "Ana Sayfa";
-    var destinations = ViewBag.Destinations as List<Travel.Web.DTOs.DestinationDtos.ResultDestinationDto>;
+    var destinations = ViewBag.Destinations as List<Travel.Web.DTOs.DestinationDtos.ResultDestinationDto> ?? new List<Travel.Web.DTOs.DestinationDtos.ResultDestinationDto>();
+    var destTourCounts = ViewBag.DestTourCounts as Dictionary<string, int> ?? new Dictionary<string, int>();
+    var bookingCounts = ViewBag.BookingCounts as Dictionary<string, int> ?? new Dictionary<string, int>();
+    var tourRatings = ViewBag.TourRatings as Dictionary<string, Travel.Web.DTOs.CommentDtos.TourRatingSummaryDto> ?? new Dictionary<string, Travel.Web.DTOs.CommentDtos.TourRatingSummaryDto>();
+    var reviews = ViewBag.Reviews as List<Travel.Web.DTOs.CommentDtos.ResultCommentDto> ?? new List<Travel.Web.DTOs.CommentDtos.ResultCommentDto>();
+    var tourTitles = ViewBag.TourTitles as Dictionary<string, string> ?? new Dictionary<string, string>();
+    var favIds = ViewBag.FavoriteIds as HashSet<string> ?? new HashSet<string>();
+
+    int TourCount(string id) => destTourCounts.TryGetValue(id, out var c) ? c : 0;
+
+    // Destinasyon görseli yoksa sıraya göre yedek görsel
+    string[] fallbackImgs = {
+        "https://images.unsplash.com/photo-1522093007474-d86e9bf7ba6f?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=900&q=80",
+        "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=900&q=80"
+    };
+    string DestImg(Travel.Web.DTOs.DestinationDtos.ResultDestinationDto d, int i) =>
+        !string.IsNullOrWhiteSpace(d.ImageUrl) ? d.ImageUrl : fallbackImgs[i % fallbackImgs.Length];
 }
 
 @section Styles {
@@ -234,6 +252,27 @@
                 color: var(--teal-dark);
                 transform: scale(1.08);
             }
+
+            .fav.on {
+                color: #e0575b;
+            }
+
+                .fav.on svg {
+                    fill: currentColor;
+                }
+
+        .review-av {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(15,163,163,.14);
+            color: var(--teal-dark);
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-family: 'Sora';
+            flex-shrink: 0;
+        }
 
         .tour-body {
             padding: .9rem 1rem 1rem;
@@ -570,9 +609,9 @@
         </form>
 
         <div class="stats-row">
-            <div class="stat"><b>@(destinations?.Count ?? 0)+</b><span>@L["Destinasyon"]</span></div>
-            <div class="stat"><b>@(Model?.Count ?? 0)+</b><span>@L["Aktif Tur"]</span></div>
-            <div class="stat"><b>92.000</b><span>@L["Mutlu Gezgin"]</span></div>
+            <div class="stat"><b>@ViewBag.TotalDestinations</b><span>@L["Destinasyon"]</span></div>
+            <div class="stat"><b>@ViewBag.TotalTours</b><span>@L["Aktif Tur"]</span></div>
+            <div class="stat"><b>@(((long)ViewBag.TotalUsers).ToString("N0"))</b><span>@L["Mutlu Gezgin"]</span></div>
         </div>
     </div>
 </header>
@@ -597,12 +636,21 @@
             {
                 foreach (var item in Model.Take(4))
                 {
+                    var bookings = bookingCounts.TryGetValue(item.Id, out var bc) ? bc : 0;
+                    var rating = tourRatings.TryGetValue(item.Id, out var tr) ? tr : null;
                     <div class="col-6 col-md-4 col-lg-3">
                         <article class="tour-card">
                             <div class="tour-media">
                                 <img src="@(string.IsNullOrEmpty(item.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : item.CoverImageUrl)" alt="@(item.Title?.Value ?? "Tour")" loading="lazy" />
-                                <span class="tour-badge">@L["Popüler"]</span>
-                                <button class="fav" aria-label="Favorilere ekle" onclick="this.classList.toggle('active')">
+                                @if (bookings > 0)
+                                {
+                                    <span class="tour-badge">🔥 @L["{0} rezervasyon", bookings]</span>
+                                }
+                                else if (item.IsPopular)
+                                {
+                                    <span class="tour-badge">@L["Popüler"]</span>
+                                }
+                                <button class="fav @(favIds.Contains(item.Id) ? "on" : "")" aria-label="@L["Favorilere ekle"]" onclick="toggleHomeFav(event, '@item.Id', this)">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg>
                                 </button>
                             </div>
@@ -611,7 +659,14 @@
                                 <h3 class="tour-title">@(item.Title?.Value ?? L["İsimsiz Tur"].Value)</h3>
                                 <div class="tour-meta">
                                     <span>🗓️ @item.DurationDays @L["Gün"]</span>
-                                    <span class="rating"><span class="star">★</span> 4.9</span>
+                                    @if (rating != null)
+                                    {
+                                        <span class="rating"><span class="star">★</span> @rating.AverageRating.ToString("0.0") <span style="color:var(--muted);font-weight:400">(@rating.TotalReviews)</span></span>
+                                    }
+                                    else
+                                    {
+                                        <span>@L["Henüz yorum yok"]</span>
+                                    }
                                 </div>
                                 <div class="tour-foot">
                                     <div class="price"><small>@L["Kişi başı"]</small><b>@item.Price.ToString("N0") <span>TL</span></b></div>
@@ -640,36 +695,41 @@
             <h2 style="color: #fff;">@L["Popüler Destinasyonlar"]</h2>
             <p style="color: rgba(255,255,255,.72);">@L["Milyonlarca gezginin tekrar tekrar dönmek istediği rüya şehirler."]</p>
         </div>
-        <div class="row g-4">
-            <div class="col-lg-6">
-                <a class="dest-card tall" href="/Tour/Index">
-                    <img src="https://images.unsplash.com/photo-1522093007474-d86e9bf7ba6f?auto=format&fit=crop&w=1200&q=80" alt="Paris" />
-                    <div class="dest-cap"><h3>Paris</h3><span>@L["Fransa · Işıklar Şehri"]</span></div>
-                </a>
-            </div>
-            <div class="col-lg-6">
-                <div class="row g-4">
-                    <div class="col-12">
-                        <a class="dest-card" href="/Tour/Index">
-                            <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1200&q=80" alt="Roma" />
-                            <div class="dest-cap"><h3>Roma</h3><span>@L["İtalya · Antik Başkent"]</span></div>
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a class="dest-card" href="/Tour/Index">
-                            <img src="https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=900&q=80" alt="Amsterdam" />
-                            <div class="dest-cap"><h3>Amsterdam</h3><span>@L["Hollanda · Kanallar"]</span></div>
-                        </a>
-                    </div>
-                    <div class="col-md-6">
-                        <a class="dest-card" href="/Tour/Index">
-                            <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=900&q=80" alt="Tokyo" />
-                            <div class="dest-cap"><h3>Tokyo</h3><span>@L["Japonya · Uzak Doğu"]</span></div>
-                        </a>
-                    </div>
+        @if (destinations.Any())
+        {
+            <div class="row g-4">
+                @{
+                    var first = destinations[0];
+                }
+                <div class="col-lg-6">
+                    <a class="dest-card tall" href="/Tour/Index?destinationId=@first.Id">
+                        <img src="@DestImg(first, 0)" alt="@first.City" />
+                        <div class="dest-cap"><h3>@first.City</h3><span>@first.Country · @L["{0} tur", TourCount(first.Id)]</span></div>
+                    </a>
                 </div>
+                @if (destinations.Count > 1)
+                {
+                    <div class="col-lg-6">
+                        <div class="row g-4">
+                            @for (int i = 1; i < destinations.Count; i++)
+                            {
+                                var d = destinations[i];
+                                <div class="@(i == 1 ? "col-12" : "col-md-6")">
+                                    <a class="dest-card" href="/Tour/Index?destinationId=@d.Id">
+                                        <img src="@DestImg(d, i)" alt="@d.City" />
+                                        <div class="dest-cap"><h3>@d.City</h3><span>@d.Country · @L["{0} tur", TourCount(d.Id)]</span></div>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
-        </div>
+        }
+        else
+        {
+            <p style="color: rgba(255,255,255,.72);">@L["Henüz destinasyon eklenmemiş."]</p>
+        }
     </div>
 </section>
 
@@ -713,59 +773,41 @@
     </div>
 </section>
 
-<!-- GEZGİN YORUMLARI -->
-<section id="yorumlar" style="background:#fff">
-    <div class="container">
-        <div class="section-head mb-5">
-            <div class="eyebrow">@L["Gezgin yorumları"]</div>
-            <h2>@L["Gezginler Ne Diyor?"]</h2>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="review-card">
-                    <div class="review-stars">★★★★★</div>
-                    <p>
-                        @(isEn
-                            ? "The Paris & Disneyland trip exceeded all my expectations. Our guide truly lived the city and took us to hidden spots regular tours miss."
-                            : "Paris & Disneyland turu beklentimin çok üzerindeydi. Rehberimiz gerçekten şehri yaşayan biriydi, sıradan turlarda göremeyeceğin köşelere götürdü.")
-                    </p>
-                    <div class="review-user">
-                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80" alt="" />
-                        <div><b>Elif Yıldız</b><span>Paris & Disneyland</span></div>
-                    </div>
-                </div>
+<!-- GEZGİN YORUMLARI (gerçek, onaylı 4+ yıldızlı son yorumlar) -->
+@if (reviews.Any())
+{
+    <section id="yorumlar" style="background:#fff">
+        <div class="container">
+            <div class="section-head mb-5">
+                <div class="eyebrow">@L["Gezgin yorumları"]</div>
+                <h2>@L["Gezginler Ne Diyor?"]</h2>
             </div>
-            <div class="col-md-4">
-                <div class="review-card">
-                    <div class="review-stars">★★★★★</div>
-                    <p>
-                        @(isEn
-                            ? "Everything was organized down to the minute on the Rome & Tuscany route, but never felt rushed. The vineyard tour was unforgettable."
-                            : "Roma & Toskana rotasında her şey dakikası dakikasına planlanmıştı ama hiç sıkışık hissettirmedi. Toskana'daki bağ turu tatilin en güzel anıydı.")
-                    </p>
-                    <div class="review-user">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" alt="" />
-                        <div><b>Mert Kaya</b><span>Rome & Tuscany</span></div>
+            <div class="row g-4">
+                @foreach (var r in reviews)
+                {
+                    var revTitle = tourTitles.TryGetValue(r.TourId, out var rt) ? rt : "";
+                    var initials = string.Concat((r.UserName ?? "G").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => char.ToUpper(s[0])));
+                    <div class="col-md-4">
+                        <div class="review-card">
+                            <div class="review-stars">@string.Concat(Enumerable.Repeat("★", r.Rating))<span style="opacity:.25">@string.Concat(Enumerable.Repeat("★", 5 - r.Rating))</span></div>
+                            <p>@r.Content</p>
+                            <div class="review-user">
+                                <span class="review-av">@initials</span>
+                                <div>
+                                    <b>@r.UserName</b>
+                                    @if (!string.IsNullOrEmpty(revTitle))
+                                    {
+                                        <span><a href="/Tour/Detail/@r.TourId" style="color:inherit">@revTitle</a></span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="review-card">
-                    <div class="review-stars">★★★★★</div>
-                    <p>
-                        @(isEn
-                            ? "It was my first time traveling abroad, and I felt completely safe in the Swiss Alps tour. The support team responded immediately even at midnight."
-                            : "İlk kez yurt dışına çıkıyordum ve İsviçre Alpleri turunda kendimi hep güvende hissettim. Destek ekibi bir sorunumda gece yarısı bile anında yanıt verdi.")
-                    </p>
-                    <div class="review-user">
-                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&q=80" alt="" />
-                        <div><b>Zeynep Demir</b><span>Swiss Alps</span></div>
-                    </div>
-                </div>
+                }
             </div>
         </div>
-    </div>
-</section>
+    </section>
+}
 
 <!-- CTA -->
 <section id="iletisim">
@@ -783,3 +825,29 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <script>
+        // Ana sayfa kartlarındaki kalp: Tour/ToggleFavorite ile kalıcı favori
+        async function toggleHomeFav(e, id, btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            try {
+                const response = await fetch('/Tour/ToggleFavorite', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'tourId=' + encodeURIComponent(id)
+                });
+                const result = await response.json();
+                if (result.requiresLogin) {
+                    alert(result.message);
+                    window.location.href = '/Account/Login';
+                    return;
+                }
+                if (result.success) btn.classList.toggle('on', result.isFavorite);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+}

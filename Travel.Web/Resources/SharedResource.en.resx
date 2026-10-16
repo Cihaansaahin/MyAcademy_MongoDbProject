@@ -2107,4 +2107,16 @@
   <data name="Kategorilere Göre Turlar" xml:space="preserve">
     <value>Tours by Category</value>
   </data>
+  <data name="{0} tur" xml:space="preserve">
+    <value>{0} tours</value>
+  </data>
+  <data name="{0} rezervasyon" xml:space="preserve">
+    <value>{0} bookings</value>
+  </data>
+  <data name="Henüz destinasyon eklenmemiş." xml:space="preserve">
+    <value>No destinations added yet.</value>
+  </data>
+  <data name="Favorilere ekle" xml:space="preserve">
+    <value>Add to favorites</value>
+  </data>
 </root>

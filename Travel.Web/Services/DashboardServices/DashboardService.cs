@@ -124,6 +124,18 @@ namespace Travel.Web.Services.DashboardServices
             return dto;
         }
 
+        public async Task<Dictionary<string, int>> GetBookingCountsByTourAsync()
+        {
+            var list = await _reservationCollection.Aggregate()
+                .Match(x => x.Status != ReservationStatus.Cancelled)
+                .Group(x => x.TourId, g => new { TourId = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            return list
+                .Where(x => !string.IsNullOrEmpty(x.TourId))
+                .ToDictionary(x => x.TourId, x => x.Count);
+        }
+
         // Rezervasyonları tarihe göre ($dateToString ile "2026-10" veya "2026-10-16") gruplayıp sayar
         private async Task<Dictionary<string, int>> CountReservationsByDateAsync(DateTime fromUtc, string format)
         {
