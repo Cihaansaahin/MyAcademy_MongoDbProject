@@ -1,33 +1,129 @@
 ﻿# 🌍 Travelio - Modern Seyahat ve Tur Rezervasyon Platformu
 
-**Travelio**, kullanıcıların dünya genelindeki benzersiz turları keşfetmesini, detaylı tur takvimleri ve dinamik kontenjan yönetimi üzerinden rezervasyon yapmasını, yorum ve sorularla etkileşimde bulunmasını sağlayan; yöneticiler için ise gelişmiş MongoDB Aggregation, PDF/Excel raporlama ve kapsamlı bir **Admin Paneli** sunan uçtan uca bir seyahat ve tur yönetim platformudur.
+**Travelio**, kullanıcıların dünya genelindeki turları keşfetmesini, tarih bazlı kontenjan yönetimiyle rezervasyon yapmasını, turları favorilere eklemesini, puan/yorum ve sorularla etkileşimde bulunmasını sağlayan; yöneticiler için ise **MongoDB Aggregation** tabanlı istatistikler, **PDF/Excel** katılımcı raporları ve kapsamlı bir **Admin Paneli** sunan uçtan uca bir seyahat ve tur yönetim platformudur.
+
+Proje **Türkçe ve İngilizce** olarak tam çalışır; arayüz metinleri ASP.NET Core Localization ile, tur başlık/açıklamaları gibi içerikler ise MongoDB üzerinde çok dilli (`Tr` / `En`) olarak saklanır.
 
 ---
 
-## 🚀 Proje Hakkında & Öne Çıkan Özellikler
+## 🔑 Hızlı Başlangıç
 
-Proje, modern web standartlarına uygun olarak katmanlı mimari ve servis odaklı yaklaşımla geliştirilmiştir. Hem son kullanıcı (Public) hem de yönetim (Admin) tarafında yüksek performans ve zengin bir kullanıcı deneyimi (UI/UX) hedeflenmiştir.
+### Gereksinimler
+* [.NET 10 SDK](https://dotnet.microsoft.com/download)
+* MongoDB (yerel kurulum veya MongoDB Atlas)
+* (Opsiyonel) MongoDB Compass – verileri görüntülemek için
 
-* **Kapsamlı Admin Paneli:**
-  * **Dashboard:** Anlık istatistikler, rezervasyon grafik analitiği, en popüler turlar, son yorumlar ve yanıt bekleyen sorular.
-  * **Tur Yönetimi:** Çoklu görsel yükleme, galeri yönetimi, tarih bazlı kontenjan takibi ve aktif/pasif durum yönetimi.
-  * **Kategori & Destinasyon Yönetimi:** Turları kategorize etme, şehir/ülke bazlı popüler rotalar belirleme.
-  * **Rezervasyon & Finans Takibi:** Gelen rezervasyonları onaylama/iptal etme ve onaylanan toplam ciroyu izleme.
-  * **Etkileşim Yönetimi:** Kullanıcılardan gelen yorumları denetleme ve turlar hakkındaki soruları yanıtlayabilme.
-* **Zengin Kullanıcı Deneyimi (Public):**
-  * **Gelişmiş Filtreleme & Arama:** Destinasyon, kategori, fiyat aralığı ve tarihe göre akıllı tur listeleme.
-  * **Dinamik Tur Detayı:** Günlük tur akışı (Itinerary), tur öne çıkanları, çoklu fotoğraf galerisi ve dinamik tarih-kontenjan seçimi.
-  * **Kullanıcı Paneli (`MyProfile`):** Geçmiş/gelecek rezervasyonları takip etme, favoriler, yorumlar ve kişisel bilgileri yönetme.
-  * **Çok Dil Desteği:** ASP.NET Core Localization altyapısı ile çok dilli kullanım.
+### Kurulum
+```bash
+git clone https://github.com/Cihaansaahin/MyAcademy_MongoDbProject.git
+cd MyAcademy_MongoDbProject/Travel.Web
+dotnet restore
+dotnet run
+```
+
+`appsettings.json` içindeki bağlantı bilgileri:
+
+```json
+"DatabaseSettings": {
+  "ConnectionString": "mongodb://localhost:27017",
+  "DataBaseName": "TravelioDb",
+  "UserCollectionName": "Users",
+  ...
+},
+"AdminUser": {
+  "Email": "admin@travelio.com",
+  "Password": "Admin123*"
+}
+```
+
+Uygulama ilk açılışta `Users` koleksiyonunda **e-posta için unique index** oluşturur ve admin hesabı yoksa otomatik ekler.
+
+### Demo Hesapları
+| Rol | E-posta | Şifre |
+| :--- | :--- | :--- |
+| Admin | `admin@travelio.com` | `Admin123*` |
+| Üye | Kayıt sayfasından yeni hesap oluşturabilirsiniz | – |
+
+Admin paneli: `/Admin/Dashboard`
 
 ---
 
-## 🛠️ Kullanılan Teknolojiler & Mimari
+## 🚀 Öne Çıkan Özellikler
 
-* **Backend:** ASP.NET Core MVC (.NET), LINQ, AutoMapper, FluentValidation
-* **Database:** MongoDB (NoSQL Document Database - `IMongoCollection<T>` ve Nested Document yapıları)
-* **Raporlama & Görselleştirme:** ClosedXML (Excel çıktıları), QuestPDF (PDF dokümanları), Chart.js (Grafik görselleştirme)
-* **Dosya Yönetimi:** `IFormFile` tabanlı çoklu görsel işleme, `wwwroot` entegrasyonu ve `MemoryStream` üzerinden güvenli dosya akışları
+### 👤 Kullanıcı Tarafı (Public)
+* **Ana Sayfa:** Admin panelinden yönetilen **banner slider**, en çok rezervasyon alan turlar (Aggregation), popüler destinasyonlar, gerçek toplam tur / destinasyon / üye sayıları ve son gerçek gezgin yorumları.
+* **Gelişmiş Filtreleme:** Destinasyon, kategori, fiyat aralığı, süre, puan ve **tur tarihi + kişi sayısı** (kalan kontenjana göre) filtreleri.
+* **Tur Detayı:** Fotoğraf galerisi, öne çıkan özellikler, accordion yapısında **gün gün tur programı**, tur tarihleri ve kalan kontenjan, **gerçek ortalama puan ve 1-5 yıldız dağılımı (%)**, onaylı sorular ve cevaplar.
+* **Rezervasyon:** Tarih seçimi, yetişkin/çocuk sayısı, otomatik toplam ücret (çocuk %50). Kontenjan **atomik** olarak düşürülür; kontenjan biterse veya tarih geçmişse rezervasyon alınmaz.
+* **Favoriler:** Liste, detay ve ana sayfadaki kalp butonu ile MongoDB `Favorites` koleksiyonuna kalıcı kayıt.
+* **Profilim:** Rezervasyonlarım (durum rozetleriyle), Favorilerim, Yorumlarım (silme), Sorularım, Değerlendirmelerim (puan güncelleme) ve profil bilgisi güncelleme.
+* **Çoklu Dil:** TR / EN arasında tek tıkla geçiş (cookie tabanlı).
+
+### 🛠️ Admin Paneli
+* **Dashboard:** Toplam/aktif/pasif tur, toplam rezervasyon ve kullanıcı, bekleyen sorular, bu ayki rezervasyonlar, toplam gelir; **son 7 gün / 30 gün / 6 ay** seçilebilir Chart.js grafiği; destinasyon ve kategori bazlı raporlar; en çok gelir getiren tur ve ortalama puan.
+* **Tur Yönetimi:** TR/EN içerik, kapak ve çoklu galeri görseli yükleme, birden fazla tur tarihi ve **tarihe özel kontenjan**, gün gün program (şehir, ulaşım, yemek), aktif/pasif durum; ad, destinasyon, kategori ve duruma göre filtreleme.
+* **Rezervasyon Yönetimi:** Onaylama/iptal, **tur, kullanıcı, tur tarihi aralığı ve duruma göre filtreleme**, tur + tarih seçerek rapor alma paneli.
+* **Kategori, Destinasyon ve Banner Yönetimi:** CRUD işlemleri, dosyadan veya URL ile görsel yükleme.
+* **Etkileşim Yönetimi:** Yorumları denetleme, cevaplanmamış soruları listeleme ve yanıtlama.
+
+---
+
+## 🧰 Kullanılan Teknolojiler & Mimari
+
+| Alan | Teknoloji |
+| :--- | :--- |
+| Backend | ASP.NET Core MVC (.NET 10), LINQ, Primary Constructors |
+| Veritabanı | MongoDB + MongoDB.Driver 3.x (Nested Document, Aggregation Pipeline, Unique Index) |
+| Kimlik Doğrulama | Cookie Authentication + Claims, rol bazlı yetkilendirme (`Admin` / `Member`), `PasswordHasher` ile hash'lenmiş şifreler |
+| Validasyon | FluentValidation (tur, tur tarihi, program günü, rezervasyon, yorum, soru, cevap, banner) – çok dilli hata mesajları |
+| Eşleme | AutoMapper |
+| Çoklu Dil | ASP.NET Core Localization (`IStringLocalizer`, `IHtmlLocalizer`, `SharedResource.en.resx`) + MongoDB'de `LocalizedString` (Tr/En) |
+| Raporlama | ClosedXML (Excel), QuestPDF (PDF) – `MemoryStream` ile, sunucuda dosya tutulmadan |
+| Grafik | Chart.js |
+| Dosya Yönetimi | `IFormFile` ile görsel yükleme (uzantı ve 5 MB boyut kontrolü), `wwwroot/images` |
+
+---
+
+## 📊 MongoDB Aggregation Kullanımları
+
+İstatistiklerin önemli bir kısmı `Find()` yerine **Aggregation Pipeline** ile hesaplanır:
+
+| İstatistik | Kullanılan Aşamalar |
+| :--- | :--- |
+| En çok rezervasyon alan 5 tur | `$match` → `$group` → `$lookup` (Tours, kapak görseli) |
+| En yüksek gelir sağlayan tur / toplam gelir | `$group` + `$sum` (`$toDecimal`) |
+| Destinasyon bazında rezervasyon sayısı | `$lookup` (Reservations → Tours → Destinations) → `$group` → `$sort` |
+| Kategori bazında tur sayısı | `$group` |
+| Aylık ve günlük rezervasyon sayıları | `$match` → `$group` (`$dateToString`, Europe/Istanbul saat dilimi) |
+| Ortalama puan ve 1-5 yıldız dağılımı | `$match` → `$group` |
+| Ana sayfa "en çok tercih edilen turlar" | `$match` → `$group` |
+
+---
+
+## 📄 Tur Katılımcı Raporu (PDF & Excel)
+
+Admin, tur listesinden veya Rezervasyonlar sayfasındaki **Katılımcı Raporu** panelinden rapor alabilir. Rapor **tüm tur** için veya **seçilen tur tarihi** için filtrelenebilir.
+
+* **Alanlar:** Ad Soyad, E-posta, Telefon, Tur, Tur Tarihi, Yetişkin, Çocuk, Toplam Kişi, Rezervasyon Tarihi, Toplam Ücret, Durum
+* **Excel (ClosedXML):** Başlık, filtre bilgisi, biçimlendirilmiş tarih/tutar sütunları ve iptaller hariç toplam satırı.
+* **PDF (QuestPDF):** Yatay A4, satır renklendirme, toplam satırı ve sayfa numarası.
+* Başlıklar ve durumlar seçili dile göre (TR/EN) üretilir; dosyalar `MemoryStream` üzerinden doğrudan indirilir.
+
+---
+
+## 🗄️ MongoDB Koleksiyonları
+
+| Koleksiyon | Açıklama |
+| :--- | :--- |
+| `Tours` | Tur bilgileri; **nested** olarak tur tarihleri (kontenjan), gün gün program, galeri ve öne çıkan özellikler |
+| `Destinations` | Şehir, ülke, görsel, popülerlik |
+| `Categories` | Çok dilli kategori adları |
+| `Reservations` | Kullanıcı, tur, seçilen tarih, yetişkin/çocuk, toplam ücret, durum (Bekliyor / Onaylandı / İptal Edildi) |
+| `Users` | Ad, soyad, e-posta (unique), telefon, şifre hash'i, rol |
+| `Comments` | Kullanıcı yorumu ve 1-5 puan |
+| `Questions` | Kullanıcı soruları ve admin cevapları |
+| `Favorites` | Kullanıcı – tur favori eşleşmeleri |
+| `Banners` | Ana sayfa slider görselleri ve metinleri |
 
 ---
 
@@ -60,13 +156,7 @@ Proje, modern web standartlarına uygun olarak katmanlı mimari ve servis odakl�
 | :---: | :---: |
 | ![Sign In](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/Sign.png) | ![Create Account](https://raw.githubusercontent.com/Cihaansaahin/MyAcademy_MongoDbProject/master/Travel.Web/wwwroot/images/AllPicture/CreateAccount.png) |
 
----
-
-## 📄 Gelişmiş Özellikler: PDF & Excel Raporlama Entegrasyonu
-
-Projenin raporlama modülü, yöneticilerin belirli tur veya tur başlangıç tarihlerine göre katılımcı listelerini anlık olarak dışarı aktarabilmesini sağlar:
-* **Excel Raporları:** *ClosedXML* kütüphanesi kullanılarak; müşteri adı, e-posta, telefon, tur adı, seçilen tarih, katılımcı sayısı, toplam tutar ve rezervasyon durumu gibi kritik veriler tablolaştırılır.
-* **PDF Raporları:** *QuestPDF* altyapısı ile sunucu yorulmadan, diskte dosya bırakmaksızın doğrudan `MemoryStream` üzerinden hızlı ve şık tasarımlı çıktı alım mekanizması kurulmuştur.
+> Ekran görüntülerini yenilemek için `wwwroot/images/AllPicture/` klasöründeki dosyaları **aynı adlarla** değiştirmeniz yeterlidir.
 
 ---
 
@@ -75,9 +165,15 @@ Projenin raporlama modülü, yöneticilerin belirli tur veya tur başlangıç ta
 ```text
 Travel.Web/
 │
-├── Areas/Admin/            # Yönetim Paneli Katmanı (Dashboard, Tour, Reservation vb.)
-├── Controllers/            # Public Yüz Kontrolcüleri (Home, Tour, Profile vb.)
-├── Services/               # İş Mantığı Servisleri (MongoDB, Raporlama, Dashboard, Capacity vb.)
+├── Areas/Admin/            # Yönetim Paneli (Dashboard, Tour, Reservation, Banner vb.)
+├── Controllers/            # Public kontrolcüler (Home, Tour, Account, Profile vb.)
 ├── DTOs/                   # Veri Transfer Nesneleri
-├── Entities/               # NoSQL Belge Modelleri (Tour, Reservation, Comment vb.)
-└── wwwroot/                # Statik Dosyalar ve Medya Depolama Alanı (/images/AllPicture/)
+├── Entities/               # MongoDB belge modelleri (Tour, Reservation, User vb.)
+├── Helpers/                # Kimlik doğrulama ve görsel yükleme yardımcıları
+├── Mappings/               # AutoMapper profilleri
+├── Resources/              # Localization dosyaları (SharedResource.en.resx)
+├── Services/               # İş mantığı (MongoDB, Dashboard/Aggregation, Rapor vb.)
+├── Settings/               # Veritabanı ayarları
+├── Validations/            # FluentValidation kuralları
+└── wwwroot/                # Statik dosyalar ve yüklenen görseller (/images/)
+```
