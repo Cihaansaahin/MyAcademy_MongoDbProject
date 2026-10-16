@@ -11,5 +11,12 @@ namespace Travel.Web.Services.CommentServices
         Task DeleteAsync(string id);
         Task<bool> ApproveCommentAsync(string id);
         Task<TourRatingSummaryDto> GetTourRatingSummaryAsync(string tourId);
+
+        // Birden fazla tur için ortalama puan + yorum sayısı (Aggregation, tek sorgu)
+        Task<Dictionary<string, TourRatingSummaryDto>> GetRatingsForToursAsync(IEnumerable<string> tourIds);
+
+        // Kullanıcı sadece KENDİ yorumunu güncelleyebilir / silebilir
+        Task<bool> UpdateRatingAsync(string commentId, string userId, int rating);
+        Task<bool> DeleteByUserAsync(string commentId, string userId);
     }
 }

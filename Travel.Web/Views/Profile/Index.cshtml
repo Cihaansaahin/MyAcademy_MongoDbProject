@@ -7,9 +7,30 @@
     var questions = ViewBag.Questions as List<Travel.Web.DTOs.QuestionDtos.ResultQuestionDto>;
     var favoriteTours = ViewBag.FavoriteTours as List<Travel.Web.DTOs.TourDtos.ResultTourDto> ?? new List<Travel.Web.DTOs.TourDtos.ResultTourDto>();
     var favoriteRatings = ViewBag.FavoriteRatings as Dictionary<string, double> ?? new Dictionary<string, double>();
+    var tourMap = ViewBag.TourMap as Dictionary<string, Travel.Web.DTOs.TourDtos.ResultTourDto> ?? new Dictionary<string, Travel.Web.DTOs.TourDtos.ResultTourDto>();
 
     var upcomingTrips = reservations?.Where(r => r.SelectedTourDate >= DateTime.Now).ToList() ?? new List<Travel.Web.DTOs.ReservationDtos.ResultReservationDto>();
     var completedTrips = reservations?.Where(r => r.SelectedTourDate < DateTime.Now).ToList() ?? new List<Travel.Web.DTOs.ReservationDtos.ResultReservationDto>();
+
+    // Rezervasyon durumunu enum adı yerine okunabilir (TR/EN) metin + renk olarak göster
+    string StatusText(Travel.Web.Entities.ReservationStatus s) => s switch
+    {
+        Travel.Web.Entities.ReservationStatus.Approved => L["Onaylandı"].Value,
+        Travel.Web.Entities.ReservationStatus.Cancelled => L["İptal Edildi"].Value,
+        _ => L["Beklemede"].Value
+    };
+    string StatusBadge(Travel.Web.Entities.ReservationStatus s) => s switch
+    {
+        Travel.Web.Entities.ReservationStatus.Approved => "badge-ok",
+        Travel.Web.Entities.ReservationStatus.Cancelled => "badge-cancel",
+        _ => "badge-wait"
+    };
+    string StatusChip(Travel.Web.Entities.ReservationStatus s) => s switch
+    {
+        Travel.Web.Entities.ReservationStatus.Approved => "status-ok",
+        Travel.Web.Entities.ReservationStatus.Cancelled => "status-cancel",
+        _ => "status-wait"
+    };
 }
 
 @section Styles {
@@ -364,6 +385,18 @@
             border: 1px solid rgba(143,231,231,.3)
         }
 
+        .status-wait {
+            background: rgba(214,158,46,.18);
+            color: #f3cf86;
+            border: 1px solid rgba(243,207,134,.3)
+        }
+
+        .status-cancel {
+            background: rgba(220,53,69,.18);
+            color: #f5a3ab;
+            border: 1px solid rgba(245,163,171,.3)
+        }
+
         .up-btns .btn-white {
             background: #fff;
             color: var(--navy);
@@ -570,6 +603,11 @@
         .badge-wait {
             background: rgba(214,158,46,.15);
             color: #a9741a
+        }
+
+        .badge-cancel {
+            background: rgba(220,53,69,.12);
+            color: #b02a37
         }
 
         .trip-right .acts {
@@ -1066,7 +1104,7 @@
                             <div class="up-meta">
                                 <span>📅 <b>@up.SelectedTourDate.ToString("dd.MM.yyyy")</b></span>
                                 <span>💰 <b>@up.TotalPrice.ToString("N0") TL</b></span>
-                                <span class="status-chip status-ok">● @up.Status</span>
+                                <span class="status-chip @StatusChip(up.Status)">● @StatusText(up.Status)</span>
                             </div>
                             <div class="up-btns d-flex gap-2 flex-wrap">
                                 <a href="/Tour/Detail/@up.TourId" class="btn-white">@L["Tur Detayı"]</a>
@@ -1116,12 +1154,24 @@
                     </div>
                 }
 
+                @if (TempData["ProfileUpdateError"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert" style="border-radius: 12px;">
+                        ⚠ @TempData["ProfileUpdateError"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
                 <div class="card-soft">
                     <form method="post" asp-action="UpdateProfile" asp-controller="Profile">
                         <div class="row g-3">
                             <div class="col-md-6 field">
-                                <label>@L["Ad Soyad"]</label>
-                                <input type="text" name="fullName" value="@ViewBag.UserName" required />
+                                <label>@L["Ad"]</label>
+                                <input type="text" name="firstName" value="@ViewBag.FirstName" required />
+                            </div>
+                            <div class="col-md-6 field">
+                                <label>@L["Soyad"]</label>
+                                <input type="text" name="lastName" value="@ViewBag.LastName" />
                             </div>
                             <div class="col-md-6 field">
                                 <label>@L["E-posta"]</label>
@@ -1185,7 +1235,7 @@
                                     <div class="resno">@L["Rezervasyon"]: #@t.Id.Substring(Math.Max(0, t.Id.Length - 6))</div>
                                 </div>
                                 <div class="trip-right">
-                                    <span class="badge-soft badge-ok">@t.Status</span>
+                                    <span class="badge-soft @StatusBadge(t.Status)">@StatusText(t.Status)</span>
                                     <div class="acts">
                                         <a href="/Tour/Detail/@t.TourId" class="mini-btn">@L["Tur Detayı"]</a>
                                     </div>
@@ -1252,13 +1302,23 @@
                     {
                         foreach (var r in comments)
                         {
+                            var revTour = tourMap.TryGetValue(r.TourId, out var rv2) ? rv2 : null;
                             <div class="rev-card" data-rev="@r.Id">
                                 <div class="top">
                                     <div>
-                                        <h4>Travelio Tur Deneyimi</h4>
+                                        <h4>
+                                            @if (revTour != null)
+                                            {
+                                                <a href="/Tour/Detail/@revTour.Id" style="color:inherit;text-decoration:none">@revTour.Title?.Value</a>
+                                            }
+                                            else
+                                            {
+                                                @L["Silinmiş Tur"]
+                                            }
+                                        </h4>
                                         <span class="rev-date">@r.CreatedDate.ToString("dd MMMM yyyy")</span>
                                     </div>
-                                    <span class="rev-stars">@string.Concat(Enumerable.Repeat("★", r.Rating))</span>
+                                    <span class="rev-stars" data-rev-stars="@r.Id">@string.Concat(Enumerable.Repeat("★", r.Rating))</span>
                                 </div>
                                 <p>@r.Content</p>
                                 <div class="rev-acts">
@@ -1421,201 +1481,241 @@
 
 @section Scripts {
     <script>
-        const isEn = @(isEn ? "true" : "false");
+                const isEn = @(isEn ? "true" : "false");
 
-        const IC = {
-          overview:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
-          profile:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
-          trips:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
-          fav:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
-          reviews:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-          questions:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg>',
-          ratings:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8.5 22 9.3 17 14 18.2 21 12 17.6 5.8 21 7 14 2 9.3 9 8.5 12 2"/></svg>',
-          logout:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
-        };
+                const IC = {
+                  overview:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+                  profile:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
+                  trips:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+                  fav:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+                  reviews:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+                  questions:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg>',
+                  ratings:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 8.5 22 9.3 17 14 18.2 21 12 17.6 5.8 21 7 14 2 9.3 9 8.5 12 2"/></svg>',
+                  logout:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
+                };
 
-        const MENU = [
-          {id:"overview", label: isEn ? "Overview" : "Genel Bakış", ic:"overview"},
-          {id:"profile", label: isEn ? "Personal Info" : "Profil Bilgilerim", ic:"profile"},
-          {id:"trips", label: isEn ? "My Trips" : "Turlarım", ic:"trips"},
-          {id:"favorites", label: isEn ? "Favorites" : "Favorilerim", ic:"fav"},
-          {id:"reviews", label: isEn ? "My Reviews" : "Yorumlarım", ic:"reviews"},
-          {id:"questions", label: isEn ? "My Questions" : "Sorularım", ic:"questions"},
-          {id:"ratings", label: isEn ? "My Ratings" : "Değerlendirmelerim", ic:"ratings"}
-        ];
+                const MENU = [
+                  {id:"overview", label: isEn ? "Overview" : "Genel Bakış", ic:"overview"},
+                  {id:"profile", label: isEn ? "Personal Info" : "Profil Bilgilerim", ic:"profile"},
+                  {id:"trips", label: isEn ? "My Trips" : "Turlarım", ic:"trips"},
+                  {id:"favorites", label: isEn ? "Favorites" : "Favorilerim", ic:"fav"},
+                  {id:"reviews", label: isEn ? "My Reviews" : "Yorumlarım", ic:"reviews"},
+                  {id:"questions", label: isEn ? "My Questions" : "Sorularım", ic:"questions"},
+                  {id:"ratings", label: isEn ? "My Ratings" : "Değerlendirmelerim", ic:"ratings"}
+                ];
 
-        // Case Madde 9: Kullanıcının MongoDB'deki gerçek favorileri
-        let FAVORITES = [
-        @foreach (var f in favoriteTours)
+                // Case Madde 9: Kullanıcının MongoDB'deki gerçek favorileri
+                let FAVORITES = [
+                @foreach (var f in favoriteTours)
+                {
+                        var rating = favoriteRatings.TryGetValue(f.Id, out var rv) ? rv : 0;
+                        var img = string.IsNullOrEmpty(f.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : f.CoverImageUrl;
+                        <text>{ id: "@f.Id", title: @Html.Raw(Json.Serialize(f.Title?.Value ?? "")), country: @Html.Raw(Json.Serialize($"{f.City}, {f.Country}")), dur: @Html.Raw(Json.Serialize($"{f.DurationDays} {L["Gün"].Value}")), rating: @rating.ToString(System.Globalization.CultureInfo.InvariantCulture), price: @Html.Raw(Json.Serialize(f.Price.ToString("N0"))), img: @Html.Raw(Json.Serialize(img)) },</text>
+                }
+                ];
+
+                // Değerlendirmelerim: kullanıcının yorumlarındaki puanlar (gerçek veri)
+                let RATINGS = [
+        @foreach (var c in comments ?? new List<Travel.Web.DTOs.CommentDtos.ResultCommentDto>())
         {
-                var rating = favoriteRatings.TryGetValue(f.Id, out var rv) ? rv : 0;
-                var img = string.IsNullOrEmpty(f.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : f.CoverImageUrl;
-                <text>{ id: "@f.Id", title: @Html.Raw(Json.Serialize(f.Title?.Value ?? "")), country: @Html.Raw(Json.Serialize($"{f.City}, {f.Country}")), dur: @Html.Raw(Json.Serialize($"{f.DurationDays} {L["Gün"].Value}")), rating: @rating.ToString(System.Globalization.CultureInfo.InvariantCulture), price: @Html.Raw(Json.Serialize(f.Price.ToString("N0"))), img: @Html.Raw(Json.Serialize(img)) },</text>
+                var rt = tourMap.TryGetValue(c.TourId, out var rtv) ? rtv : null;
+                <text>          { id: "@c.Id", title: @Html.Raw(Json.Serialize(rt?.Title?.Value ?? L["Silinmiş Tur"].Value)), country: @Html.Raw(Json.Serialize(rt == null ? "" : $"{rt.City}, {rt.Country}")), stars: @c.Rating, date: @Html.Raw(Json.Serialize(c.CreatedDate.ToLocalTime().ToString("dd MMMM yyyy"))) },
+            </text>
         }
-        ];
+                ];
 
-        let RATINGS = [
-          {title:"Roma & Toskana Keşfi", country:"İtalya", stars:5, date:"12 Haziran 2026"},
-          {title:"Paris & Disneyland", country:"Fransa", stars:5, date:"18 Mart 2026"},
-          {title:"Amsterdam Kanalları", country:"Hollanda", stars:4, date:"16 Kasım 2025"}
-        ];
+                function starStr(n){ let s=""; for(let i=1;i<=5;i++) s+= i<=n?"★":"<span class='off'>★</span>"; return s; }
+                function toast(msg){ const t=document.getElementById("toast"); document.getElementById("toastMsg").textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2600); }
 
-        function starStr(n){ let s=""; for(let i=1;i<=5;i++) s+= i<=n?"★":"<span class='off'>★</span>"; return s; }
-        function toast(msg){ const t=document.getElementById("toast"); document.getElementById("toastMsg").textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2600); }
-
-        function buildSidebar(){
-          const av = "@(ViewBag.UserName != null && ((string)ViewBag.UserName).Length >= 2 ? ((string)ViewBag.UserName).Substring(0, 2).ToUpper() : "TR")";
-          return `
-          <div class="side-user">
-            <div class="av">${av}</div>
-            <div style="min-width:0"><b>@ViewBag.UserName</b><span>@ViewBag.UserEmail</span></div>
-          </div>
-          <div class="side-menu">
-            ${MENU.map(m=>`<button class="side-link" data-pane="${m.id}" onclick="go('${m.id}')">${IC[m.ic]}${m.label}</button>`).join("")}
-            <div class="side-sep"></div>
-            <button class="side-link logout" data-bs-toggle="modal" data-bs-target="#logoutModal">${IC.logout} ${isEn ? "Sign Out" : "Çıkış Yap"}</button>
-          </div>`;
-        }
-
-        document.getElementById("sidebarDesktop").innerHTML = buildSidebar();
-        document.getElementById("sidebarMobile").innerHTML = buildSidebar();
-
-        function go(id){
-          document.querySelectorAll(".pane").forEach(p=> p.classList.remove("active"));
-          document.querySelectorAll(".side-link[data-pane]").forEach(b=> b.classList.toggle("active", b.dataset.pane===id));
-
-          const target = document.getElementById("pane-" + id);
-          if(target) target.classList.add("active");
-
-          const oc = document.getElementById("accountMenu");
-          if(window.bootstrap && bootstrap.Offcanvas){
-            const inst = bootstrap.Offcanvas.getInstance(oc);
-            if(inst) inst.hide();
-          }
-          window.scrollTo({top:0, behavior:"smooth"});
-
-          if(id === "favorites") renderFavorites();
-          if(id === "ratings") renderRatings();
-        }
-
-        function tripFilter(btn, type){
-          document.querySelectorAll(".subtab").forEach(b=>b.classList.remove("active"));
-          btn.classList.add("active");
-          document.getElementById("tripUpcoming").style.display = (type==="completed")?"none":"block";
-          document.getElementById("tripCompleted").style.display = (type==="upcoming")?"none":"block";
-        }
-
-        function renderFavorites(){
-          const grid = document.getElementById("favGrid");
-          document.getElementById("statFavCount").textContent = FAVORITES.length;
-          if(FAVORITES.length === 0){
-            grid.innerHTML = `
-              <div class="col-12">
-                <div class="card-soft"><div class="empty">
-                  <div class="ico">${IC.fav}</div>
-                  <h3>${isEn ? "No favorite tours yet." : "Henüz favori turun yok."}</h3>
-                  <p>${isEn ? "How about discovering new routes?" : "Yeni rotalar keşfetmeye ne dersin?"}</p>
-                  <a href="/Tour/Index" class="btn-teal">${isEn ? "Explore Tours" : "Turları Keşfet"}</a>
-                </div></div>
-              </div>`;
-            return;
-          }
-          grid.innerHTML = FAVORITES.map((t,i)=>`
-            <div class="col-sm-6 col-lg-4" data-fav="${i}">
-              <article class="tour-card">
-                <div class="tour-media">
-                  <img src="${t.img}" alt="${t.title}">
-                  <button class="fav" title="${isEn ? "Remove from favorites" : "Favoriden kaldır"}" onclick="removeFav(${i})">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
-                  </button>
-                </div>
-                <div class="tour-body">
-                  <div class="tour-country">${t.country}</div>
-                  <h3 class="tour-title">${t.title}</h3>
-                  <div class="tour-meta"><span>🗓️ ${t.dur}</span>${t.rating > 0 ? `<span><span style="color:#f4a92c">★</span> ${t.rating.toFixed(1)}</span>` : ''}</div>
-                  <div class="tour-foot">
-                    <div class="price"><small>${isEn ? "Per person" : "Kişi başı"}</small><b>${t.price} <span>TL</span></b></div>
-                    <a href="/Tour/Detail/${t.id}" class="btn-incele">${isEn ? "View Tour" : "Turu İncele"}</a>
+                function buildSidebar(){
+                  const av = "@(ViewBag.UserName != null && ((string)ViewBag.UserName).Length >= 2 ? ((string)ViewBag.UserName).Substring(0, 2).ToUpper() : "TR")";
+                  return `
+                  <div class="side-user">
+                    <div class="av">${av}</div>
+                    <div style="min-width:0"><b>@ViewBag.UserName</b><span>@ViewBag.UserEmail</span></div>
                   </div>
-                </div>
-              </article>
-            </div>`).join("");
-        }
+                  <div class="side-menu">
+                    ${MENU.map(m=>`<button class="side-link" data-pane="${m.id}" onclick="go('${m.id}')">${IC[m.ic]}${m.label}</button>`).join("")}
+                    <div class="side-sep"></div>
+                    <button class="side-link logout" data-bs-toggle="modal" data-bs-target="#logoutModal">${IC.logout} ${isEn ? "Sign Out" : "Çıkış Yap"}</button>
+                  </div>`;
+                }
 
-        async function removeFav(i){
-          const tour = FAVORITES[i];
-          if(!tour) return;
-          try {
-            const response = await fetch('/Tour/ToggleFavorite', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: 'tourId=' + encodeURIComponent(tour.id)
-            });
-            const result = await response.json();
-            if(result.success && !result.isFavorite){
-              FAVORITES.splice(i,1);
-              renderFavorites();
-              toast(isEn ? "Removed from favorites." : "Favorilerden kaldırıldı.");
-            }
-          } catch(e){
-            console.error(e);
-          }
-        }
+                document.getElementById("sidebarDesktop").innerHTML = buildSidebar();
+                document.getElementById("sidebarMobile").innerHTML = buildSidebar();
 
-        let pendingDelId = null;
-        function askDeleteReview(id){
-          pendingDelId = id;
-          new bootstrap.Modal(document.getElementById("delModal")).show();
-        }
+                function go(id){
+                  document.querySelectorAll(".pane").forEach(p=> p.classList.remove("active"));
+                  document.querySelectorAll(".side-link[data-pane]").forEach(b=> b.classList.toggle("active", b.dataset.pane===id));
 
-        function confirmDeleteReview(){
-          const card = document.querySelector(`.rev-card[data-rev="${pendingDelId}"]`);
-          if(card) card.remove();
-          bootstrap.Modal.getInstance(document.getElementById("delModal")).hide();
-          toast(isEn ? "Review deleted." : "Yorum silindi.");
-        }
+                  const target = document.getElementById("pane-" + id);
+                  if(target) target.classList.add("active");
 
-        function renderRatings(){
-          const grid = document.getElementById("rateGrid");
-          grid.innerHTML = RATINGS.map((r,i)=>`
-            <div class="col-sm-6 col-lg-4">
-              <div class="rate-card">
-                <div class="country">${r.country}</div>
-                <h4>${r.title}</h4>
-                <div class="stars" data-stars="${i}">${starStr(r.stars)}</div>
-                <div class="score">${r.stars} / 5</div>
-                <div class="date">${r.date}</div>
-                <button class="mini-btn mt-3" type="button" onclick="openRatingModal(${i})">${isEn ? "Update Rating" : "Değerlendirmeyi Güncelle"}</button>
-              </div>
-            </div>`).join("");
-        }
+                  const oc = document.getElementById("accountMenu");
+                  if(window.bootstrap && bootstrap.Offcanvas){
+                    const inst = bootstrap.Offcanvas.getInstance(oc);
+                    if(inst) inst.hide();
+                  }
+                  window.scrollTo({top:0, behavior:"smooth"});
 
-        let rateIndex = null, ratePicked = 0;
-        function openRatingModal(i){
-          rateIndex = i;
-          ratePicked = RATINGS[i].stars;
-          document.getElementById("rateTourName").textContent = RATINGS[i].title;
-          paintPicker();
-          new bootstrap.Modal(document.getElementById("rateModal")).show();
-        }
+                  if(id === "favorites") renderFavorites();
+                  if(id === "ratings") renderRatings();
+                }
 
-        function paintPicker(){
-          document.querySelectorAll("#ratePicker .star-pick").forEach(s=> s.classList.toggle("on", +s.dataset.v <= ratePicked));
-        }
+                function tripFilter(btn, type){
+                  document.querySelectorAll(".subtab").forEach(b=>b.classList.remove("active"));
+                  btn.classList.add("active");
+                  document.getElementById("tripUpcoming").style.display = (type==="completed")?"none":"block";
+                  document.getElementById("tripCompleted").style.display = (type==="upcoming")?"none":"block";
+                }
 
-        document.querySelectorAll("#ratePicker .star-pick").forEach(s=>{
-          s.addEventListener("click", ()=>{ ratePicked = +s.dataset.v; paintPicker(); });
-        });
+                function renderFavorites(){
+                  const grid = document.getElementById("favGrid");
+                  document.getElementById("statFavCount").textContent = FAVORITES.length;
+                  if(FAVORITES.length === 0){
+                    grid.innerHTML = `
+                      <div class="col-12">
+                        <div class="card-soft"><div class="empty">
+                          <div class="ico">${IC.fav}</div>
+                          <h3>${isEn ? "No favorite tours yet." : "Henüz favori turun yok."}</h3>
+                          <p>${isEn ? "How about discovering new routes?" : "Yeni rotalar keşfetmeye ne dersin?"}</p>
+                          <a href="/Tour/Index" class="btn-teal">${isEn ? "Explore Tours" : "Turları Keşfet"}</a>
+                        </div></div>
+                      </div>`;
+                    return;
+                  }
+                  grid.innerHTML = FAVORITES.map((t,i)=>`
+                    <div class="col-sm-6 col-lg-4" data-fav="${i}">
+                      <article class="tour-card">
+                        <div class="tour-media">
+                          <img src="${t.img}" alt="${t.title}">
+                          <button class="fav" title="${isEn ? "Remove from favorites" : "Favoriden kaldır"}" onclick="removeFav(${i})">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                          </button>
+                        </div>
+                        <div class="tour-body">
+                          <div class="tour-country">${t.country}</div>
+                          <h3 class="tour-title">${t.title}</h3>
+                          <div class="tour-meta"><span>🗓️ ${t.dur}</span>${t.rating > 0 ? `<span><span style="color:#f4a92c">★</span> ${t.rating.toFixed(1)}</span>` : ''}</div>
+                          <div class="tour-foot">
+                            <div class="price"><small>${isEn ? "Per person" : "Kişi başı"}</small><b>${t.price} <span>TL</span></b></div>
+                            <a href="/Tour/Detail/${t.id}" class="btn-incele">${isEn ? "View Tour" : "Turu İncele"}</a>
+                          </div>
+                        </div>
+                      </article>
+                    </div>`).join("");
+                }
 
-        function saveRating(){
-          if(rateIndex === null) return;
-          RATINGS[rateIndex].stars = ratePicked;
-          bootstrap.Modal.getInstance(document.getElementById("rateModal")).hide();
-          renderRatings();
-          toast(isEn ? "Rating updated." : "Değerlendirmen güncellendi.");
-        }
+                async function removeFav(i){
+                  const tour = FAVORITES[i];
+                  if(!tour) return;
+                  try {
+                    const response = await fetch('/Tour/ToggleFavorite', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                      body: 'tourId=' + encodeURIComponent(tour.id)
+                    });
+                    const result = await response.json();
+                    if(result.success && !result.isFavorite){
+                      FAVORITES.splice(i,1);
+                      renderFavorites();
+                      toast(isEn ? "Removed from favorites." : "Favorilerden kaldırıldı.");
+                    }
+                  } catch(e){
+                    console.error(e);
+                  }
+                }
 
-        // Başlangıç çalıştırması
-        go("overview");
+                let pendingDelId = null;
+                function askDeleteReview(id){
+                  pendingDelId = id;
+                  new bootstrap.Modal(document.getElementById("delModal")).show();
+                }
+
+                async function confirmDeleteReview(){
+                  bootstrap.Modal.getInstance(document.getElementById("delModal")).hide();
+                  try {
+                    const response = await fetch('/Profile/DeleteComment', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                      body: 'commentId=' + encodeURIComponent(pendingDelId)
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                      const card = document.querySelector(`.rev-card[data-rev="${pendingDelId}"]`);
+                      if (card) card.remove();
+                      RATINGS = RATINGS.filter(r => r.id !== pendingDelId);
+                      renderRatings();
+                    }
+                    toast(result.message);
+                  } catch (e) {
+                    console.error(e);
+                    toast(isEn ? "An error occurred." : "Bir hata oluştu.");
+                  }
+                }
+
+                function renderRatings(){
+                  const grid = document.getElementById("rateGrid");
+                  if (!RATINGS.length) {
+                    grid.innerHTML = `<div class="col-12"><p class="text-muted" style="font-size:.9rem">${isEn ? "You haven't rated any tours yet." : "Henüz bir tura puan vermedin."}</p></div>`;
+                    return;
+                  }
+                  grid.innerHTML = RATINGS.map((r,i)=>`
+                    <div class="col-sm-6 col-lg-4">
+                      <div class="rate-card">
+                        <div class="country">${r.country}</div>
+                        <h4>${r.title}</h4>
+                        <div class="stars" data-stars="${i}">${starStr(r.stars)}</div>
+                        <div class="score">${r.stars} / 5</div>
+                        <div class="date">${r.date}</div>
+                        <button class="mini-btn mt-3" type="button" onclick="openRatingModal(${i})">${isEn ? "Update Rating" : "Değerlendirmeyi Güncelle"}</button>
+                      </div>
+                    </div>`).join("");
+                }
+
+                let rateIndex = null, ratePicked = 0;
+                function openRatingModal(i){
+                  rateIndex = i;
+                  ratePicked = RATINGS[i].stars;
+                  document.getElementById("rateTourName").textContent = RATINGS[i].title;
+                  paintPicker();
+                  new bootstrap.Modal(document.getElementById("rateModal")).show();
+                }
+
+                function paintPicker(){
+                  document.querySelectorAll("#ratePicker .star-pick").forEach(s=> s.classList.toggle("on", +s.dataset.v <= ratePicked));
+                }
+
+                document.querySelectorAll("#ratePicker .star-pick").forEach(s=>{
+                  s.addEventListener("click", ()=>{ ratePicked = +s.dataset.v; paintPicker(); });
+                });
+
+                async function saveRating(){
+                  if(rateIndex === null) return;
+                  const item = RATINGS[rateIndex];
+                  try {
+                    const response = await fetch('/Profile/UpdateRating', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                      body: 'commentId=' + encodeURIComponent(item.id) + '&rating=' + ratePicked
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                      item.stars = ratePicked;
+                      renderRatings();
+                      // Yorumlarım sekmesindeki yıldızları da güncelle
+                      const s = document.querySelector(`[data-rev-stars="${item.id}"]`);
+                      if (s) s.textContent = "★".repeat(ratePicked);
+                    }
+                    bootstrap.Modal.getInstance(document.getElementById("rateModal")).hide();
+                    toast(result.message);
+                  } catch (e) {
+                    console.error(e);
+                    toast(isEn ? "An error occurred." : "Bir hata oluştu.");
+                  }
+                }
+
+                // Başlangıç çalıştırması
+                go("overview");
     </script>
 }

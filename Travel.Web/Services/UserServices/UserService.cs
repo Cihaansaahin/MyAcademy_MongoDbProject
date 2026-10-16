@@ -10,7 +10,7 @@ namespace Travel.Web.Services.UserServices
     {
         private readonly IMongoCollection<User> _userCollection;
 
-        // ASP.NET Core'un kendi şifre hash'leyicisi 
+        // ASP.NET Core'un kendi şifre hash'leyicisi (PBKDF2 + salt). Ek paket gerekmez.
         private readonly PasswordHasher<User> _hasher = new();
 
         public UserService(IDataBaseSettings databaseSettings)
@@ -68,9 +68,35 @@ namespace Travel.Web.Services.UserServices
             return await _userCollection.CountDocumentsAsync(x => x.Role == "Member");
         }
 
+        public async Task<UpdateProfileResult> UpdateProfileAsync(string userId, string firstName, string lastName, string email, string phone)
+        {
+            var user = await GetByIdAsync(userId);
+            if (user == null)
+                return UpdateProfileResult.NotFound;
+
+            var normalized = Normalize(email);
+
+            // E-posta değişiyorsa başka bir hesapta kullanılıyor mu?
+            if (normalized != user.Email)
+            {
+                var other = await GetByEmailAsync(normalized);
+                if (other != null && other.Id != user.Id)
+                    return UpdateProfileResult.EmailTaken;
+            }
+
+            var update = Builders<User>.Update
+                .Set(x => x.FirstName, firstName.Trim())
+                .Set(x => x.LastName, lastName.Trim())
+                .Set(x => x.Email, normalized)
+                .Set(x => x.PhoneNumber, (phone ?? string.Empty).Trim());
+
+            await _userCollection.UpdateOneAsync(x => x.Id == userId, update);
+            return UpdateProfileResult.Success;
+        }
+
         public async Task InitializeAsync(string adminEmail, string adminPassword)
         {
-            // Aynı e-posta ile iki hesap açılamasın 
+            // Aynı e-posta ile iki hesap açılamasın (veritabanı seviyesinde garanti)
             var indexModel = new CreateIndexModel<User>(
                 Builders<User>.IndexKeys.Ascending(x => x.Email),
                 new CreateIndexOptions { Unique = true });

@@ -2,10 +2,9 @@
 @using Microsoft.AspNetCore.Localization
 
 @{
-    var session = HttpContextAccessor.HttpContext?.Session;
-    var userName = session?.GetString("UserName");
-    var userEmail = session?.GetString("UserEmail");
-    var isLoggedIn = !string.IsNullOrEmpty(userName) || !string.IsNullOrEmpty(userEmail);
+    var isLoggedIn = User.Identity?.IsAuthenticated ?? false;
+    var userName = isLoggedIn ? User.Identity!.Name : null;
+    var userEmail = isLoggedIn ? User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value : null;
 
     var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLower();
     var isEn = currentCulture == "en";

@@ -2,39 +2,14 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using System.Security.Claims;
 using Travel.Web.DTOs.IdentityDtos;
-using Travel.Web.Entities;
+using Travel.Web.Helpers;
 using Travel.Web.Services.UserServices;
 
 namespace Travel.Web.Controllers
 {
     public class AccountController(IUserService _userService, IStringLocalizer<SharedResource> _L) : Controller
     {
-        // Cookie + Session'a kullanıcı bilgilerini yazar (Register ve Login ortak kullanır)
-        private async Task SignInUserAsync(User user, bool rememberMe)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.FullName),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
-            };
-
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity),
-                new AuthenticationProperties { IsPersistent = rememberMe });
-
-            HttpContext.Session.SetString("UserId", user.Id);
-            HttpContext.Session.SetString("UserName", user.FullName);
-            HttpContext.Session.SetString("UserEmail", user.Email);
-            HttpContext.Session.SetString("UserPhone", user.PhoneNumber ?? "");
-            HttpContext.Session.SetString("UserRole", user.Role);
-        }
-
         [HttpGet]
         public IActionResult Register()
         {
@@ -63,7 +38,7 @@ namespace Travel.Web.Controllers
                 return View(createRegisterDto);
             }
 
-            await SignInUserAsync(user, rememberMe: false);
+            await HttpContext.SignInUserAsync(user, isPersistent: false);
 
             TempData["SuccessMessage"] = _L["Hoş geldin {0}!", user.FirstName].Value;
             return RedirectToAction("Index", "Profile");
@@ -91,7 +66,7 @@ namespace Travel.Web.Controllers
                 return View(loginDto);
             }
 
-            await SignInUserAsync(user, loginDto.RememberMe);
+            await HttpContext.SignInUserAsync(user, loginDto.RememberMe);
 
             if (user.Role == "Admin")
             {

@@ -13,6 +13,7 @@ using Travel.Web.Validations;
 using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using Travel.Web.Services.FavoriteServices;
+using Travel.Web.Helpers;
 
 namespace Travel.Web.Controllers
 {
@@ -97,6 +98,9 @@ namespace Travel.Web.Controllers
 
             ViewBag.Destinations = await _destinationService.GetAllAsync();
             ViewBag.Categories = await _categoryService.GetAllAsync();
+
+            // Kartlardaki puan ve yorum sayısı (gerçek yorumlardan, tek aggregation sorgusu)
+            ViewBag.TourRatings = await _commentService.GetRatingsForToursAsync(tours.Select(x => x.Id));
             ViewBag.CurrentSearch = search;
             ViewBag.CurrentSort = sort;
 
@@ -132,6 +136,10 @@ namespace Travel.Web.Controllers
             ViewBag.Questions = questions;
             ViewBag.SimilarTours = similarTours;
 
+            // Puan özeti (ortalama + yıldız yüzdeleri) ve benzer turların puanları
+            ViewBag.RatingSummary = await _commentService.GetTourRatingSummaryAsync(id);
+            ViewBag.SimilarRatings = await _commentService.GetRatingsForToursAsync(similarTours.Select(x => x.Id));
+
             // "Kaydet" butonunun başlangıç durumu
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewBag.IsFavorite = !string.IsNullOrEmpty(userId) && await _favoriteService.IsFavoriteAsync(userId, id);
@@ -139,7 +147,7 @@ namespace Travel.Web.Controllers
             return View(tour);
         }
 
-        // Favorilere ekle / çıkar (AJAX)
+        // Case Madde 9: Favorilere ekle / çıkar (AJAX)
         [HttpPost]
         public async Task<IActionResult> ToggleFavorite(string tourId)
         {
@@ -179,21 +187,20 @@ namespace Travel.Web.Controllers
                 return Json(new { success = false, message = validation.ToMessage() });
             }
 
-            var sessionEmail = HttpContext.Session.GetString("UserEmail");
-            var sessionName = HttpContext.Session.GetString("UserName");
-
-            if (string.IsNullOrEmpty(sessionEmail))
+            // Kullanıcı bilgileri artık Session'dan değil, giriş cookie'sindeki claim'lerden okunuyor
+            var userId = User.GetUserId();
+            if (string.IsNullOrEmpty(userId))
             {
-                return Json(new { success = false, message = _L["Rezervasyon yapabilmek için lütfen önce giriş yapın."].Value });
+                return Json(new { success = false, requiresLogin = true, message = _L["Rezervasyon yapabilmek için lütfen önce giriş yapın."].Value });
             }
 
-            dto.Email = sessionEmail;
-            dto.FullName = !string.IsNullOrEmpty(sessionName) ? sessionName : (!string.IsNullOrEmpty(dto.FullName) ? dto.FullName : "Gezgin Misafir");
-            dto.UserId = sessionEmail;
+            dto.UserId = userId; // Artık e-posta değil, gerçek kullanıcı Id'si
+            dto.Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
+            dto.FullName = User.Identity?.Name ?? dto.FullName;
 
-            if (string.IsNullOrEmpty(dto.Phone))
+            if (string.IsNullOrWhiteSpace(dto.Phone))
             {
-                dto.Phone = "+90 555 000 00 00";
+                dto.Phone = User.FindFirstValue(ClaimTypes.MobilePhone) ?? string.Empty;
             }
 
             var result = await _reservationService.CreateReservationAsync(dto);
@@ -208,7 +215,7 @@ namespace Travel.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AddComment([FromBody] CreateCommentDto dto)
         {
-           
+            // YENİ: Eski "Content boş mu" kontrolü yerine null kontrolü + validator
             if (dto == null)
             {
                 return Json(new { success = false, message = _L["Geçersiz istek."].Value });
@@ -220,15 +227,15 @@ namespace Travel.Web.Controllers
                 return Json(new { success = false, message = validation.ToMessage() });
             }
 
-            var sessionUser = HttpContext.Session.GetString("UserName");
-            if (!string.IsNullOrEmpty(sessionUser))
+            // Yorum yapan kullanıcı Id + ad ile kaydedilir (profilde Id ile listelenir)
+            var userId = User.GetUserId();
+            if (string.IsNullOrEmpty(userId))
             {
-                dto.UserName = sessionUser;
+                return Json(new { success = false, requiresLogin = true, message = _L["Yorum yapabilmek için lütfen giriş yapın."].Value });
             }
-            else if (string.IsNullOrEmpty(dto.UserName))
-            {
-                dto.UserName = "Gezgin Misafir";
-            }
+
+            dto.UserId = userId;
+            dto.UserName = User.Identity?.Name ?? string.Empty;
 
             await _commentService.CreateAsync(dto);
 
@@ -250,15 +257,14 @@ namespace Travel.Web.Controllers
                 return Json(new { success = false, message = validation.ToMessage() });
             }
 
-            var sessionUser = HttpContext.Session.GetString("UserName");
-            if (!string.IsNullOrEmpty(sessionUser))
+            var userId = User.GetUserId();
+            if (string.IsNullOrEmpty(userId))
             {
-                dto.UserName = sessionUser;
+                return Json(new { success = false, requiresLogin = true, message = _L["Soru sorabilmek için lütfen giriş yapın."].Value });
             }
-            else if (string.IsNullOrEmpty(dto.UserName))
-            {
-                dto.UserName = "Gezgin Misafir";
-            }
+
+            dto.UserId = userId;
+            dto.UserName = User.Identity?.Name ?? string.Empty;
 
             await _questionService.CreateAsync(dto);
 

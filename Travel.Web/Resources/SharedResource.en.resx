@@ -2029,4 +2029,19 @@
   <data name="Tur favorilerden çıkarıldı." xml:space="preserve">
     <value>Tour removed from favorites.</value>
   </data>
+  <data name="Yorum yapabilmek için lütfen giriş yapın." xml:space="preserve">
+    <value>Please sign in to write a review.</value>
+  </data>
+  <data name="Soru sorabilmek için lütfen giriş yapın." xml:space="preserve">
+    <value>Please sign in to ask a question.</value>
+  </data>
+  <data name="Ad ve e-posta alanları zorunludur." xml:space="preserve">
+    <value>First name and email are required.</value>
+  </data>
+  <data name="Henüz yorum yok" xml:space="preserve">
+    <value>No reviews yet</value>
+  </data>
+  <data name="Silinmiş Tur" xml:space="preserve">
+    <value>Deleted tour</value>
+  </data>
 </root>

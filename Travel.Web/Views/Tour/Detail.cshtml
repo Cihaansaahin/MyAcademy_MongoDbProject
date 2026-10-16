@@ -8,6 +8,12 @@
     var similarTours = ViewBag.SimilarTours as List<Travel.Web.DTOs.TourDtos.ResultTourDto>;
     var isFavorite = ViewBag.IsFavorite is bool fav && fav;
 
+    // Puanlar: gerçek yorumlardan (CommentService aggregation)
+    var ratingSummary = ViewBag.RatingSummary as Travel.Web.DTOs.CommentDtos.TourRatingSummaryDto ?? new Travel.Web.DTOs.CommentDtos.TourRatingSummaryDto();
+    var similarRatings = ViewBag.SimilarRatings as Dictionary<string, Travel.Web.DTOs.CommentDtos.TourRatingSummaryDto> ?? new Dictionary<string, Travel.Web.DTOs.CommentDtos.TourRatingSummaryDto>();
+    var avgText = ratingSummary.TotalReviews > 0 ? ratingSummary.AverageRating.ToString("0.0") : "—";
+    var filledStars = (int)Math.Round(ratingSummary.AverageRating);
+
     // Galeri görselleri ayrıştırma
     var mainImage = !string.IsNullOrEmpty(Model.CoverImageUrl)
         ? Model.CoverImageUrl
@@ -1022,8 +1028,8 @@
                 <div class="cat-line">@Model.Country · @Model.City</div>
                 <h1>@tourTitle</h1>
                 <div class="head-meta">
-                    <span class="rating"><span class="star">★</span> 4.8</span>
-                    <span>@(comments?.Count ?? 0) @L["değerlendirme"]</span>
+                    <span class="rating"><span class="star">★</span> @avgText</span>
+                    <span>@ratingSummary.TotalReviews @L["değerlendirme"]</span>
                     <span class="dot-sep"></span>
                     <span>@Model.DurationDays @L["Gün"] / @(Model.DurationDays > 1 ? Model.DurationDays - 1 : 1) @L["Gece"]</span>
                     <span class="dot-sep"></span>
@@ -1192,16 +1198,16 @@
                 <h2>@L["Misafir Yorumları"]</h2>
                 <div class="rev-summary mb-3">
                     <div class="rev-score">
-                        <div class="num">4.8</div>
-                        <div class="stars">★★★★★</div>
-                        <div class="cnt">@(comments?.Count ?? 0) @L["değerlendirme"]</div>
+                        <div class="num">@avgText</div>
+                        <div class="stars">@string.Concat(Enumerable.Repeat("★", filledStars))<span style="opacity:.25">@string.Concat(Enumerable.Repeat("★", 5 - filledStars))</span></div>
+                        <div class="cnt">@ratingSummary.TotalReviews @L["değerlendirme"]</div>
                     </div>
                     <div class="rev-bars">
-                        <div class="bar-row"><span class="lab">5 @L["yıldız"]</span><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div><span class="pct">%82</span></div>
-                        <div class="bar-row"><span class="lab">4 @L["yıldız"]</span><div class="bar-track"><div class="bar-fill" style="width:13%"></div></div><span class="pct">%13</span></div>
-                        <div class="bar-row"><span class="lab">3 @L["yıldız"]</span><div class="bar-track"><div class="bar-fill" style="width:4%"></div></div><span class="pct">%4</span></div>
-                        <div class="bar-row"><span class="lab">2 @L["yıldız"]</span><div class="bar-track"><div class="bar-fill" style="width:1%"></div></div><span class="pct">%1</span></div>
-                        <div class="bar-row"><span class="lab">1 @L["yıldız"]</span><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><span class="pct">%0</span></div>
+                        @for (int s = 5; s >= 1; s--)
+                        {
+                            var pct = ratingSummary.StarPercentages.TryGetValue(s, out var p) ? p : 0;
+                            <div class="bar-row"><span class="lab">@s @L["yıldız"]</span><div class="bar-track"><div class="bar-fill" style="width:@(pct.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div></div><span class="pct">%@pct</span></div>
+                        }
                     </div>
                 </div>
 
@@ -1385,6 +1391,7 @@
                 @foreach (var sim in similarTours)
                 {
                     var simTitle = sim.Title?.Value ?? sim.Title?.ToString();
+                    var simRating = similarRatings.TryGetValue(sim.Id, out var sr) ? sr : null;
                     <div class="col-md-6 col-lg-4">
                         <article class="tour-card">
                             <div class="tour-media">
@@ -1399,7 +1406,14 @@
                                 <h3 class="tour-title">@simTitle</h3>
                                 <div class="tour-meta">
                                     <span>🗓️ @sim.DurationDays @L["Gün"]</span>
-                                    <span><span class="star">★</span> 4.8 <span style="color:var(--muted)">(1.2k)</span></span>
+                                    @if (simRating != null)
+                                    {
+                                        <span><span class="star">★</span> @simRating.AverageRating.ToString("0.0") <span style="color:var(--muted)">(@simRating.TotalReviews)</span></span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--muted)">@L["Henüz yorum yok"]</span>
+                                    }
                                 </div>
                                 <div class="tour-foot">
                                     <div class="price"><small>@L["Kişi başı"]</small><b>@sim.Price.ToString("N0") <span>TL</span></b></div>
@@ -1534,6 +1548,7 @@
               alert(result.message);
               window.location.href = '/Profile/Index';
             } else {
+              if (result.requiresLogin) { alert(result.message); window.location.href = '/Account/Login'; return; }
               alert(result.message || (isEn ? "Failed to create reservation." : "Rezervasyon oluşturulamadı."));
               btnBook.disabled = false;
               btnBook.innerText = isEn ? "Book Now" : "Rezervasyon Yap";
@@ -1611,6 +1626,7 @@
               }
               window.location.reload();
             } else {
+              if (result.requiresLogin) { alert(result.message); window.location.href = '/Account/Login'; return; }
               alert(result.message || (isEn ? "Failed to post review." : "Yorum gönderilemedi."));
               btn.disabled = false;
             }
@@ -1637,6 +1653,7 @@
               document.getElementById("askInput").value = "";
               document.getElementById("askOk").style.display = "block";
             } else {
+              if (result.requiresLogin) { alert(result.message); window.location.href = '/Account/Login'; return; }
               alert(result.message || (isEn ? "Failed to submit question." : "Soru iletilemedi."));
             }
           } catch(e){

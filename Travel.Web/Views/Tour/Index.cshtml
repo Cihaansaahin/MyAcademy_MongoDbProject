@@ -5,6 +5,7 @@
     var destinations = ViewBag.Destinations as List<Travel.Web.DTOs.DestinationDtos.ResultDestinationDto>;
     var categories = ViewBag.Categories as List<Travel.Web.DTOs.CategoryDtos.ResultCategoryDto>;
     var favIds = ViewBag.FavoriteIds as HashSet<string> ?? new HashSet<string>();
+    var tourRatings = ViewBag.TourRatings as Dictionary<string, Travel.Web.DTOs.CommentDtos.TourRatingSummaryDto> ?? new Dictionary<string, Travel.Web.DTOs.CommentDtos.TourRatingSummaryDto>();
 }
 
 @section Styles {
@@ -715,6 +716,7 @@
                                 var catObj = categories?.FirstOrDefault(c => c.Id == t.CategoryId);
                                 var catName = catObj?.Name?.Value ?? L["Tur"].Value;
                                 var badgeText = t.IsPopular ? L["Popüler"].Value : "";
+                                var tr = tourRatings.TryGetValue(t.Id, out var trv) ? trv : null;
                                 <text>{
                                             id: "@t.Id",
                                             title: "@Html.Raw(title.Replace("\"", "\\\""))",
@@ -723,8 +725,8 @@
                                             ctry: "@(t.Country?.ToLower() ?? "")",
                                             dur: @t.DurationDays,
                                             durLabel: `@t.DurationDays @L["Gün"]`,
-                                            rating: 4.9,
-                                            reviews: 1200,
+                                            rating: @((tr?.AverageRating ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture)),
+                                            reviews: @(tr?.TotalReviews ?? 0),
                                             price: @t.Price,
                                             cat: "@(t.CategoryId ?? "")",
                                             catLabel: "@catName",
@@ -930,7 +932,9 @@
                                 <h3 class="tour-title" title="${t.title}">${t.title}</h3>
                                 <div class="tour-meta">
                                     <span>🗓️ ${t.durLabel}</span>
-                                    <span class="rating"><span class="star">★</span> ${t.rating.toFixed(1)} <span style="color:var(--muted);font-weight:400">(${fmt(t.reviews)})</span></span>
+                                    ${t.reviews > 0
+                                        ? `<span class="rating"><span class="star">★</span> ${t.rating.toFixed(1)} <span style="color:var(--muted);font-weight:400">(${fmt(t.reviews)})</span></span>`
+                                        : `<span style="color:var(--muted)">${isEn ? "No reviews yet" : "Henüz yorum yok"}</span>`}
                                 </div>
                                 <div class="tour-foot">
                                     <div class="price"><small>${isEn ? "From" : "Kişi başı"}</small><b>${fmt(t.price)} <span>TL</span></b></div>
