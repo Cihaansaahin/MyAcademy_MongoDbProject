@@ -9,6 +9,9 @@
     var reviews = ViewBag.Reviews as List<Travel.Web.DTOs.CommentDtos.ResultCommentDto> ?? new List<Travel.Web.DTOs.CommentDtos.ResultCommentDto>();
     var tourTitles = ViewBag.TourTitles as Dictionary<string, string> ?? new Dictionary<string, string>();
     var favIds = ViewBag.FavoriteIds as HashSet<string> ?? new HashSet<string>();
+    var banners = (ViewBag.Banners as List<Travel.Web.DTOs.BannerDtos.ResultBannerDto> ?? new List<Travel.Web.DTOs.BannerDtos.ResultBannerDto>())
+        .Where(b => !string.IsNullOrWhiteSpace(b.ImageUrl))
+        .ToList();
 
     int TourCount(string id) => destTourCounts.TryGetValue(id, out var c) ? c : 0;
 
@@ -35,6 +38,54 @@
             color: #fff;
             overflow: hidden;
         }
+
+        /* Banner slider katmanları (admin panelindeki Bannerlar) */
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity .8s ease;
+            z-index: 0;
+        }
+
+            .hero-slide.active {
+                opacity: 1;
+            }
+
+            .hero-slide::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(180deg, rgba(14,42,59,.55) 0%, rgba(14,42,59,.35) 40%, rgba(14,42,59,.72) 100%);
+            }
+
+        .hero-dots {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: .45rem;
+            z-index: 5;
+        }
+
+            .hero-dots button {
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                border: none;
+                background: rgba(255,255,255,.45);
+                padding: 0;
+                transition: .25s;
+            }
+
+                .hero-dots button.active {
+                    background: #fff;
+                    width: 22px;
+                    border-radius: 999px;
+                }
 
         .hero-content {
             padding: 3rem 0 2rem;
@@ -563,19 +614,37 @@
 
 <!-- HERO BANNER ALANI -->
 <header class="hero">
-    <!-- Sağ ve Sol Kaydırma Okları -->
-    <button class="banner-nav-btn banner-nav-prev" type="button" aria-label="Önceki">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6" /></svg>
-    </button>
-    <button class="banner-nav-btn banner-nav-next" type="button" aria-label="Sonraki">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6" /></svg>
-    </button>
+    @if (banners.Any())
+    {
+        @* Admin panelinden eklenen bannerlar: arka plan görselleri sırayla değişir *@
+        for (int i = 0; i < banners.Count; i++)
+        {
+            <div class="hero-slide @(i == 0 ? "active" : "")" style="background-image:url('@banners[i].ImageUrl')"></div>
+        }
+
+        if (banners.Count > 1)
+        {
+            <!-- Sağ ve Sol Kaydırma Okları -->
+            <button class="banner-nav-btn banner-nav-prev" type="button" aria-label="@L["Önceki"]" onclick="heroGo(-1)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6" /></svg>
+            </button>
+            <button class="banner-nav-btn banner-nav-next" type="button" aria-label="@L["Sonraki"]" onclick="heroGo(1)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+            </button>
+            <div class="hero-dots">
+                @for (int i = 0; i < banners.Count; i++)
+                {
+                    <button type="button" class="@(i == 0 ? "active" : "")" aria-label="@(i + 1)" onclick="heroShow(@i)"></button>
+                }
+            </div>
+        }
+    }
 
     <div class="container hero-content">
         <div class="eyebrow mb-2">@L["TRAVELIO İLE KEŞFET"]</div>
-        <h1>@L["Dünyayı Keşfetmeye Hazır Mısın?"]</h1>
-        <p class="lead">
-            @L["Avrupa'nın ikonik şehirlerinden benzersiz rotalara kadar unutulmaz seyahat deneyimleri seni bekliyor."]
+        <h1 id="heroTitle">@(banners.Any() ? banners[0].Title : L["Dünyayı Keşfetmeye Hazır Mısın?"].Value)</h1>
+        <p class="lead" id="heroDesc">
+            @(banners.Any() ? banners[0].Description : L["Avrupa'nın ikonik şehirlerinden benzersiz rotalara kadar unutulmaz seyahat deneyimleri seni bekliyor."].Value)
         </p>
 
         <!-- SEARCH FORM -->
@@ -828,6 +897,29 @@
 
 @section Scripts {
     <script>
+        // ---------- HERO BANNER SLIDER ----------
+        const HERO = @Html.Raw(Json.Serialize(banners.Select(b => new { title = b.Title, desc = b.Description })));
+        let heroIndex = 0, heroTimer = null;
+
+        function heroShow(i) {
+            const slides = document.querySelectorAll(".hero-slide");
+            if (!slides.length) return;
+            heroIndex = (i + slides.length) % slides.length;
+            slides.forEach((s, k) => s.classList.toggle("active", k === heroIndex));
+            document.querySelectorAll(".hero-dots button").forEach((d, k) => d.classList.toggle("active", k === heroIndex));
+            document.getElementById("heroTitle").textContent = HERO[heroIndex].title || "";
+            document.getElementById("heroDesc").textContent = HERO[heroIndex].desc || "";
+            heroRestart();
+        }
+
+        function heroGo(step) { heroShow(heroIndex + step); }
+
+        function heroRestart() {
+            clearInterval(heroTimer);
+            if (HERO.length > 1) heroTimer = setInterval(() => heroGo(1), 6000);
+        }
+        heroRestart();
+
         // Ana sayfa kartlarındaki kalp: Tour/ToggleFavorite ile kalıcı favori
         async function toggleHomeFav(e, id, btn) {
             e.preventDefault();

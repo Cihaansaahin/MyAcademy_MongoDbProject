@@ -2128,4 +2128,10 @@
   <data name="Banner görselini ve metinlerini güncelleyin." xml:space="preserve">
     <value>Update the banner image and texts.</value>
   </data>
+  <data name="Önceki" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Sonraki" xml:space="preserve">
+    <value>Next</value>
+  </data>
 </root>

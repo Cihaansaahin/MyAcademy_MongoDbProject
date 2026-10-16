@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Travel.Web.Helpers;
+using Travel.Web.Services.BannerServices;
 using Travel.Web.Services.CommentServices;
 using Travel.Web.Services.DashboardServices;
 using Travel.Web.Services.DestinationServices;
@@ -17,6 +18,7 @@ namespace Travel.Web.Controllers
         private readonly IUserService _userService;
         private readonly IDashboardService _dashboardService;
         private readonly IFavoriteService _favoriteService;
+        private readonly IBannerService _bannerService;
 
         public HomeController(
             ITourService tourService,
@@ -24,7 +26,8 @@ namespace Travel.Web.Controllers
             ICommentService commentService,
             IUserService userService,
             IDashboardService dashboardService,
-            IFavoriteService favoriteService)
+            IFavoriteService favoriteService,
+            IBannerService bannerService)
         {
             _tourService = tourService;
             _destinationService = destinationService;
@@ -32,6 +35,7 @@ namespace Travel.Web.Controllers
             _userService = userService;
             _dashboardService = dashboardService;
             _favoriteService = favoriteService;
+            _bannerService = bannerService;
         }
 
         public async Task<IActionResult> Index()
@@ -78,7 +82,10 @@ namespace Travel.Web.Controllers
                 .ToList();
             ViewBag.TourTitles = allTours.ToDictionary(x => x.Id, x => x.Title?.Value ?? string.Empty);
 
-            // 5. Kart kalpleri için kullanıcının favorileri
+            // 5. Hero slider: admin panelinden eklenen bannerlar (yoksa varsayılan görsel/metin)
+            ViewBag.Banners = await _bannerService.GetAllAsync();
+
+            // 6. Kart kalpleri için kullanıcının favorileri
             var userId = User.GetUserId();
             ViewBag.FavoriteIds = string.IsNullOrEmpty(userId)
                 ? new HashSet<string>()
