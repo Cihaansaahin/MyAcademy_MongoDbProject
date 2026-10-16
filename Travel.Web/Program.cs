@@ -15,6 +15,7 @@ using Travel.Web.Services.ReportServices;
 using Travel.Web.Services.ReservationServices;
 using Travel.Web.Services.TourServices;
 using Travel.Web.Services.UserServices;
+using Travel.Web.Services.FavoriteServices;
 using Travel.Web.Settings;
 
 
@@ -37,6 +38,7 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 
 builder.Services.AddSingleton<IDataBaseSettings>(sp =>
 {

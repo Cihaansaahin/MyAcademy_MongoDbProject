@@ -5,6 +5,8 @@
     var reservations = ViewBag.Reservations as List<Travel.Web.DTOs.ReservationDtos.ResultReservationDto>;
     var comments = ViewBag.Comments as List<Travel.Web.DTOs.CommentDtos.ResultCommentDto>;
     var questions = ViewBag.Questions as List<Travel.Web.DTOs.QuestionDtos.ResultQuestionDto>;
+    var favoriteTours = ViewBag.FavoriteTours as List<Travel.Web.DTOs.TourDtos.ResultTourDto> ?? new List<Travel.Web.DTOs.TourDtos.ResultTourDto>();
+    var favoriteRatings = ViewBag.FavoriteRatings as Dictionary<string, double> ?? new Dictionary<string, double>();
 
     var upcomingTrips = reservations?.Where(r => r.SelectedTourDate >= DateTime.Now).ToList() ?? new List<Travel.Web.DTOs.ReservationDtos.ResultReservationDto>();
     var completedTrips = reservations?.Where(r => r.SelectedTourDate < DateTime.Now).ToList() ?? new List<Travel.Web.DTOs.ReservationDtos.ResultReservationDto>();
@@ -1034,7 +1036,7 @@
                             <div class="ico">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg>
                             </div>
-                            <div class="num" id="statFavCount">4</div>
+                            <div class="num" id="statFavCount">@favoriteTours.Count</div>
                             <div class="lab">@L["Favori Tur"]</div>
                         </div>
                     </div>
@@ -1442,11 +1444,14 @@
           {id:"ratings", label: isEn ? "My Ratings" : "Değerlendirmelerim", ic:"ratings"}
         ];
 
+        // Case Madde 9: Kullanıcının MongoDB'deki gerçek favorileri
         let FAVORITES = [
-          {title:"Tokyo & Kyoto", country:"Japonya", dur:"8 Gün / 7 Gece", rating:4.8, price:"79.900", img:"https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80"},
-          {title:"İsviçre Alpleri", country:"İsviçre", dur:"7 Gün / 6 Gece", rating:5.0, price:"58.200", img:"https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=800&q=80"},
-          {title:"Kuzey Işıkları Norveç", country:"Norveç", dur:"6 Gün / 5 Gece", rating:4.9, price:"64.900", img:"https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=800&q=80"},
-          {title:"Paris & Alsace", country:"Fransa", dur:"7 Gün / 6 Gece", rating:4.8, price:"47.900", img:"https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=800&q=80"}
+        @foreach (var f in favoriteTours)
+        {
+                var rating = favoriteRatings.TryGetValue(f.Id, out var rv) ? rv : 0;
+                var img = string.IsNullOrEmpty(f.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : f.CoverImageUrl;
+                <text>{ id: "@f.Id", title: @Html.Raw(Json.Serialize(f.Title?.Value ?? "")), country: @Html.Raw(Json.Serialize($"{f.City}, {f.Country}")), dur: @Html.Raw(Json.Serialize($"{f.DurationDays} {L["Gün"].Value}")), rating: @rating.ToString(System.Globalization.CultureInfo.InvariantCulture), price: @Html.Raw(Json.Serialize(f.Price.ToString("N0"))), img: @Html.Raw(Json.Serialize(img)) },</text>
+        }
         ];
 
         let RATINGS = [
@@ -1527,20 +1532,34 @@
                 <div class="tour-body">
                   <div class="tour-country">${t.country}</div>
                   <h3 class="tour-title">${t.title}</h3>
-                  <div class="tour-meta"><span>🗓️ ${t.dur}</span><span><span style="color:#f4a92c">★</span> ${t.rating.toFixed(1)}</span></div>
+                  <div class="tour-meta"><span>🗓️ ${t.dur}</span>${t.rating > 0 ? `<span><span style="color:#f4a92c">★</span> ${t.rating.toFixed(1)}</span>` : ''}</div>
                   <div class="tour-foot">
                     <div class="price"><small>${isEn ? "Per person" : "Kişi başı"}</small><b>${t.price} <span>TL</span></b></div>
-                    <a href="/Tour/Index" class="btn-incele">${isEn ? "View Tour" : "Turu İncele"}</a>
+                    <a href="/Tour/Detail/${t.id}" class="btn-incele">${isEn ? "View Tour" : "Turu İncele"}</a>
                   </div>
                 </div>
               </article>
             </div>`).join("");
         }
 
-        function removeFav(i){
-          FAVORITES.splice(i,1);
-          renderFavorites();
-          toast(isEn ? "Removed from favorites." : "Favorilerden kaldırıldı.");
+        async function removeFav(i){
+          const tour = FAVORITES[i];
+          if(!tour) return;
+          try {
+            const response = await fetch('/Tour/ToggleFavorite', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: 'tourId=' + encodeURIComponent(tour.id)
+            });
+            const result = await response.json();
+            if(result.success && !result.isFavorite){
+              FAVORITES.splice(i,1);
+              renderFavorites();
+              toast(isEn ? "Removed from favorites." : "Favorilerden kaldırıldı.");
+            }
+          } catch(e){
+            console.error(e);
+          }
         }
 
         let pendingDelId = null;

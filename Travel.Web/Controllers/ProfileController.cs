@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using System.Security.Claims;
+using Travel.Web.DTOs.TourDtos;
+using Travel.Web.Services.FavoriteServices;
+using Travel.Web.Services.TourServices;
 using Travel.Web.Services.CommentServices;
 using Travel.Web.Services.QuestionServices;
 using Travel.Web.Services.ReservationServices;
@@ -12,17 +16,23 @@ namespace Travel.Web.Controllers
         private readonly ICommentService _commentService;
         private readonly IQuestionService _questionService;
         private readonly IStringLocalizer<SharedResource> _L;
+        private readonly IFavoriteService _favoriteService;
+        private readonly ITourService _tourService;
 
         public ProfileController(
             IReservationService reservationService,
             ICommentService commentService,
             IQuestionService questionService,
-            IStringLocalizer<SharedResource> localizer)
+            IStringLocalizer<SharedResource> localizer,
+            IFavoriteService favoriteService,
+            ITourService tourService)
         {
             _reservationService = reservationService;
             _commentService = commentService;
             _questionService = questionService;
             _L = localizer;
+            _favoriteService = favoriteService;
+            _tourService = tourService;
         }
 
         public async Task<IActionResult> Index()
@@ -58,6 +68,28 @@ namespace Travel.Web.Controllers
             ViewBag.Reservations = userReservations;
             ViewBag.Comments = userComments;
             ViewBag.Questions = userQuestions;
+
+            // Case Madde 9 & 11: Favori Turlarım (MongoDB Favorites koleksiyonundan)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var favoriteTours = new List<ResultTourDto>();
+            var favoriteRatings = new Dictionary<string, double>();
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var favoriteIds = await _favoriteService.GetTourIdsByUserAsync(userId);
+                foreach (var tourId in favoriteIds)
+                {
+                    var tour = await _tourService.GetByIdAsync(tourId);
+                    if (tour == null) continue; // Silinmiş tur favoride kalmışsa atla
+
+                    favoriteTours.Add(tour);
+                    var summary = await _commentService.GetTourRatingSummaryAsync(tourId);
+                    favoriteRatings[tourId] = summary.AverageRating;
+                }
+            }
+
+            ViewBag.FavoriteTours = favoriteTours;
+            ViewBag.FavoriteRatings = favoriteRatings;
 
             ViewBag.UserName = userName ?? "Gezgin Kullanıcı";
             ViewBag.UserEmail = userEmail;

@@ -2020,4 +2020,13 @@
   <data name="E-posta veya şifre hatalı." xml:space="preserve">
     <value>Incorrect email or password.</value>
   </data>
+  <data name="Favorilere eklemek için lütfen giriş yapın." xml:space="preserve">
+    <value>Please sign in to add favorites.</value>
+  </data>
+  <data name="Tur favorilere eklendi." xml:space="preserve">
+    <value>Tour added to favorites.</value>
+  </data>
+  <data name="Tur favorilerden çıkarıldı." xml:space="preserve">
+    <value>Tour removed from favorites.</value>
+  </data>
 </root>

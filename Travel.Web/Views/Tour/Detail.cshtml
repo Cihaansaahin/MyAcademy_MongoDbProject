@@ -6,6 +6,7 @@
     var comments = ViewBag.Comments as List<Travel.Web.DTOs.CommentDtos.ResultCommentDto>;
     var questions = ViewBag.Questions as List<Travel.Web.DTOs.QuestionDtos.ResultQuestionDto>;
     var similarTours = ViewBag.SimilarTours as List<Travel.Web.DTOs.TourDtos.ResultTourDto>;
+    var isFavorite = ViewBag.IsFavorite is bool fav && fav;
 
     // Galeri görselleri ayrıştırma
     var mainImage = !string.IsNullOrEmpty(Model.CoverImageUrl)
@@ -1030,7 +1031,7 @@
                 </div>
             </div>
             <div class="head-actions">
-                <button class="icon-btn" id="favBtn" onclick="this.classList.toggle('on')">
+                <button class="icon-btn @(isFavorite ? "on" : "")" id="favBtn" onclick="toggleFavorite()">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg>
                     @L["Kaydet"]
                 </button>
@@ -1542,6 +1543,34 @@
             alert(isEn ? "A connection error occurred." : "Bir bağlantı hatası oluştu.");
             btnBook.disabled = false;
             btnBook.innerText = isEn ? "Book Now" : "Rezervasyon Yap";
+          }
+        }
+
+        // FAVORİ (Kaydet butonu)
+        async function toggleFavorite(){
+          const btn = document.getElementById("favBtn");
+          btn.disabled = true;
+          try {
+            const response = await fetch('/Tour/ToggleFavorite', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: 'tourId=' + encodeURIComponent(tourId)
+            });
+            const result = await response.json();
+            if (result.requiresLogin) {
+              alert(result.message);
+              window.location.href = '/Account/Login';
+              return;
+            }
+            if (result.success) {
+              btn.classList.toggle("on", result.isFavorite);
+            } else {
+              alert(result.message);
+            }
+          } catch (e) {
+            console.error(e);
+          } finally {
+            btn.disabled = false;
           }
         }
 

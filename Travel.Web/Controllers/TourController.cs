@@ -11,6 +11,8 @@ using Travel.Web.Services.ReservationServices;
 using Travel.Web.Services.TourServices;
 using Travel.Web.Validations;
 using Microsoft.Extensions.Localization;
+using System.Security.Claims;
+using Travel.Web.Services.FavoriteServices;
 
 namespace Travel.Web.Controllers
 {
@@ -28,6 +30,7 @@ namespace Travel.Web.Controllers
         private readonly IValidator<CreateQuestionDto> _questionValidator;
 
         private readonly IStringLocalizer<SharedResource> _L;
+        private readonly IFavoriteService _favoriteService;
 
         public TourController(
             ITourService tourService,
@@ -40,7 +43,8 @@ namespace Travel.Web.Controllers
             IValidator<CreateReservationDto> reservationValidator,
             IValidator<CreateCommentDto> commentValidator,
             IValidator<CreateQuestionDto> questionValidator,
-            IStringLocalizer<SharedResource> localizer)
+            IStringLocalizer<SharedResource> localizer,
+            IFavoriteService favoriteService)
         {
             _tourService = tourService;
             _destinationService = destinationService;
@@ -54,6 +58,7 @@ namespace Travel.Web.Controllers
             _questionValidator = questionValidator;
 
             _L = localizer;
+            _favoriteService = favoriteService;
         }
 
         public async Task<IActionResult> Index(string? search, string? destinationId, string? categoryId, decimal? minPrice, decimal? maxPrice, string? sort)
@@ -95,6 +100,12 @@ namespace Travel.Web.Controllers
             ViewBag.CurrentSearch = search;
             ViewBag.CurrentSort = sort;
 
+            // Kartlardaki kalp ikonları için kullanıcının favori tur Id'leri
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewBag.FavoriteIds = string.IsNullOrEmpty(userId)
+                ? new HashSet<string>()
+                : (await _favoriteService.GetTourIdsByUserAsync(userId)).ToHashSet();
+
             return View(tours);
         }
 
@@ -121,7 +132,36 @@ namespace Travel.Web.Controllers
             ViewBag.Questions = questions;
             ViewBag.SimilarTours = similarTours;
 
+            // "Kaydet" butonunun başlangıç durumu
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewBag.IsFavorite = !string.IsNullOrEmpty(userId) && await _favoriteService.IsFavoriteAsync(userId, id);
+
             return View(tour);
+        }
+
+        // Favorilere ekle / çıkar (AJAX)
+        [HttpPost]
+        public async Task<IActionResult> ToggleFavorite(string tourId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Json(new { success = false, requiresLogin = true, message = _L["Favorilere eklemek için lütfen giriş yapın."].Value });
+            }
+
+            if (string.IsNullOrWhiteSpace(tourId) || await _tourService.GetByIdAsync(tourId) == null)
+            {
+                return Json(new { success = false, message = _L["Geçersiz istek."].Value });
+            }
+
+            var isFavorite = await _favoriteService.ToggleAsync(userId, tourId);
+
+            return Json(new
+            {
+                success = true,
+                isFavorite,
+                message = isFavorite ? _L["Tur favorilere eklendi."].Value : _L["Tur favorilerden çıkarıldı."].Value
+            });
         }
 
         [HttpPost]
@@ -168,7 +208,7 @@ namespace Travel.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AddComment([FromBody] CreateCommentDto dto)
         {
-            // YENİ: Eski "Content boş mu" kontrolü yerine null kontrolü + validator
+           
             if (dto == null)
             {
                 return Json(new { success = false, message = _L["Geçersiz istek."].Value });

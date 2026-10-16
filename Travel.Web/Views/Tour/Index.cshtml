@@ -4,6 +4,7 @@
     ViewData["Title"] = L["Turlar"].Value;
     var destinations = ViewBag.Destinations as List<Travel.Web.DTOs.DestinationDtos.ResultDestinationDto>;
     var categories = ViewBag.Categories as List<Travel.Web.DTOs.CategoryDtos.ResultCategoryDto>;
+    var favIds = ViewBag.FavoriteIds as HashSet<string> ?? new HashSet<string>();
 }
 
 @section Styles {
@@ -728,6 +729,7 @@
                                             cat: "@(t.CategoryId ?? "")",
                                             catLabel: "@catName",
                                             badge: "@badgeText",
+                                            fav: @(favIds.Contains(t.Id) ? "true" : "false"),
                                             img: "@(string.IsNullOrEmpty(t.CoverImageUrl) ? "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" : t.CoverImageUrl)"
                                         },</text>
                             }
@@ -916,7 +918,7 @@
                             <div class="tour-media">
                                 <img src="${t.img}" alt="${t.title}" loading="lazy" />
                                 ${t.badge ? `<span class="tour-badge">${t.badge}</span>` : ''}
-                                <button class="fav" aria-label="Favorilere ekle" onclick="this.classList.toggle('on')">
+                                <button class="fav ${t.fav ? 'on' : ''}" aria-label="Favorilere ekle" onclick="toggleFav(event, '${t.id}', this)">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
                                 </button>
                             </div>
@@ -1010,6 +1012,32 @@
                     state.sort = "onerilen";
                     document.getElementById("sortSelect").value = "onerilen";
                     syncState(); render();
+                }
+
+                /* ---------- FAVORİ ---------- */
+                async function toggleFav(e, id, btn){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    try {
+                        const response = await fetch('/Tour/ToggleFavorite', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: 'tourId=' + encodeURIComponent(id)
+                        });
+                        const result = await response.json();
+                        if (result.requiresLogin) {
+                            alert(result.message);
+                            window.location.href = '/Account/Login';
+                            return;
+                        }
+                        if (result.success) {
+                            btn.classList.toggle('on', result.isFavorite);
+                            const tour = TOURS.find(x => x.id === id);
+                            if (tour) tour.fav = result.isFavorite; // filtre/sıralama sonrası da korunsun
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
                 }
 
                 // Başlangıç çalıştırması
