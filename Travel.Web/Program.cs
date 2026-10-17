@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
@@ -79,6 +80,12 @@ builder.Services.AddControllersWithViews()
 // ==========================================
 // 2. UYGULAMANIN DERLENMESİ
 // ==========================================
+
+// Cookie şifreleme anahtarlarını diske kaydet (sunucu yeniden başlayınca oturumlar düşmesin)
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "keys")))
+    .SetApplicationName("Travelio");
+
 var app = builder.Build();
 
 // Uygulama açılırken: Users koleksiyonuna unique index + admin hesabı yoksa oluştur

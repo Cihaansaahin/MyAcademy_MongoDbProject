@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Canlı ortam şifreleri ve oturum anahtarları
+appsettings.Production.json
+keys/
